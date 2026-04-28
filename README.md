@@ -1,5 +1,7 @@
 # ai-driven-newsletter
 
+**Read it here:** [https://mpallone.github.io/ai-driven-newsletter/](https://mpallone.github.io/ai-driven-newsletter/)
+
 Daily AI-tools digest, published as a static HTML page.
 
 The skill that generates the digest lives at
