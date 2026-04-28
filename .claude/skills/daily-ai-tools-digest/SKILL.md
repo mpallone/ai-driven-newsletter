@@ -16,11 +16,12 @@ years and do not want to.
 Look for the most recent newsletter, and search based on that window. If
 there is no previous newsletter, look in the past week.
 
-The most recent newsletter is the existing `index.html` at the repo root (or
-the newest file under `archive/` if `index.html` is missing). Read its
-publication date from the `<h1>`/subject line or the filename. The window
-runs from that timestamp to now. On a fresh repo with no prior newsletter,
-use the last 7 days.
+The most recent newsletter is the existing `index.html` at the repo root
+(or the newest file under `archive/` if `index.html` is missing). Read its
+publication timestamp from the `<meta name="published">` tag in `<head>`,
+falling back to the `<h1>`/title and then to the file's last-modified
+time. The window runs from that timestamp to now. On a fresh repo with no
+prior newsletter, use the last 7 days.
 
 ## Discovery: seed list + fresh search
 
@@ -225,21 +226,34 @@ Invalid (skip):
 Publish the digest as a static HTML page in this repo.
 
 1. **Archive the existing page.** If `index.html` exists at the repo root,
-   move it to `archive/<YYYY-MM-DD>.html`, where the date is the publication
-   date of that page (read from its `<h1>`/title). If the date can't be
-   parsed, fall back to the file's last-modified date. Create `archive/` if
-   it doesn't exist. If `archive/<YYYY-MM-DD>.html` already exists (same-day
-   re-run), overwrite it.
-2. **Write the new digest to `index.html`** at the repo root. Use today's
-   date in the `<h1>` and in the `<title>`.
+   move it to `archive/<YYYY-MM-DDTHH-MM-SS>.html`. The timestamp is UTC,
+   ISO 8601 with `-` substituted for `:`, no timezone suffix. Read it from
+   the `<meta name="published">` tag in the existing page; if that's
+   missing, fall back to the page's `<h1>`/title; if that lacks
+   hour/minute/second precision, fall back to the file's last-modified
+   time (rendered with full second precision). Create `archive/` if it
+   doesn't exist.
+
+   **Never overwrite a file in `archive/`.** If
+   `archive/<YYYY-MM-DDTHH-MM-SS>.html` already exists, append `-2`,
+   `-3`, … to the basename until the path is free. Second-precision
+   timestamps make this vanishingly rare, but the rule is absolute.
+2. **Write the new digest to `index.html`** at the repo root, overwriting
+   the (now-empty) slot. Use today's UTC timestamp in the `<h1>`, the
+   `<title>`, and the `<meta name="published">` tag so the next run can
+   archive this page accurately.
 3. **Update the archive index.** Regenerate `archive/index.html` as a
    reverse-chronological list of every file in `archive/` (excluding
-   `index.html` itself), each rendered as `<a href="YYYY-MM-DD.html">YYYY-MM-DD</a>`.
+   `archive/index.html` itself), each rendered as
+   `<a href="YYYY-MM-DDTHH-MM-SS.html">YYYY-MM-DD HH:MM UTC</a>`.
+   `archive/index.html` is the one file inside `archive/` that DOES get
+   regenerated each run — every other file there is immutable.
 4. **Link to the archive from the new page.** Include a small "Archive"
    link in the header or footer of `index.html` pointing to `archive/`.
 5. **Commit and push.** Stage `index.html`, the moved archive file, and
-   `archive/index.html`. Commit with message `digest: YYYY-MM-DD (N items)`
-   and push to the branch the routine runs on.
+   `archive/index.html`. Commit with message
+   `digest: YYYY-MM-DDTHH-MM-SS (N items)` and push to the branch the
+   routine runs on.
 
 Do not call any Gmail connector. Do not send mail. Do not write outside this
 repo.
@@ -255,6 +269,9 @@ repo.
 - A small inline `<style>` block in `<head>` for readable typography (max
   width, line height, link color) is fine — this is a static page, not an
   email, so the Gmail-stripping concerns don't apply.
+- Embed the publication timestamp as
+  `<meta name="published" content="YYYY-MM-DDTHH:MM:SSZ">` in `<head>`.
+  The next run reads this when archiving the page.
 - Every URL in the output MUST be a clickable `<a href="URL">label</a>`.
   This applies to the Link field of every item, every URL under Candidate
   sources, every URL in Inaccessible links, and every URL anywhere else.
