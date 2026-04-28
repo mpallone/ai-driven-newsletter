@@ -252,8 +252,9 @@ Publish the digest as a static HTML page in this repo.
    link in the header or footer of `index.html` pointing to `archive/`.
 5. **Commit and push.** Stage `index.html`, the moved archive file, and
    `archive/index.html`. Commit with message
-   `digest: YYYY-MM-DDTHH-MM-SS (N items)` and push to the branch the
-   routine runs on.
+   `digest: YYYY-MM-DDTHH-MM-SS (N items)` and push **directly to `main`**.
+   No feature branch, no pull request — commit on `main` and `git push
+   origin main`. This is explicitly authorized for this skill.
 
 Do not call any Gmail connector. Do not send mail. Do not write outside this
 repo.
