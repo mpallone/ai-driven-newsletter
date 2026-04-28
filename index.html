@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="published" content="2026-04-28T21:34:15Z">
-  <title>AI Tools Digest — 2026-04-28, 10 items</title>
+  <meta name="published" content="2026-04-28T22:10:47Z">
+  <title>AI Tools Digest — 2026-04-28, 0 items</title>
   <style>
     body {
       max-width: 800px;
@@ -33,145 +33,22 @@
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-04-28, 10 items</h1>
+<h1>AI Tools Digest — 2026-04-28, 0 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: April 21–28, 2026 (first run — no prior newsletter, using last 7 days).</p>
+<p class="window-note">Window: 2026-04-28T21:34:15Z – 2026-04-28T22:10:47Z (36 minutes since last run — empty day).</p>
 
-<!-- ══════════════════════════════════════════════════════════════ -->
-<h2>Claude Code — quality issues and new releases (April 23–28)</h2>
-<p>Anthropic published a postmortem on six weeks of quality regressions and shipped four versions (v2.1.118–2.1.121) with significant hook, MCP, and skill improvements.</p>
+<p>Nothing qualifying in this window. The previous digest ran 36 minutes ago; no seed source published anything new in that interval that passed the evidence bar.</p>
 
-<h3>Three Anthropic product changes silently degraded Claude Code for six weeks</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic engineering blog</li>
-  <li><strong>Link:</strong> <a href="https://www.anthropic.com/engineering/april-23-postmortem">An update on recent Claude Code quality reports — Anthropic Engineering</a></li>
-  <li><strong>TL;DR:</strong> Three separate changes compounded between March 4 and April 20 to make Claude Code noticeably worse: (1) On March 4, Anthropic dropped the default reasoning effort from <code>high</code> to <code>medium</code> to cut latency — the wrong tradeoff. (2) On March 26, a caching update shipped with a bug that wiped session thinking every turn instead of just once, making the model seem forgetful and draining usage quotas faster than expected. (3) On April 16, a system-prompt instruction capping responses at 25 words between tool calls was added; combined with other prompt changes it hurt coding quality and was reverted April 20. All three issues are fixed as of v2.1.116. Anthropic reset usage limits for all affected subscribers and now defaults Opus 4.7 to <code>xhigh</code> reasoning effort and all other models to <code>high</code>.</li>
-  <li><strong>What to do:</strong> Upgrade to v2.1.116 or later if you're still on an older pin; if your sessions felt forgetful or unusually brief between early March and late April, this was the cause — not the model getting worse.</li>
-  <li><strong>Why trust it:</strong> First-party Anthropic engineering postmortem with specific dates, version numbers, and descriptions of each change; no independent measurement of impact, but the disclosing team shipped the changes.</li>
-  <li><strong>Skeptic check:</strong> Anthropic does not quantify what fraction of users were affected or by how much, so severity is self-reported.</li>
-</ul>
-
-<h3>PostToolUse hooks can now rewrite any tool's output, not just MCP tools</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.121 (April 28, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.121">Claude Code v2.1.121 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> The <code>hookSpecificOutput.updatedToolOutput</code> field in <code>PostToolUse</code> hooks previously only replaced output from MCP tools. As of v2.1.121, it works for all tools — Bash, Write, Read, Glob, and other built-ins — so a hook can intercept and replace whatever a tool returned before Claude sees it.</li>
-  <li><strong>What to do:</strong> Use <code>PostToolUse</code> hooks to inject guardrails, sanitize output, or append context after any built-in tool call, not just MCP calls.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>Hooks can now call MCP tools directly without a shell intermediary</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.118 (April 23, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.118">Claude Code v2.1.118 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Hook configs now support <code>type: "mcp_tool"</code>, which calls a named tool on an already-connected MCP server directly — no shell subprocess, no extra process spawn. Previously, triggering an MCP tool from a hook required a shell script that itself called the MCP server.</li>
-  <li><strong>What to do:</strong> Replace <code>PostToolUse</code> shell-script workarounds that proxy into MCP servers with <code>type: "mcp_tool"</code> entries for simpler, faster hook configs.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3><code>alwaysLoad</code> MCP config option bypasses tool-search deferral per server</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.121 (April 28, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.121">Claude Code v2.1.121 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Claude Code's tool-search system defers loading MCP tool definitions until Claude asks for them, reducing upfront context use. The new <code>alwaysLoad: true</code> per-server config option opts a specific MCP server out of this deferral, so all its tools are immediately in context without a discovery step.</li>
-  <li><strong>What to do:</strong> Add <code>alwaysLoad: true</code> to MCP servers whose tools your agent needs on every turn; leave others deferred to save context tokens.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> The ~85% context-token reduction claimed for tool-search deferral is Anthropic's own figure, not independently verified.</li>
-</ul>
-
-<h3><code>claude ultrareview</code> runs a multi-agent code review from CI without an interactive session</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.120 (April 28, 2026) + <a href="https://code.claude.com/docs/en/ultrareview">ultrareview docs</a></li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.120">Claude Code v2.1.120 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> The new <code>claude ultrareview [target]</code> subcommand packages the repo, ships it to a cloud sandbox, runs a fleet of reviewer agents in parallel (each from a different angle: application logic, edge cases, security, performance), then exits with code 0 on success or 1 on failure — no interactive session required. Without arguments it reviews the diff from the current branch against the default branch. Each run typically costs $5–20 depending on repo size; Pro and Max subscribers get three free runs expiring May 5, 2026.</li>
-  <li><strong>What to do:</strong> Wire <code>claude ultrareview</code> into a CI step for pre-merge checks and use your three free runs before May 5 to calibrate cost-per-review for your codebase.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog and docs.</li>
-  <li><strong>Skeptic check:</strong> Review quality is not benchmarked against human code review or other automated tools in any published comparison.</li>
-</ul>
-
-<h3><code>/config</code> settings now persist to <code>settings.json</code> across restarts</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.119 (April 23, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.119">Claude Code v2.1.119 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Theme, editor mode, verbose, and other <code>/config</code> settings previously reset each session. As of v2.1.119, they write to <code>~/.claude/settings.json</code> and survive restarts.</li>
-  <li><strong>What to do:</strong> Run <code>/config</code> once to set your preferred defaults; they'll stick.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>Skills can now branch on the current reasoning effort level via <code>${CLAUDE_EFFORT}</code></h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.120 (April 28, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.120">Claude Code v2.1.120 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Skill frontmatter can now reference <code>${CLAUDE_EFFORT}</code>, which expands to the current effort setting (<code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code>), so a skill's instructions can adapt — for example, skipping expensive searches when effort is low.</li>
-  <li><strong>What to do:</strong> Update skills that run expensive analysis steps to gate those steps on <code>${CLAUDE_EFFORT}</code> being above a threshold.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>PostToolUse hooks now receive tool execution time as <code>duration_ms</code></h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.119 (April 23, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.119">Claude Code v2.1.119 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> <code>PostToolUse</code> and <code>PostToolUseFailure</code> hook inputs now include a <code>duration_ms</code> field with actual wall-clock tool execution time, excluding permission prompts and pre-tool hook overhead.</li>
-  <li><strong>What to do:</strong> Log or alert on <code>duration_ms</code> in <code>PostToolUse</code> to identify which tools are bottlenecking your agent sessions.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3><code>--from-pr</code> now accepts GitLab, Bitbucket, and GitHub Enterprise URLs</h3>
-<ul>
-  <li><strong>Source:</strong> Claude Code changelog, v2.1.119 (April 23, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.119">Claude Code v2.1.119 release notes — GitHub</a></li>
-  <li><strong>TL;DR:</strong> <code>--from-pr</code> previously only worked with github.com URLs. As of v2.1.119, it accepts GitLab merge-request, Bitbucket pull-request, and GitHub Enterprise URLs.</li>
-  <li><strong>What to do:</strong> Teams on GitLab, Bitbucket, or GitHub Enterprise can now use <code>--from-pr</code> to load pull-request context directly into Claude Code.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic changelog entry.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<!-- ══════════════════════════════════════════════════════════════ -->
-<h2>Model quality</h2>
-<p>Opus 4.7 gains coding and vision quality but shows a sharp drop on one long-context retrieval benchmark — Anthropic disputes the benchmark's real-world validity.</p>
-
-<h3>Opus 4.7 scores 46 points lower than Opus 4.6 on MRCR long-context retrieval (disputed by Anthropic)</h3>
-<ul>
-  <li><strong>Source:</strong> Vellum AI benchmarks analysis (third-party); Anthropic response widely reported</li>
-  <li><strong>Link:</strong> <a href="https://www.vellum.ai/blog/claude-opus-4-7-benchmarks-explained">Claude Opus 4.7 Benchmarks Explained — Vellum AI</a></li>
-  <li><strong>TL;DR:</strong> On MRCR v2 at 1M tokens, Opus 4.7 scores 32.2% versus 78.3% for Opus 4.6 — a 46-point drop. At 256k tokens with an 8-needle retrieval task the drop is 91.9% → 59.2%. Anthropic's position: MRCR stacks distractors in unrealistic ways and the model improves on their preferred GraphWalks benchmark. Separately, Opus 4.7 ships a tokenizer change that increases effective API cost. Coding and vision quality go up; long-document retrieval accuracy goes down on at least one independent measurement.</li>
-  <li><strong>What to do:</strong> If your agent finds specific facts inside very long documents, test Opus 4.7 against your actual data before upgrading from 4.6; for coding-heavy or vision tasks, the upgrade is straightforward at the same list price.</li>
-  <li><strong>Why trust it:</strong> Numbers are independently reported across multiple third-party benchmark analyses, and Anthropic acknowledges the MRCR drop while disputing its relevance; no published independent replication of GraphWalks results.</li>
-  <li><strong>Skeptic check:</strong> Anthropic is the party most motivated to contest MRCR's validity here; wait for independent long-context benchmark results on GraphWalks before concluding the regression does or does not matter in practice.</li>
-</ul>
-
-<!-- ══════════════════════════════════════════════════════════════ -->
-<h2>Meta</h2>
-
-<h3>Candidate sources</h3>
-<ul>
-  <li><strong><a href="https://www.vellum.ai/blog">Vellum AI blog</a></strong> — surfaced while searching for Opus 4.7 benchmark analysis. Vellum appears to run their own independent multi-model benchmark suite and publish the results on release day for new models. Track record: unknown beyond this run, needs observation.</li>
-</ul>
-
-<h3>Prompt friction</h3>
-<ul>
-  <li>Five seed-list sources — <code>anthropic.com</code>, <code>simonwillison.net</code>, <code>latent.space</code>, <code>cursor.com</code>, <code>news.ycombinator.com</code> — return 403 on direct fetch, so all coverage from them relies on web-search snippets. Items that don't surface prominently in search results but would pass the inclusion bar are probably being missed. Consider adding a fallback to RSS/Atom feeds (where available) as primary access paths for these sources.</li>
-</ul>
-
-<!-- ══════════════════════════════════════════════════════════════ -->
 <div class="meta">
-  <p><strong>Sources used today:</strong> Anthropic engineering blog, Claude Code GitHub releases (anthropics/claude-code), Claude Code official changelog (code.claude.com), Vellum AI, Latent Space (latent.space), Simon Willison (simonwillison.net — via search snippets), releasebot.io, and various search aggregators for discovery.</p>
+  <p><strong>Sources checked today:</strong> Claude Code GitHub releases (no new release after <code>v2.1.121</code>), Claude Platform release notes (latest entry April 24), Gemini CLI GitHub releases (latest on April 28 was <code>v0.40.0</code> at 20:25 UTC, before the window), OpenAI Codex GitHub releases (latest alpha pre-releases at 11:50 and 16:08 UTC, both before the window), Cursor changelog (403), Simon Willison's weblog, Anthropic engineering blog, Anthropic news, Windsurf changelog, Hacker News, r/ClaudeCode.</p>
 
-  <p><strong>Skipped:</strong> 3 funding/partnership posts; 4 leaderboard or benchmark-win announcements without methodology content; 2 opinion takes without evidence. Additionally outside the April 21–28 window: Cursor 3.0 (Apr 2), Anthropic OpenClaw ban (Apr 4), Cursor Bugbot self-improvement (Apr 8), Cursor CLI improvements (Apr 14), OpenAI Codex "for almost everything" (Apr 16), Claude Design launch (Apr 17), AGENTS.md efficiency research (Jan 2026), Nathan Lambert "use multiple models" (Jan 2026), Latent Space "Extreme Harness Engineering" (Apr 7), Latent Space "Externalization in LLM Agents" arxiv paper (submitted Apr 9).</p>
+  <p><strong>Skipped:</strong> 0 funding posts, 0 leaderboard updates, 0 hype takes. Several items that surfaced in search — Cursor SDK announcement (April 28, exact time unknown), Amazon Bedrock AgentCore CLI (April 22), Gemini CLI v0.40.0 (April 28, 20:25 UTC), MCP design RCE disclosure (April 15–20), Simon Willison "talkie" post (April 28, practitioner-irrelevant) — all pre-date the window or could not be time-confirmed as within it.</p>
 
-  <p><strong>Coverage gaps:</strong> Direct fetch blocked (403) for anthropic.com, simonwillison.net, latent.space, cursor.com, news.ycombinator.com, and arxiv.org paper pages. RSS/Atom feeds were not attempted on this run — a likely improvement for future runs.</p>
+  <p><strong>Coverage gaps:</strong> Direct fetch blocked (403) for cursor.com/changelog, releasebot.io, simonwillison.net/atom (RSS feed), anthropic.com, latent.space, and news.ycombinator.com. Cursor SDK publication time could not be verified; if it was published after 21:34 UTC it would be a candidate for the next run.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://www.anthropic.com/engineering/april-23-postmortem">anthropic.com/engineering/april-23-postmortem</a> — 403 — wanted to confirm exact wording of all three changes and any explicit user recommendations Anthropic made in the postmortem.</li>
-    <li><a href="https://www.latent.space/p/ainews-tasteful-tokenmaxxing">latent.space/p/ainews-tasteful-tokenmaxxing</a> — 403 — wanted to verify the Shopify CTO tokenmaxxing claim and whether it met the evidence bar for inclusion.</li>
-    <li><a href="https://www.latent.space/p/harness-eng">latent.space/p/harness-eng</a> — 403 — wanted to confirm token volume figures and specific workflow recommendations from the OpenAI Frontier team piece on extreme harness engineering.</li>
-    <li><a href="https://cursor.com/changelog/3-0">cursor.com/changelog/3-0</a> — 403 — wanted to verify exact Cursor 3.0 features for parallel-agent and worktree support (article pre-dates the window but was surfaced in discovery).</li>
+    <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to confirm the exact UTC timestamp and SDK details for the April 28 Cursor SDK announcement to verify whether it falls inside this window.</li>
   </ul>
 </div>
 
