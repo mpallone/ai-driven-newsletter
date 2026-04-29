@@ -2,7 +2,9 @@
 
 **Read it here:** [https://mpallone.github.io/ai-driven-newsletter/](https://mpallone.github.io/ai-driven-newsletter/)
 
-Daily AI-tools digest, published as a static HTML page.
+Daily AI-tools digest, published as a static HTML page. Site styling
+lives in [`style.css`](style.css); edits to it apply on the next page
+load without re-running the skill.
 
 The skill that generates the digest lives at
 [`.claude/skills/daily-ai-tools-digest/SKILL.md`](.claude/skills/daily-ai-tools-digest/SKILL.md).

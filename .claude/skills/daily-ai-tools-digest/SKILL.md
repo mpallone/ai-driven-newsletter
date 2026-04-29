@@ -23,6 +23,9 @@ falling back to the `<h1>`/title and then to the file's last-modified
 time. The window runs from that timestamp to now. On a fresh repo with no
 prior newsletter, use the last 7 days.
 
+Use a minimum window of 24 hours. If the most recent newsletter is less
+than 24 hours old, still search the trailing 24 hours from now.
+
 ## Discovery: seed list + fresh search
 
 Each run, walk the seed list AND search online for items the seeds didn't
@@ -238,6 +241,11 @@ Publish the digest as a static HTML page in this repo.
    `archive/<YYYY-MM-DDTHH-MM-SS>.html` already exists, append `-2`,
    `-3`, … to the basename until the path is free. Second-precision
    timestamps make this vanishingly rare, but the rule is absolute.
+
+   When archiving, **do not modify the file's contents** — leave any
+   inline `<style>` block or `style="..."` attribute exactly as it was.
+   The stylesheet rule applies only to pages this run is generating,
+   not to historical pages.
 2. **Write the new digest to `index.html`** at the repo root, overwriting
    the (now-empty) slot. Use today's UTC timestamp in the `<h1>`, the
    `<title>`, and the `<meta name="published">` tag so the next run can
@@ -267,9 +275,15 @@ repo.
   bold field labels (Source, Link, TL;DR, etc.).
 - Wrap each item's fields in a `<ul>` so they render as a proper bulleted
   list, not a wall of `<br>` tags.
-- A small inline `<style>` block in `<head>` for readable typography (max
-  width, line height, link color) is fine — this is a static page, not an
-  email, so the Gmail-stripping concerns don't apply.
+- Include `<meta name="viewport" content="width=device-width, initial-scale=1">`
+  in `<head>` so the page renders correctly on phones.
+- Link the shared stylesheet from `<head>`. From the new `index.html`,
+  use `<link rel="stylesheet" href="/style.css">`. From
+  `archive/index.html` and any newly archived page, use
+  `<link rel="stylesheet" href="../style.css">`.
+- Do not emit `<style>` blocks or inline `style="..."` attributes in
+  generated HTML. All visual styling lives in `style.css`; if a visual
+  change is needed, edit `style.css` instead of the prompt.
 - Embed the publication timestamp as
   `<meta name="published" content="YYYY-MM-DDTHH:MM:SSZ">` in `<head>`.
   The next run reads this when archiving the page.
