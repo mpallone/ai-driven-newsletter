@@ -35,6 +35,9 @@ Prefer RSS/Atom feeds where available (bypasses robots.txt, more token-
 efficient than fetching pages). If a feed URL is stale, search for the
 current one rather than skipping the source.
 
+Always prepend `https://r.jina.ai/` to any URL before fetching. If that
+fails, use the regular URL.
+
 ### Seed sources
 
 Primary (vendor blogs, official changelogs):
