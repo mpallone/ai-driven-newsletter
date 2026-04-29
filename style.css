@@ -1,59 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 :root {
-  --bg: #fdfdfc;
-  --fg: #222;
-  --muted: #555;
-  --muted-2: #666;
-  --rule: #ccc;
-  --rule-soft: #ddd;
-  --accent: #1a0dab;
-  --code-bg: #f2f2f2;
-  --serif: Georgia, "Iowan Old Style", "Charter", ui-serif, serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --bg: #faf7f2;
+  --bg-card: #fdfbf6;
+  --fg: #1c1b18;
+  --muted: #5b554c;
+  --muted-2: #7a7468;
+  --rule: #d3ccbe;
+  --rule-soft: #e7e0d2;
+  --accent: #2a4a7f;
+  --accent-soft: #e8eef7;
+  --code-bg: #f1ebde;
+  --code-border: #ddd5c4;
+  --callout-bg: #f3ecdd;
+  --callout-rule: #c9b988;
+
+  --serif: "Newsreader", Georgia, "Iowan Old Style", Charter, ui-serif, serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #15171a;
-    --fg: #e6e6e6;
-    --muted: #b0b3b8;
-    --muted-2: #9aa0a6;
-    --rule: #2a2d31;
-    --rule-soft: #22252a;
-    --accent: #9cc4ff;
-    --code-bg: #1f2126;
+    --bg: #1a1816;
+    --bg-card: #221f1b;
+    --fg: #ebe5d8;
+    --muted: #b3ad9f;
+    --muted-2: #8e8779;
+    --rule: #34302a;
+    --rule-soft: #28251f;
+    --accent: #e0b066;
+    --accent-soft: #2a241b;
+    --code-bg: #25221d;
+    --code-border: #34302a;
+    --callout-bg: #221e18;
+    --callout-rule: #6b5836;
   }
 }
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
-
-body {
-  max-width: min(800px, 100% - 2rem);
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: var(--serif);
-  line-height: 1.65;
-  color: var(--fg);
-  background: var(--bg);
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light dark;
 }
 
-h1, h2, h3, nav, .meta { font-family: var(--sans); }
+body {
+  max-width: min(720px, 100% - 2rem);
+  margin: 2.5rem auto 4rem;
+  padding: 0 1.25rem;
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h2, nav, .meta { font-family: var(--sans); }
 
 h1 {
-  font-size: 1.55rem;
-  border-bottom: 2px solid var(--fg);
-  padding-bottom: 0.4rem;
-  margin: 0 0 0.25rem;
-  line-height: 1.25;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(1.85rem, 4.5vw, 2.4rem);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-align: center;
+  margin: 0 0 0.5rem;
+  padding: 1.25rem 0 1rem;
+  border-top: 1px solid var(--fg);
+  border-bottom: 1px solid var(--fg);
 }
 
 h2 {
   font-size: 1.15rem;
-  margin: 2.2rem 0 0.2rem;
+  font-weight: 600;
+  margin: 2.4rem 0 0.4rem;
   border-bottom: 1px solid var(--rule);
-  padding-bottom: 0.2rem;
+  padding-bottom: 0.25rem;
   color: var(--fg);
 }
 
@@ -64,11 +89,14 @@ h2 + p {
 }
 
 h3 {
-  font-size: 1rem;
-  margin: 1.8rem 0 0.15rem;
-  padding-left: 0.7rem;
-  border-left: 3px solid var(--accent);
-  line-height: 1.35;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin: 2.5rem 0 0.65rem;
+  padding: 0;
+  color: var(--fg);
 }
 
 ul {
@@ -76,43 +104,89 @@ ul {
   padding: 0;
 }
 
-li { margin: 0.3rem 0; }
+li { margin: 0.4rem 0; }
+
+/* Each digest item: the <ul> immediately following an <h3> becomes a card. */
+h3 + ul {
+  background: var(--bg-card);
+  border: 1px solid var(--rule-soft);
+  border-radius: 6px;
+  margin: 0 0 2.25rem;
+  padding: 1.15rem 1.5rem 1.15rem 2.75rem;
+  list-style: disc;
+}
+
+h3 + ul li { margin: 0.5rem 0; }
+
+/* Metadata labels (Source:, TL;DR:, etc.) -> small caps sans */
+h3 + ul > li > strong:first-child {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-right: 0.35em;
+}
 
 a {
   color: var(--accent);
   overflow-wrap: anywhere;
   word-break: break-word;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 150ms ease;
+}
+
+a:hover { text-decoration-color: currentColor; }
+a:visited { opacity: 0.85; }
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+  text-decoration-color: currentColor;
 }
 
 code {
   background: var(--code-bg);
-  padding: 0.1em 0.35em;
+  border: 1px solid var(--code-border);
+  padding: 0.05em 0.35em;
   border-radius: 3px;
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 0.85em;
+  letter-spacing: -0.005em;
 }
 
 nav {
   font-size: 0.88rem;
-  margin-bottom: 1rem;
+  text-align: center;
+  margin: 0.75rem 0 1.25rem;
   color: var(--muted);
 }
 
 nav a { color: var(--muted); }
 
 .window-note {
-  font-size: 0.88rem;
-  color: var(--muted-2);
-  font-style: italic;
-  margin-bottom: 1.5rem;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+  background: var(--callout-bg);
+  border-left: 3px solid var(--callout-rule);
+  border-radius: 0 4px 4px 0;
+  margin: 1.5rem 0 2.5rem;
+  padding: 0.9rem 1.15rem;
 }
 
 .meta {
   font-size: 0.84rem;
   color: var(--muted);
-  margin-top: 2.5rem;
+  margin-top: 3rem;
   border-top: 1px solid var(--rule-soft);
-  padding-top: 1rem;
+  padding-top: 1.25rem;
 }
 
 .meta p { margin: 0.5rem 0; }
@@ -121,11 +195,14 @@ nav a { color: var(--muted); }
 
 @media (max-width: 480px) {
   body {
-    margin: 1rem auto;
-    line-height: 1.6;
+    margin: 1.25rem auto 2.5rem;
+    line-height: 1.65;
+    font-size: 1rem;
   }
-  h1 { font-size: 1.35rem; }
-  h2 { font-size: 1.05rem; margin-top: 1.8rem; }
-  h3 { font-size: 0.98rem; margin-top: 1.5rem; }
+  h1 { padding: 1rem 0 0.85rem; }
+  h2 { font-size: 1.05rem; margin-top: 1.9rem; }
+  h3 { font-size: 1.15rem; margin-top: 2rem; }
+  h3 + ul { padding: 1rem 1.1rem 1rem 2.2rem; }
   ul { margin-left: 1rem; }
+  .window-note { padding: 0.8rem 1rem; }
 }
