@@ -1,0 +1,131 @@
+:root {
+  --bg: #fdfdfc;
+  --fg: #222;
+  --muted: #555;
+  --muted-2: #666;
+  --rule: #ccc;
+  --rule-soft: #ddd;
+  --accent: #1a0dab;
+  --code-bg: #f2f2f2;
+  --serif: Georgia, "Iowan Old Style", "Charter", ui-serif, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171a;
+    --fg: #e6e6e6;
+    --muted: #b0b3b8;
+    --muted-2: #9aa0a6;
+    --rule: #2a2d31;
+    --rule-soft: #22252a;
+    --accent: #9cc4ff;
+    --code-bg: #1f2126;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  max-width: min(800px, 100% - 2rem);
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: var(--serif);
+  line-height: 1.65;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+h1, h2, h3, nav, .meta { font-family: var(--sans); }
+
+h1 {
+  font-size: 1.55rem;
+  border-bottom: 2px solid var(--fg);
+  padding-bottom: 0.4rem;
+  margin: 0 0 0.25rem;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 2.2rem 0 0.2rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.2rem;
+  color: var(--fg);
+}
+
+h2 + p {
+  margin-top: 0.3rem;
+  font-size: 0.93rem;
+  color: var(--muted);
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 1.8rem 0 0.15rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--accent);
+  line-height: 1.35;
+}
+
+ul {
+  margin: 0.2rem 0 0.9rem 1.1rem;
+  padding: 0;
+}
+
+li { margin: 0.3rem 0; }
+
+a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+nav {
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+  color: var(--muted);
+}
+
+nav a { color: var(--muted); }
+
+.window-note {
+  font-size: 0.88rem;
+  color: var(--muted-2);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+.meta {
+  font-size: 0.84rem;
+  color: var(--muted);
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--rule-soft);
+  padding-top: 1rem;
+}
+
+.meta p { margin: 0.5rem 0; }
+.meta ul { margin: 0.2rem 0 0.5rem 1.1rem; }
+.meta li { margin: 0.2rem 0; }
+
+@media (max-width: 480px) {
+  body {
+    margin: 1rem auto;
+    line-height: 1.6;
+  }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.05rem; margin-top: 1.8rem; }
+  h3 { font-size: 0.98rem; margin-top: 1.5rem; }
+  ul { margin-left: 1rem; }
+}
