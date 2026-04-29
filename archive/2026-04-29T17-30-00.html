@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-04-29T17:30:00Z">
+  <title>AI Tools Digest — 2026-04-29, 5 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-04-29, 5 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-04-28T22:10:47Z – 2026-04-29T17:30:00Z. Previous newsletter was ~19 hours ago (under the 24-hour minimum); search extended back to 2026-04-28T17:30:00Z to cover a full trailing 24 hours.</p>
+
+<h3>Sonnet 4/4.5 1M-context beta expires April 30</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Claude Platform release notes</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Platform release notes — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> The <code>context-1m-2025-08-07</code> beta header stops working for Claude Sonnet 4.5 and Claude Sonnet 4 as of April 30, 2026 — tomorrow. Any request on those models that sends over 200k tokens will return an error. Claude Sonnet 4.6 and Claude Opus 4.6 support 1M-token context natively at standard pricing, no beta header required.</li>
+  <li><strong>What to do:</strong> Before tomorrow, find every pipeline using <code>context-1m-2025-08-07</code> on <code>claude-sonnet-4-5</code> or <code>claude-sonnet-4-20250514</code> and migrate to <code>claude-sonnet-4-6</code> or <code>claude-opus-4-6</code>; drop the header entirely.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic first-party platform changelog with explicit retirement date and migration path.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>v2.1.122 adds /resume PR-to-session lookup</h3>
+<ul>
+  <li><strong>Source:</strong> Claude Code changelog, v2.1.122 (April 28, 2026, 22:05 UTC)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.122">Claude Code v2.1.122 release notes — GitHub</a></li>
+  <li><strong>TL;DR:</strong> Paste a pull-request URL into <code>/resume</code> search and Claude Code now finds the session that created it — works for GitHub, GitHub Enterprise, GitLab, and Bitbucket. Also ships: an <code>ANTHROPIC_BEDROCK_SERVICE_TIER</code> environment variable (<code>default</code> / <code>flex</code> / <code>priority</code>) for Bedrock users; a fix where <code>/mcp</code> flagged claude.ai connectors silently hidden by duplicate server URLs; OpenTelemetry numeric attributes now emitted as numbers instead of strings; and a new <code>claude_code.at_mention</code> log event. Bug fixes include Vertex AI and Bedrock structured-output errors, and image resizing capped correctly at 2000px instead of 2576px.</li>
+  <li><strong>What to do:</strong> Upgrade to v2.1.122; if you run Bedrock, set <code>ANTHROPIC_BEDROCK_SERVICE_TIER=priority</code> to opt into higher-availability routing, or <code>flex</code> for best-effort lower-cost runs.</li>
+  <li><strong>Why trust it:</strong> Official GitHub release notes; features are concrete changelog entries.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Gemini CLI v0.40.0 adds MCP resource listing</h3>
+<ul>
+  <li><strong>Source:</strong> Gemini CLI changelog, v0.40.0 (April 28, 2026, 20:25 UTC)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/releases/tag/v0.40.0">Gemini CLI v0.40.0 release notes — GitHub</a></li>
+  <li><strong>TL;DR:</strong> Two new MCP-facing tools ship in v0.40.0: one lists all resources on a connected MCP server, one reads resource contents — eliminating shell-script workarounds for browsing server-side data in Gemini CLI sessions. The memory system is overhauled into a four-tier prompt-driven architecture with an integrated skill extractor that classifies learnings during sessions. Local Gemma model support is streamlined via <code>gemini gemma</code>. Ripgrep is bundled in the single-executable binary for offline grep.</li>
+  <li><strong>What to do:</strong> Upgrade to v0.40.0 if you use MCP servers with Gemini CLI; the built-in resource tools replace manual workarounds for discovering and reading server-side data.</li>
+  <li><strong>Why trust it:</strong> Official GitHub release notes for a stable tag.</li>
+  <li><strong>Skeptic check:</strong> The four-tier memory architecture is described but not benchmarked against the prior system; whether recall accuracy improved is unverified.</li>
+</ul>
+
+<h3>Excess agent tokens signal looping, not deeper thinking</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv 2604.22750 (submitted April 24, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2604.22750">How Do AI Agents Spend Your Money? Analyzing and Predicting Token Consumption in Agentic Coding Tasks — arXiv</a></li>
+  <li><strong>TL;DR:</strong> Agentic coding tasks consume roughly 1000× more tokens than a single non-agentic LLM call, and the cost is driven almost entirely by <em>input</em> tokens — accumulated context, tool outputs, and conversation history — not output tokens. Accuracy peaks at intermediate token counts and falls at the highest spending levels, meaning the most expensive runs reflect unproductive exploration, not deeper reasoning. The same task can cost 30× more on one run than another due to stochastic path-taking. Across models, Kimi-K2 and Claude Sonnet 4.5 consumed over 1.5 million more tokens on average than GPT-5 on the same benchmark tasks.</li>
+  <li><strong>What to do:</strong> Set hard input-token budgets per agent session and build monitoring that alerts (or stops a run) when input-token count grows without measurable task progress — spiraling input cost is a reliable proxy for unproductive looping.</li>
+  <li><strong>Why trust it:</strong> Empirical study measuring real token consumption across multiple coding agents and models on standardized tasks; full sample size not confirmed from the abstract alone.</li>
+  <li><strong>Skeptic check:</strong> Model efficiency comparisons depend on the specific model version and tasks used; the versions of Claude Sonnet 4.5 and Kimi-K2 tested may differ in cost profile from current production models — verify the benchmark reflects your workload before drawing model-selection conclusions.</li>
+</ul>
+
+<h3>Automated harness flag search beats manual tuning</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv 2604.20938 (submitted April 22, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2604.20938">HARBOR: Automated Harness Optimization — arXiv</a></li>
+  <li><strong>TL;DR:</strong> The HARBOR paper treats agent harness configuration as a search problem. The harness around an LLM — context compaction, tool caching, semantic memory, trajectory reuse, speculative tool prediction — typically exposes a set of on/off or multi-valued flags. Once that flag space has more than a handful of options, the combination space is too large for manual tuning to reliably find a good configuration. A production case study on a coding agent shows that automated Bayesian search over the flag space outperforms the manually tuned baseline; the approach is formalized as constrained optimization with cost-aware acquisition and a safety check.</li>
+  <li><strong>What to do:</strong> Watch this; no action yet — HARBOR itself is not publicly released. But if your harness has more than five configuration flags, start building a reproducible task suite you can run repeatedly to evaluate changes rather than tuning by feel.</li>
+  <li><strong>Why trust it:</strong> Includes a production case study comparing manual vs. automated configuration on a real coding agent; the specific performance delta is not stated in the abstract — read the full paper for numbers.</li>
+  <li><strong>Skeptic check:</strong> The production case study is by the paper's authors on their own agent; no independent replication of the efficiency gain.</li>
+</ul>
+
+<div class="meta">
+  <p><strong>Sources used today:</strong> Claude Code GitHub releases (anthropics/claude-code), Gemini CLI GitHub releases (google-gemini/gemini-cli), Anthropic Platform release notes (platform.claude.com), arXiv cs.AI/cs.SE (2604.22750, 2604.20938).</p>
+
+  <p><strong>Skipped:</strong> 0 funding posts, 2 leaderboard announcements without methodology, 0 hype takes. Gemini CLI v0.41.0-preview.0 (April 28, 19:04 UTC) excluded — preview release. arXiv 2604.18071 "Architectural Design Decisions in AI Agent Harnesses" excluded — submitted April 20, outside the 7-day arXiv window.</p>
+
+  <p><strong>Coverage gaps:</strong> Direct fetch blocked (403) for anthropic.com/engineering, simonwillison.net, latent.space, cursor.com/changelog, news.ycombinator.com, and arxiv.org abstract pages. All coverage from those sources relies on web-search snippets. HN point counts and post dates could not be verified for items 47295454 and 47559293; both excluded due to unverifiable threshold compliance.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2604.20938">arxiv.org/abs/2604.20938</a> — 403 — wanted to confirm the exact performance delta between manual and automated harness tuning in the production case study.</li>
+    <li><a href="https://arxiv.org/abs/2604.22750">arxiv.org/abs/2604.22750</a> — 403 — wanted to confirm the full sample size (tasks, agents, and runs) for the token consumption measurements.</li>
+    <li><a href="https://news.ycombinator.com/item?id=47559293">news.ycombinator.com/item?id=47559293</a> — 403 — wanted to verify point count and date of "Ask HN: How are you keeping AI coding agents from burning money?" to check the 200-point threshold.</li>
+    <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to confirm whether any Cursor update shipped on or after April 28 22:10 UTC.</li>
+    <li><a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check for new engineering blog posts published April 28–29.</li>
+  </ul>
+</div>
+
+</body>
+</html>
