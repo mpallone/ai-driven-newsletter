@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-01T11:10:39Z">
+  <title>AI Tools Digest — 2026-05-01, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-01, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-04-29T02:23:30Z – 2026-05-01T11:10:39Z.</p>
+
+<h3>1M context beta on Sonnet 4.5/4 retired</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic platform release notes</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/release-notes/overview">Anthropic API Release Notes</a></li>
+  <li><strong>TL;DR:</strong> As of April 30, the <code>anthropic-beta: context-1m-2025-08-07</code> header stopped working on <code>claude-sonnet-4-5</code> and <code>claude-sonnet-4</code>. Any request to those models exceeding 200k tokens is now rejected. The migration is two steps: remove the beta header, and change the model identifier to <code>claude-sonnet-4-6</code> (or <code>claude-opus-4-6</code> for reasoning-heavy work). Sonnet 4.6 includes 1M context at standard pricing ($3 input / $15 output per MTok) — no premium, no beta header.</li>
+  <li><strong>What to do:</strong> Remove <code>anthropic-beta: context-1m-2025-08-07</code> from all requests and update model identifiers from <code>claude-sonnet-4-5</code>/<code>claude-sonnet-4</code> to <code>claude-sonnet-4-6</code>; if you haven't done this yet, long-context requests are already failing.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic platform release notes; confirmed by multiple third-party migration guides and the Anthropic Bedrock announcement listing Sonnet 4.6 as the replacement.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Claude Security scans code for vulnerabilities; now in beta</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, April 30, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/claude-security-public-beta">Claude Security is now in public beta — Claude Blog</a></li>
+  <li><strong>TL;DR:</strong> Claude Security is now in public beta for Claude Enterprise customers. It scans codebases for vulnerabilities using Opus 4.7 and proposes targeted fixes. Access is available directly on the Claude Platform or through integration partners; Team and Max plan access is described as coming soon.</li>
+  <li><strong>What to do:</strong> If you're a Claude Enterprise customer, try Claude Security on a security-sensitive component of your codebase; if you're not on Enterprise, watch the announcement page for Team/Max rollout timing.</li>
+  <li><strong>Why trust it:</strong> Primary-source product announcement from Anthropic on April 30; independently covered by SiliconANGLE, SecurityWeek, and The New Stack on the same date, each confirming the launch details.</li>
+  <li><strong>Skeptic check:</strong> No independent benchmarks on false-positive rates, patch quality, or comparison with established tools (Snyk, Semgrep) have been published yet; all capability claims come from Anthropic alone.</li>
+</ul>
+
+<h3>LLM 0.32 alpha ships typed response model</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison (simonwillison.net), April 29, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Apr/29/llm/">LLM 0.32a0 is a major backwards-compatible refactor — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> The <a href="https://github.com/simonw/llm">LLM command-line tool and Python library</a> (simonw/llm) shipped the first alpha of its biggest internal change: the old text-prompt → text-response model is replaced by typed multi-part messages. Responses are now a stream of typed parts — text, tool calls, tool outputs, images, audio — rather than a single text blob. This unblocks server-side tool execution and multi-modal output from the same response stream. A same-day follow-up (0.32a1) fixed a bug where tool-calling conversations couldn't be correctly serialized and reinflated from SQLite.</li>
+  <li><strong>What to do:</strong> If you maintain an LLM plugin, read the 0.32 alpha release notes and update your plugin's response handling before the stable release ships; if you use LLM for tool-calling workflows with SQLite persistence, upgrade to 0.32a1 now to pick up the reinflation fix.</li>
+  <li><strong>Why trust it:</strong> Author is the sole developer of the library; both alphas were published the same day (April 29) with detailed changelog notes. The alpha release strategy is explicitly designed to surface plugin compatibility issues in real-world use before stable ships.</li>
+  <li><strong>Skeptic check:</strong> Alpha — the response model API may change before 0.32 stable lands if testing reveals design issues.</li>
+</ul>
+
+<h3>Claude Code 2.1.123 fixes MCP server stalls and token-count hint</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, April 29, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
+  <li><strong>TL;DR:</strong> Version 2.1.123 ships three bug fixes. First: plugin-defined MCP servers that shared a URL with an unauthenticated claude.ai connector were getting stuck in "connecting" state on session start — fixed. Second: the idle-return "/clear to save X tokens" hint was showing cumulative session token totals instead of the current context window size, so the number could be badly overstated in long sessions — fixed. Third: OAuth auth was looping on 401 when <code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> was set — fixed.</li>
+  <li><strong>What to do:</strong> Update Claude Code (<code>npm install -g @anthropic-ai/claude-code</code> or equivalent); the token-count fix in particular means the "/clear" hint now shows an accurate current-context size, so your context-management decisions are based on real numbers.</li>
+  <li><strong>Why trust it:</strong> Official release notes from Anthropic's Claude Code GitHub repository.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<div class="meta">
+  <p><strong>Sources used today:</strong> Anthropic platform release notes, Claude Blog (claude.com/blog), Simon Willison (simonwillison.net), Anthropic Claude Code GitHub releases.</p>
+
+  <p><strong>Skipped:</strong> 1 hype take; 1 policy-only post (Zig anti-AI contribution policy, April 30 — in window but doesn't change how to configure or prompt a tool); 3 leaderboard announcements without methodology. Out-of-window items noted for reference: Claude Opus 4.7 (April 16), Memory for Managed Agents beta (April 23), Cursor 3 (April 2), MCP 2026 roadmap (March 9).</p>
+
+  <p><strong>Coverage gaps:</strong> Direct fetch blocked (403) for all r.jina.ai-prefixed and bare-URL fetches against simonwillison.net, platform.claude.com, code.claude.com, github.com, and arxiv.org. All coverage relies on web-search snippets. No in-window posts confirmed from Latent Space, Hamel Husain, Chip Huyen, Eugene Yan, or Interconnects (Nathan Lambert). No Hacker News items met the 200-point threshold in the window (Zig anti-AI HN post had ~120 points).</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://simonwillison.net/2026/Apr/29/llm/">simonwillison.net/2026/Apr/29/llm/</a> — 403 — wanted the full release notes for the 0.32a0 response-model API changes and migration guidance for plugin authors.</li>
+    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to verify all fixes in 2.1.123 and confirm no additional releases between April 29 and May 1.</li>
+    <li><a href="https://platform.claude.com/docs/en/release-notes/overview">platform.claude.com/docs/en/release-notes/overview</a> — 403 — wanted to confirm the exact posting date of the 1M context beta retirement notice and check for any other in-window platform changes.</li>
+    <li><a href="https://claude.com/blog/claude-security-public-beta">claude.com/blog/claude-security-public-beta</a> — 403 — wanted product details on Claude Security's access model, API surface, and any published accuracy numbers.</li>
+  </ul>
+</div>
+
+</body>
+</html>
