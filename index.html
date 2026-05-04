@@ -3,41 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-02T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-02, 1 item</title>
+  <meta name="published" content="2026-05-04T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-04, 1 item</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-02, 1 item</h1>
+<h1>AI Tools Digest — 2026-05-04, 1 item</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-01T11:10:39Z – 2026-05-02T12:00:00Z.</p>
+<p class="window-note">Window: 2026-05-02T12:00:00Z – 2026-05-04T12:00:00Z.</p>
 
-<h3>Claude Code 2.1.126 adds project purge, MCP auto-retry, and gateway model picker</h3>
+<h3>Harness iteration beats hand-designed scaffolding</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code changelog, May 1, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Four changes in 2.1.126 worth noting: (1) <code>claude project purge [path]</code> deletes all Claude Code state for a project — transcripts, tasks, file history, and config entry — with <code>--dry-run</code>, <code>--yes</code>, and <code>--interactive</code> flags; (2) MCP servers that error on startup now auto-retry up to 3 times instead of going disconnected for the whole session; (3) <code>--dangerously-skip-permissions</code> no longer pauses for confirmation on writes to <code>.claude/skills/</code>, <code>.claude/agents/</code>, and <code>.claude/commands/</code>; (4) the <code>/model</code> picker now pulls its list from your gateway's <code>/v1/models</code> endpoint when <code>ANTHROPIC_BASE_URL</code> points at an Anthropic-compatible gateway.</li>
-  <li><strong>What to do:</strong> Update with <code>npm install -g @anthropic-ai/claude-code</code>; if your MCP servers occasionally fail to connect on session start, the auto-retry now handles that silently; if you use <code>--dangerously-skip-permissions</code> in CI with custom skills, skill-directory writes no longer require a manual approval step; if you route through an LLM gateway, the model picker now reflects your gateway's actual model list.</li>
-  <li><strong>Why trust it:</strong> Official changelog from Anthropic's Claude Code GitHub releases; version confirmed published May 1, 2026 via the npm registry and Claude Code docs changelog.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>Source:</strong> arXiv cs.SE, submitted April 28, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2604.25850">Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses (arXiv 2604.25850)</a></li>
+  <li><strong>TL;DR:</strong> A coding agent that observes its own failures and rewrites its scaffolding — the prompts, tool schemas, and retry logic around the model — outperformed a hand-designed harness on a terminal-coding benchmark. The key design move: every harness component is a named file the agent can read, diff, and replace. This makes it possible to trace any failed turn back to the specific component that caused it, whether the iterating is done by an agent or a human.</li>
+  <li><strong>What to do:</strong> Break your harness into named, file-backed components — a separate file for the system prompt, one per tool schema, one for retry/fallback policy — rather than keeping everything inline in code; even without any auto-evolution system, this structure makes it straightforward to spot which component is responsible for a failure and change just that piece.</li>
+  <li><strong>Why trust it:</strong> The AHE system ran for 10 full iterations on the open-source Terminal-Bench 2, lifting pass@1 from 69.7% to 77.0%; it beat the hand-designed Codex-CLI harness (71.9%) and two self-evolving baselines (ACE and TF-GRPO); code is published alongside the paper.</li>
+  <li><strong>Skeptic check:</strong> Terminal-Bench 2 tests terminal and coding tasks; the gains from file-level component separation may not transfer to harnesses that depend on stateful browser interactions, long-running multi-agent coordination, or highly domain-specific tool schemas.</li>
 </ul>
 
 <div class="meta">
-  <p><strong>Sources used today:</strong> Anthropic Claude Code GitHub releases, Claude Code docs changelog (code.claude.com).</p>
+  <p><strong>Sources used today:</strong> arXiv cs.SE (2604.25850).</p>
 
-  <p><strong>Skipped:</strong> Multiple model capability announcements without practitioner workflow change (GPT-5.5, Gemini 3.1 Ultra, Gemma 4 — all pre-window). Cursor Security Review (April 30, 2026) is 1 day outside the window but worth checking independently if you're on a Teams or Enterprise plan. Windsurf Devin Local (April 27–28, 2026) similarly outside window. 1 hype take.</p>
+  <p><strong>Skipped:</strong> Anthropic sycophancy research (primary source ~April 30–May 1, before window). Cursor Security Review beta and Team Marketplace update (both May 1, before window). Claude Code 2.1.122 Bedrock service-tier and <code>/resume</code> PR-URL features (April 28, before window). Google Gemini API Docs MCP + Agent Skills (~April 1, before window). 4 additional arXiv papers outside the 7-day window. 0 funding posts, 2 leaderboard updates, 1 hype take.</p>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct fetches returned 403 across every seed source: code.claude.com, github.com, cursor.com, windsurf.com, simonwillison.net, news.ycombinator.com, arxiv.org, anthropic.com/engineering, and releasebot.io. All coverage is based on web-search snippets only. No in-window posts confirmed from Latent Space, Hamel Husain, Chip Huyen, Eugene Yan, or Interconnects (Nathan Lambert). No Hacker News items with ≥200 points surfaced for May 1–2.</p>
+  <p><strong>Coverage gaps:</strong> Direct fetches and r.jina.ai-prefixed fetches returned 403 for every seed source tried this run.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to verify all 2.1.124–2.1.126 changes and check for any 2.1.127+ release in-window.</li>
-    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to confirm the 2.1.126 release timestamp relative to the 11:10 UTC window start.</li>
-    <li><a href="https://news.ycombinator.com/front">news.ycombinator.com/front</a> — 403 — wanted to check for ≥200-point AI tool posts from May 1–2.</li>
-    <li><a href="https://cursor.com/changelog/04-30-26">cursor.com/changelog/04-30-26</a> — 403 — wanted to confirm the Cursor Security Review date and read the full feature spec.</li>
-    <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for any May 1–2 posts.</li>
-    <li><a href="https://arxiv.org/list/cs.AI/2026-05">arxiv.org/list/cs.AI/2026-05</a> — 403 — wanted May 2026 submissions to check for 7-day-window papers on agent harness or tool use.</li>
+    <li><a href="https://releasebot.io/updates/anthropic/claude-code">releasebot.io/updates/anthropic/claude-code</a> — 403 — wanted to verify whether any post-2.1.126 Claude Code releases shipped May 2–4.</li>
+    <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to confirm no May 2–4 Cursor entries exist.</li>
+    <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted to confirm no May 2–4 Windsurf entries.</li>
+    <li><a href="https://simonwillison.net/2026/May/2/sightings/">simonwillison.net/2026/May/2/sightings/</a> — 403 — wanted to check practitioner relevance of May 2 post.</li>
+    <li><a href="https://simonwillison.net/2026/May/3/anthropic/">simonwillison.net/2026/May/3/anthropic/</a> — 403 — wanted to verify whether May 3 sycophancy quote post had a primary source published in-window.</li>
+    <li><a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 — wanted to verify exact dates of Codex permission-profiles update mentioned in Releasebot snippets.</li>
+    <li><a href="https://support.claude.com/en/articles/12138966-release-notes">support.claude.com — Claude Apps release notes</a> — 403 — wanted to check for any in-window Claude app updates.</li>
+    <li><a href="https://arxiv.org/list/cs.AI/current">arxiv.org/list/cs.AI/current</a> — 403 — wanted to browse current-week cs.AI submissions for additional qualifying papers.</li>
   </ul>
 </div>
 
