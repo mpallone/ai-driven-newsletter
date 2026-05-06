@@ -3,41 +3,121 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-02T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-02, 1 item</title>
+  <meta name="published" content="2026-05-06T14:00:00Z">
+  <title>AI Tools Digest — 2026-05-06, 7 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-02, 1 item</h1>
+<h1>AI Tools Digest — 2026-05-06, 7 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-01T11:10:39Z – 2026-05-02T12:00:00Z.</p>
+<p class="window-note">Window: 2026-05-02T12:00:00Z – 2026-05-06T14:00:00Z.</p>
 
-<h3>Claude Code 2.1.126 adds project purge, MCP auto-retry, and gateway model picker</h3>
+<h3>/mcp now tells you when an MCP server connected with zero tools</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code changelog, May 1, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Four changes in 2.1.126 worth noting: (1) <code>claude project purge [path]</code> deletes all Claude Code state for a project — transcripts, tasks, file history, and config entry — with <code>--dry-run</code>, <code>--yes</code>, and <code>--interactive</code> flags; (2) MCP servers that error on startup now auto-retry up to 3 times instead of going disconnected for the whole session; (3) <code>--dangerously-skip-permissions</code> no longer pauses for confirmation on writes to <code>.claude/skills/</code>, <code>.claude/agents/</code>, and <code>.claude/commands/</code>; (4) the <code>/model</code> picker now pulls its list from your gateway's <code>/v1/models</code> endpoint when <code>ANTHROPIC_BASE_URL</code> points at an Anthropic-compatible gateway.</li>
-  <li><strong>What to do:</strong> Update with <code>npm install -g @anthropic-ai/claude-code</code>; if your MCP servers occasionally fail to connect on session start, the auto-retry now handles that silently; if you use <code>--dangerously-skip-permissions</code> in CI with custom skills, skill-directory writes no longer require a manual approval step; if you route through an LLM gateway, the model picker now reflects your gateway's actual model list.</li>
-  <li><strong>Why trust it:</strong> Official changelog from Anthropic's Claude Code GitHub releases; version confirmed published May 1, 2026 via the npm registry and Claude Code docs changelog.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, May 4, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> The <code>/mcp</code> command now shows a tool count next to each connected server and flags any server that connected with 0 tools — the most common sign of a broken or misconfigured MCP server. Same update batch: bare <code>/color</code> (no argument) picks a random session color; <code>--plugin-dir</code> now accepts <code>.zip</code> plugin archives in addition to directories; and a new <code>--plugin-url &lt;url&gt;</code> flag fetches and loads a <code>.zip</code> plugin archive from a URL for the current session.</li>
+  <li><strong>What to do:</strong> When an MCP-backed tool is missing, run <code>/mcp</code> immediately — a "0 tools" flag tells you which server is the problem without needing to dig through logs. If you distribute or share plugins, consider switching to <code>.zip</code> archives so users can load them with a single <code>--plugin-url</code> flag.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code changelog entry dated May 4, 2026, confirmed by multiple third-party aggregators (releasebot.io, claudelog.com, claudefa.st).</li>
+  <li><strong>Skeptic check:</strong> The 0-tool flag shows a symptom, not a root cause; a server can connect with 0 tools due to auth failure, startup crash, or capability mismatch, so you still need to inspect server logs to fix the underlying issue.</li>
+</ul>
+
+<h3>Claude Code <code>skillOverrides</code> adds three visibility modes for custom skills</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, version 2.1.128</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> The <code>skillOverrides</code> setting now accepts three modes: <code>off</code> hides a skill from both the model's tool list and the <code>/</code> command palette; <code>user-invocable-only</code> hides the skill from the model while keeping it available for humans to invoke via <code>/</code>; <code>name-only</code> keeps the skill visible to both but strips its description out of the context window, reducing token overhead for skills the model should just call by name.</li>
+  <li><strong>What to do:</strong> For skills that are dangerous to auto-invoke (deploys, destructive refactors, irreversible operations), set <code>user-invocable-only</code> so the model can't fire them autonomously. For skills with long descriptions that the model rarely needs help understanding, switch to <code>name-only</code> to save context budget.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code changelog, confirmed via third-party aggregators; no published token-budget comparison between modes.</li>
+  <li><strong>Skeptic check:</strong> <code>name-only</code> assumes the model can infer what a skill does from its name; if your skill names aren't self-explanatory, removing the description may reduce correct auto-invocations.</li>
+</ul>
+
+<h3>Claude Code 2.1.129 breaks automatic gateway model discovery — action needed if you use a gateway</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, version 2.1.129, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> In versions 2.1.126–2.1.128, setting <code>ANTHROPIC_BASE_URL</code> to an Anthropic-compatible gateway would automatically populate the <code>/model</code> picker from the gateway's <code>/v1/models</code> endpoint. Version 2.1.129 makes this opt-in: you must now set <code>CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1</code> or the picker won't show gateway models. Also in 2.1.129: Ctrl+R history search reverts to scanning all projects by default (fixing a regression introduced in 2.1.124 that narrowed scope to the current project); <code>CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1</code> enables background self-updates on Homebrew or WinGet installations; <code>CLAUDE_CODE_FORCE_SYNC_OUTPUT=1</code> forces synchronised terminal output for terminals that auto-detection misses; third-party deployments (Bedrock, Vertex, custom gateways) no longer see in-app tips pointing at Anthropic's own surfaces.</li>
+  <li><strong>What to do:</strong> Before upgrading to 2.1.129, add <code>CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1</code> to your environment if you rely on gateway model discovery — otherwise your <code>/model</code> picker will appear empty. If Ctrl+R felt too narrow after a recent update, this version restores the cross-project default.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code changelog for version 2.1.129 (May 6, 2026), confirmed by multiple third-party changelog aggregators.</li>
+  <li><strong>Skeptic check:</strong> Opt-in is the safer default for deployments that don't want the picker auto-populated from a gateway; this is a conservative change, not a removal of the feature.</li>
+</ul>
+
+<h3>Three bugs in Claude Code subagent worktree isolation are fixed</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, May 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Three specific bugs in <code>isolation: 'worktree'</code> subagents were fixed: (1) the <code>Agent</code> tool was reusing stale worktrees from prior sessions instead of creating fresh ones, silently contaminating agent state; (2) subagents running inside their own worktree were being denied <code>Read</code>/<code>Edit</code> access to files within that worktree; (3) <code>EnterWorktree</code> was creating branches from <code>origin/&lt;default-branch&gt;</code> instead of the local <code>HEAD</code>, discarding unpushed commits. Separately, <code>OTEL_*</code> environment variables no longer propagate from the CLI into subprocess environments — OTEL-instrumented apps you run from within Claude Code no longer accidentally send traces to the CLI's exporter.</li>
+  <li><strong>What to do:</strong> If you use <code>isolation: 'worktree'</code> in the <code>Agent</code> tool, update now and run a smoke test — the stale-worktree bug may have been silently reusing previous session state. If you run OTEL-instrumented services from Claude Code terminals, the telemetry bleed-over is now fixed without any config change on your part.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code changelog, confirmed by third-party aggregators; no independent measurement of how frequently stale-worktree reuse caused output errors in practice.</li>
+  <li><strong>Skeptic check:</strong> The changelog doesn't say whether stale worktree state produced subtly wrong outputs rather than obvious failures; if you ran intensive worktree-isolated agents before this fix, auditing those outputs manually is prudent.</li>
+</ul>
+
+<h3>Opus 4.7 /context percentage was computed against the wrong window — now fixed</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code changelog, May 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Claude Code was computing the <code>/context</code> usage percentage for Opus 4.7 sessions against an old, smaller context window instead of the model's native 1M-token window. This made the percentage appear higher than actual, causing autocompaction to fire earlier than needed. The fix makes Opus 4.7 sessions compute against the correct 1M window. In the same batch: <code>/resume</code> on large sessions is up to 67% faster and now offers to summarise a stale session before re-reading it in full.</li>
+  <li><strong>What to do:</strong> If you run long Opus 4.7 sessions and have been seeing frequent autocompaction or a <code>/context</code> reading that seemed high relative to what you'd put in the session, update and re-check — you likely have more runway than the display was showing. If large-session <code>/resume</code> felt sluggish, update to get the speed improvement.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code changelog, confirmed by releasebot.io; the 67% resume speed figure is from Anthropic's own changelog notes, with no independent reproduction of that number.</li>
+  <li><strong>Skeptic check:</strong> The speed improvement is presumably measured on a specific session size or content type; actual improvement will vary.</li>
+</ul>
+
+<h3>Anthropic's finance agent templates show the skill + connector + subagent packaging pattern</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic news, May 5, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/news/finance-agents">Agents for financial services and insurance — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Ten ready-to-run agent templates for financial work (pitchbooks, KYC screening, earnings review, month-end close) were released, but the architecture they expose is more useful than the domain content: each template bundles three components — <em>skills</em> (domain-specific instructions and knowledge for the task), <em>connectors</em> (governed, pre-wired data access — including a new Moody's MCP app for credit and corporate data), and <em>subagents</em> (specialised Claude models called for specific sub-tasks, such as comparables selection or methodology checks). Each template ships both as a Claude Code / Claude Cowork plugin and as a copyable cookbook for Claude Managed Agents.</li>
+  <li><strong>What to do:</strong> If you're designing multi-component plugins or skills for Claude Code or Managed Agents, treat the finance template structure as Anthropic's current reference pattern: one plugin bundles its own instructions (skill), its own data access (connector), and its own specialist sub-models (subagents). This is worth mapping against your own harness design to identify what you're handling ad hoc versus what could be packaged.</li>
+  <li><strong>Why trust it:</strong> Primary source from Anthropic's news page (May 5, 2026), with secondary coverage from The Register, Let's Data Science, and Metaverse Post confirming the architecture details.</li>
+  <li><strong>Skeptic check:</strong> These templates are described as reference architectures for financial services; how much they reflect Anthropic's internal production agent design versus being purpose-built for external showcase is not confirmed.</li>
+</ul>
+
+<h3>Cursor Enterprise adds model-level allow/blocklists and soft spend limits</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor changelog, May 4, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor Changelog — Cursor</a></li>
+  <li><strong>TL;DR:</strong> Cursor's enterprise admin console now lets admins block entire providers or specific model configurations by speed tier and context window size. Spend limits are soft — they trigger usage alerts rather than hard-stopping work. Richer usage analytics added. The previous update (May 1) lets admins create a team plugin marketplace without connecting a code repository first, and configure install behaviour for bundled plugins (plugins can include MCP servers, skills, subagents, rules, and hooks).</li>
+  <li><strong>What to do:</strong> If you manage a team Cursor deployment and want to prevent users from accidentally picking a slow or expensive model, configure provider-level blocklists now. Set a soft spend limit as an early-warning signal. If you've been holding off on a team plugin marketplace because it required a repo connection, that requirement is gone as of May 1.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog, confirmed by releasebot.io; no independent testing of soft-limit behaviour at the threshold.</li>
+  <li><strong>Skeptic check:</strong> Soft limits mean work continues past the alert threshold; if hard budget enforcement is a compliance requirement, this feature does not meet that bar.</li>
 </ul>
 
 <div class="meta">
-  <p><strong>Sources used today:</strong> Anthropic Claude Code GitHub releases, Claude Code docs changelog (code.claude.com).</p>
 
-  <p><strong>Skipped:</strong> Multiple model capability announcements without practitioner workflow change (GPT-5.5, Gemini 3.1 Ultra, Gemma 4 — all pre-window). Cursor Security Review (April 30, 2026) is 1 day outside the window but worth checking independently if you're on a Teams or Enterprise plan. Windsurf Devin Local (April 27–28, 2026) similarly outside window. 1 hype take.</p>
+<h2>Meta</h2>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct fetches returned 403 across every seed source: code.claude.com, github.com, cursor.com, windsurf.com, simonwillison.net, news.ycombinator.com, arxiv.org, anthropic.com/engineering, and releasebot.io. All coverage is based on web-search snippets only. No in-window posts confirmed from Latent Space, Hamel Husain, Chip Huyen, Eugene Yan, or Interconnects (Nathan Lambert). No Hacker News items with ≥200 points surfaced for May 1–2.</p>
+<h3>Candidate sources</h3>
+<ul>
+  <li><a href="https://claudelog.com/claude-code-changelog/">ClaudeLog — claude-code-changelog</a>: surfaced via Claude Code changelog search; appears to track Claude Code releases with good detail. Track record unknown — needs more observation.</li>
+  <li><a href="https://claudefa.st/blog/guide/changelog">ClaudeFA.st — Claude Code Changelog</a>: another Claude Code release aggregator, cited in multiple searches alongside official sources. Track record unknown.</li>
+  <li><a href="https://www.claudeupdates.dev/update">ClaudeUpdates.dev</a>: third-party update tracker for Claude Code releases, surfaced alongside claudelog.com. Track record unknown.</li>
+</ul>
+
+<h3>Prompt friction</h3>
+<ul>
+  <li>All r.jina.ai-prefixed fetches returned 403 for every seed source this run (same as last run). Primary source verification for all 7 items relied entirely on web search snippets from secondary aggregators. This is the second consecutive run where direct page fetches have failed entirely — the digest is systematically unverified at the primary-source level, and the prompt should acknowledge this is now the expected state rather than treating it as a one-off coverage gap.</li>
+</ul>
+
+</div>
+
+<div class="meta">
+  <p><strong>Sources used today:</strong> Anthropic Claude Code changelog (via web search snippets, releasebot.io, claudelog.com, claudefa.st, claudeupdates.dev); Anthropic news (anthropic.com/news, via The Register, Let's Data Science, how2shout.com, Metaverse Post); Cursor changelog (via releasebot.io, cursor-changelog.com).</p>
+
+  <p><strong>Skipped:</strong> Latent Space × Unsupervised Learning crossover episode (recorded April 2026 after AIE Europe, outside window). Latent Space "Scaling without Slop" (January 23, 2026, outside window). Anthropic engineering blog "Scaling Managed Agents" and "Harness design for long-running application development" (April and March 2026, outside window). Windsurf Next 2.2.1001 (May 1, 2026, before 12:00 UTC window start). Nathan Lambert "The distillation panic" (May 4, in-window, but covers model training policy rather than practitioner tool use). Simon Willison's May 5 post on the Andon Labs AI cafe (in-window but no actionable findings for practitioners). Anthropic Microsoft 365 add-in launch (primarily a product integration announcement without practitioner workflow impact). No arXiv submissions from May 2–6 met the "changes how I'd work tomorrow" bar. No HN items confirmed at ≥200 points in window.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed fetches returned 403 across every source attempted this run, same as last run. All item content is based on web search snippets from secondary aggregators. No in-window posts confirmed from Hamel Husain, Eugene Yan, or Chip Huyen. HN front-page point counts for the window could not be retrieved. Windsurf changelog for May 2–6 could not be verified (no date-specific snippets returned).</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to verify all 2.1.124–2.1.126 changes and check for any 2.1.127+ release in-window.</li>
-    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to confirm the 2.1.126 release timestamp relative to the 11:10 UTC window start.</li>
-    <li><a href="https://news.ycombinator.com/front">news.ycombinator.com/front</a> — 403 — wanted to check for ≥200-point AI tool posts from May 1–2.</li>
-    <li><a href="https://cursor.com/changelog/04-30-26">cursor.com/changelog/04-30-26</a> — 403 — wanted to confirm the Cursor Security Review date and read the full feature spec.</li>
-    <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for any May 1–2 posts.</li>
-    <li><a href="https://arxiv.org/list/cs.AI/2026-05">arxiv.org/list/cs.AI/2026-05</a> — 403 — wanted May 2026 submissions to check for 7-day-window papers on agent harness or tool use.</li>
+    <li><a href="https://r.jina.ai/https://code.claude.com/docs/en/changelog">r.jina.ai/…code.claude.com/docs/en/changelog</a> — 403 — wanted exact version/date mapping for 2.1.127–2.1.129 and primary-source verification of changelog items.</li>
+    <li><a href="https://r.jina.ai/https://www.anthropic.com/news/finance-agents">r.jina.ai/…anthropic.com/news/finance-agents</a> — 403 — wanted primary-source architecture details for the finance agent templates.</li>
+    <li><a href="https://r.jina.ai/https://www.anthropic.com/engineering/managed-agents">r.jina.ai/…anthropic.com/engineering/managed-agents</a> — 403 — wanted to confirm May 2026 publication date and technical content.</li>
+    <li><a href="https://r.jina.ai/https://cursor.com/changelog">r.jina.ai/…cursor.com/changelog</a> — 403 — wanted exact May 4 feature list and the May 1 team marketplace details.</li>
+    <li><a href="https://r.jina.ai/https://news.ycombinator.com/front">r.jina.ai/…news.ycombinator.com/front</a> — 403 — wanted May 2–6 front-page items with point counts to check the ≥200 threshold.</li>
+    <li><a href="https://r.jina.ai/https://releasebot.io/updates/anthropic/claude-code">r.jina.ai/…releasebot.io/updates/anthropic/claude-code</a> — 403 — wanted structured May 2–6 Claude Code release data with exact dates per version.</li>
+    <li><a href="https://r.jina.ai/https://windsurf.com/changelog">r.jina.ai/…windsurf.com/changelog</a> — 403 — wanted to identify any Windsurf changes in the May 2–6 window.</li>
+    <li><a href="https://r.jina.ai/https://simonwillison.net/">r.jina.ai/…simonwillison.net</a> — 403 — wanted to check for May 3–6 posts beyond the AI cafe item surfaced by search.</li>
   </ul>
 </div>
 
