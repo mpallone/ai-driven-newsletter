@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-07T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-07, 8 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-07, 8 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-02T12:00:00Z – 2026-05-07T12:00:00Z.</p>
+
+<h3>Claude Code rate limits doubled across all plans, peak-hour throttling dropped</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Code w/ Claude SF 2026, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/code-with-claude/san-francisco">Code with Claude SF 2026 — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Effective May 6, Claude Code's 5-hour rate limits doubled on Pro, Max, Team, and seat-based Enterprise plans; peak-hour throttling dropped entirely for Pro and Max; Opus API limits raised considerably; a SpaceX partnership adds 300MW and over 220,000 NVIDIA GPUs of new capacity within the month.</li>
+  <li><strong>What to do:</strong> Schedule long-running Claude Code sessions without worrying about peak-hour slowdowns on Pro/Max; if you built workarounds for previous quota walls (retries, off-peak scheduling), audit which of those you can now remove.</li>
+  <li><strong>Why trust it:</strong> Announced live at Anthropic's Code w/ Claude SF conference on May 6, 2026, confirmed by multiple attendee reports and the official conference page.</li>
+  <li><strong>Skeptic check:</strong> GPU capacity timelines depend on the SpaceX partnership delivering on schedule; real-world throughput improvements may lag the announcement date.</li>
+</ul>
+
+<h3><code>/ultrareview</code> opens as a public research preview — cloud bug-hunting fleet, results in your CLI</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Code w/ Claude SF 2026, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/code-with-claude/san-francisco">Code with Claude SF 2026 — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> <code>/ultrareview</code> is now publicly available as a research preview: run it in Claude Code CLI or Desktop to launch a fleet of cloud-based bug-hunting agents against your current branch (or <code>/ultrareview &lt;PR#&gt;</code> for a GitHub PR), with findings delivered back into your session automatically.</li>
+  <li><strong>What to do:</strong> Run <code>/ultrareview</code> before merging a non-trivial branch; it is user-triggered and billed separately, so treat it like a cloud CI step rather than an inline chat command.</li>
+  <li><strong>Why trust it:</strong> Announced at Code w/ Claude SF 2026 by Anthropic; research-preview status confirmed in conference recap and Claude Code skill documentation.</li>
+  <li><strong>Skeptic check:</strong> "Research preview" means billing model and output quality will likely change; don't rely on current behavior as a stable signal of production quality.</li>
+</ul>
+
+<h3>Managed Agents adds fleet orchestration, "outcomes" declarations, and session self-review</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Code w/ Claude SF 2026 and Claude API Docs, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/managed-agents/overview">Claude Managed Agents overview — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> Three new Managed Agents capabilities announced at Code w/ Claude SF: (1) fleet orchestration lets you spin up parallel agent instances to divide a complex task; (2) "outcomes" let you declare what done looks like so Claude iterates until it meets that bar; (3) "Dreaming" lets Claude inspect its own past sessions to identify gaps and self-correct before starting the next one.</li>
+  <li><strong>What to do:</strong> If you're already on Managed Agents, check the fleet and outcomes APIs — they let you express multi-agent orchestration declaratively instead of writing a custom loop; the finance-agent cookbook that shipped alongside these changes is a working reference implementation.</li>
+  <li><strong>Why trust it:</strong> Announced at Code w/ Claude SF 2026; consistent with the existing Managed Agents public-beta documentation at platform.claude.com.</li>
+  <li><strong>Skeptic check:</strong> "Dreaming" self-improvement from past sessions is the least-verified of the three; test on non-critical tasks before using in production loops.</li>
+</ul>
+
+<h3>Claude Code 2.1.129–2.1.132: session ID in bash env, plugin URL install, gateway discovery reverted to opt-in</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code GitHub releases, May 2–6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
+  <li><strong>TL;DR:</strong> Four things worth noting from this week's Claude Code versions: (1) <code>CLAUDE_CODE_SESSION_ID</code> is now injected into every bash subprocess, letting hooks and external scripts identify which session spawned them; (2) <code>--plugin-url &lt;url&gt;</code> fetches a plugin <code>.zip</code> from any URL for the current session, replacing the "clone and build" sharing pattern; (3) gateway model discovery — auto-populating the <code>/model</code> picker from <code>/v1/models</code> — is now opt-in via <code>CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1</code> after being automatic in 2.1.126–2.1.128; (4) <code>CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1</code> keeps output in your terminal's native scrollback instead of the fullscreen renderer.</li>
+  <li><strong>What to do:</strong> If you write hooks that shell out, start using <code>$CLAUDE_CODE_SESSION_ID</code> to namespace session-specific state; gateway users who relied on automatic model-picker population need to add <code>CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1</code> to their environment — the model list will have silently reverted to the default without it.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code GitHub releases and changelog; versions confirmed in the npm registry.</li>
+  <li><strong>Skeptic check:</strong> The gateway discovery opt-in revert could break setups silently — if your model picker stopped listing gateway models after updating past 2.1.128, this env var is the fix.</li>
+</ul>
+
+<h3>Cursor shows per-component context breakdown — rules, skills, MCPs, subagents each get a number</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor, changelog, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/05-06-26">Context Usage Breakdown — Cursor changelog</a></li>
+  <li><strong>TL;DR:</strong> Clicking the context ring on any agent session now shows how much context each component is consuming — rules, skills, MCPs, subagents — so you can see which bucket is eating your window before the agent runs out of room.</li>
+  <li><strong>What to do:</strong> Pull up the breakdown on your heaviest agents; if rules or MCPs are dominating, make them conditional (load on demand rather than always-on) to recover context space for code and outputs.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog entry for May 6, 2026, confirmed by community forum thread.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Cursor enterprise gets per-provider model blocklists and soft spend limits — migration required by June 1</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor, changelog, May 4, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog — cursor.com</a></li>
+  <li><strong>TL;DR:</strong> Enterprise admins now have granular model and provider controls: block by provider, model family, or context window size; set soft spend limits (non-blocking) with automatic user alerts at 50%, 80%, and 100% of the limit; block new providers or model versions by default. Teams with existing hard-limit blocklists must migrate to the new format by June 1, 2026.</li>
+  <li><strong>What to do:</strong> If you manage a Cursor Enterprise account, migrate your blocklists before June 1; consider converting hard limits to soft limits with alert thresholds to avoid blocking users while still controlling spend.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog; migration deadline is stated explicitly in the announcement.</li>
+  <li><strong>Skeptic check:</strong> Migration is mandatory — non-migrated configs may stop working on June 1 without further warning.</li>
+</ul>
+
+<h3>Comprehensive tests are a hard prerequisite before you trust an agent with your codebase</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison, simonwillison.net, May 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/6/vibe-coding-and-agentic-engineering/">Vibe coding and agentic engineering are getting closer than I'd like — simonwillison.net</a></li>
+  <li><strong>TL;DR:</strong> As coding agents become more reliable, engineers naturally stop reviewing every line they generate — Willison calls this normalization of deviance. The agents produce code faster than humans can read it, and a comprehensive, stable test suite is what lets CI catch the mistakes when you're not watching closely. Planning before handing off to the agent is essential and pays off more at the agentic scale.</li>
+  <li><strong>What to do:</strong> Before giving an agent a non-trivial task, verify CI coverage is good enough that a test failure would catch the agent's mistakes; if coverage is thin, write the tests first and let the agent build against them rather than the other way around.</li>
+  <li><strong>Why trust it:</strong> Personal observation from extended production use of coding agents; no controlled study, but consistent with practitioner reports across the community.</li>
+  <li><strong>Skeptic check:</strong> Confirmation bias applies — engineers who already value testing will attribute agentic success to it; no controlled comparison against low-coverage codebases under identical tasks.</li>
+</ul>
+
+<h3>Split agent memory into a vault (context) and a config (taste) to make corrections compound</h3>
+<ul>
+  <li><strong>Source:</strong> Eugene Yan, eugeneyan.com, May 3, 2026</li>
+  <li><strong>Link:</strong> <a href="https://eugeneyan.com/writing/working-with-ai/">How to Work and Compound with AI — eugeneyan.com</a></li>
+  <li><strong>TL;DR:</strong> Keep a <code>~/vault/</code> for project state, artifacts, and domain facts (what the agent needs to know to do the work), and a <code>~/.claude/</code>-style config directory for preferences, workflows, and taste (how it should behave). Any time you correct the agent, encode the fix as a rule or skill so it doesn't need repeating. Skills are plain markdown files — a name, a trigger, and a procedure — that load on demand and function as written workflows.</li>
+  <li><strong>What to do:</strong> Create a <code>~/vault/</code> with per-project subdirectories; add a <code>skills/</code> directory for any operation you do more than once a week; after each agent correction, encode the fix as a rule or skill rather than re-prompting next time.</li>
+  <li><strong>Why trust it:</strong> Eugene Yan is a practicing engineer at Anthropic building production recommendation systems; the workflow is drawn from his personal experience, not a controlled study.</li>
+  <li><strong>Skeptic check:</strong> The system requires discipline to keep the vault current; stale or contradictory context can mislead the agent as much as no context at all.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><a href="https://blakecrosley.com/blog/code-with-claude-sf-2026-recap">blakecrosley.com</a> — surfaced in search as the most detailed third-party recap of Code w/ Claude SF 2026; cited by multiple aggregators. Track record unknown; single article observed. Worth watching if London (May 19) and Tokyo (June 10) editions get similar coverage.</li>
+</ul>
+
+</div>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Code w/ Claude SF 2026, Claude Code GitHub releases, Claude API Docs), Cursor changelog, Simon Willison (simonwillison.net), Eugene Yan (eugeneyan.com). Search snippets from releasebot.io, blakecrosley.com, and forum.cursor.com used to supplement inaccessible primary sources.</p>
+
+  <p><strong>Skipped:</strong> SpaceX Colossus partnership announcement (capacity/infrastructure, no workflow change); Nathan Lambert "The Distillation Panic" (May 4, 2026 — AI policy terminology, not practitioner workflow); Cursor 3.1 tiled layout (April 13) and 3.2 <code>/multitask</code> (April 24) — both outside window; Windsurf 2.0 / Devin integration (April 15) — outside window; Claude Agent SDK rename from "Claude Code SDK" (March 2026) — outside window; Anthropic Managed Agents public beta launch (April 8) — outside window; Anthropic multi-agent harness engineering blog post (March 24) — outside window; multiple model capability and leaderboard announcements without methodology change.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 across simonwillison.net, cursor.com, releasebot.io, anthropic.com, eugeneyan.com, and blakecrosley.com — all item coverage is from web-search snippets only. No in-window posts confirmed from Latent Space, Chip Huyen, or Hamel Husain. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not accessible. No arXiv papers from May 2–7 passed the "change workflow tomorrow" test.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://simonwillison.net/2026/May/6/vibe-coding-and-agentic-engineering/">simonwillison.net — Vibe coding and agentic engineering</a> — 403 — wanted full post text to verify direct quotes and check for additional concrete recommendations beyond what appeared in search snippets.</li>
+    <li><a href="https://simonwillison.net/2026/May/6/code-w-claude-2026/">simonwillison.net — Live blog: Code w/ Claude 2026</a> — 403 — wanted full live-blog content to check for practitioner-relevant items missed in search snippets.</li>
+    <li><a href="https://cursor.com/changelog/05-06-26">cursor.com/changelog/05-06-26</a> — 403 — wanted to confirm token counts and Cursor version number for the context breakdown feature.</li>
+    <li><a href="https://releasebot.io/updates/anthropic/claude-code">releasebot.io/updates/anthropic/claude-code</a> — 403 — wanted complete version-by-version Claude Code changelog for 2.1.126–2.1.132.</li>
+    <li><a href="https://eugeneyan.com/writing/working-with-ai/">eugeneyan.com — How to Work and Compound with AI</a> — 403 — wanted full article text to verify the vault/config workflow and extract any additional patterns.</li>
+    <li><a href="https://blakecrosley.com/blog/code-with-claude-sf-2026-recap">blakecrosley.com — Code with Claude SF 2026 recap</a> — 403 — wanted to verify conference announcements in full detail rather than relying on search snippets.</li>
+  </ul>
+</div>
+
+</body>
+</html>
