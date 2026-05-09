@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-08T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-08, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-08, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-07T12:00:00Z – 2026-05-08T12:00:00Z.</p>
+
+<h3>Claude Code capped Opus 4.7 at 200K context instead of 1M — now fixed</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code CHANGELOG, May 7, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
+  <li><strong>TL;DR:</strong> A bug caused Claude Code to calculate context usage against a 200K window instead of Opus 4.7's actual 1M capacity, making <code>/context</code> show inflated percentages and triggering autocompact five times too early. The May 7 release fixes the denominator. The same release also speeds up <code>/resume</code> on large sessions (up to 67% faster on sessions over 40 MB), adds an <code>xhigh</code> effort level for Opus 4.7 (via <code>/effort</code>, <code>--effort</code>, or the model picker), a <code>worktree.baseRef</code> setting to choose whether isolated worktrees branch from <code>origin/&lt;default&gt;</code> or local <code>HEAD</code>, and a <code>/less-permission-prompts</code> skill that scans past transcripts to build an allow-list of read-only Bash and MCP calls.</li>
+  <li><strong>What to do:</strong> Update Claude Code; if you built retries or off-peak workarounds to cope with early autocompaction on Opus 4.7, remove them — the model now has access to its full 1M window. If you run large archived sessions, the <code>/resume</code> speedup alone is worth the update.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic Claude Code CHANGELOG; multiple GitHub issues filed by Max-plan users confirmed the 200K denominator bug before the fix shipped.</li>
+  <li><strong>Skeptic check:</strong> If you have a custom <code>autoCompact.threshold</code> set to a fraction of what you thought was 200K, recalibrate it against the actual 1M — your effective compaction point has just shifted significantly.</li>
+</ul>
+
+<h3>Cursor 3.3: full PR lifecycle stays inside the editor, plans run in parallel</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor, changelog, May 7, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog — cursor.com</a></li>
+  <li><strong>TL;DR:</strong> Three additions to the Agents Window: PR Review lets you take a pull request from creation to merge without leaving Cursor; Build Plan in Parallel lets sub-plans run concurrently instead of sequentially; and Split PRs gives you a split-pane view to manage multiple agents or tasks side by side.</li>
+  <li><strong>What to do:</strong> Try PR Review as a replacement for opening GitHub in a browser tab for code review — it closes the context-switch gap between editing and reviewing. If you have agent plans with independent branches of work, enable parallel planning to cut wall-clock time.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog entry for May 7, 2026; community forum thread confirms feature availability.</li>
+  <li><strong>Skeptic check:</strong> PR Review quality varies by repo complexity; on large diffs or monorepos, verify the agent's review surface before relying on it.</li>
+</ul>
+
+<h3>Codex agents can now work across browser tabs; Codex-Spark added at 128K context</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI, Codex changelog, May 7, 2026</li>
+  <li><strong>Link:</strong> <a href="https://developers.openai.com/codex/changelog">Codex changelog — OpenAI Developers</a></li>
+  <li><strong>TL;DR:</strong> Two additions in Codex 0.129.0: a Chrome extension lets Codex agents work across browser tabs in the background in parallel — you control which sites it can access, and it doesn't take over your browser; Codex-Spark is now in research preview for ChatGPT Pro users, text-only with a 128K context window. The same release adds Vim-mode editing in the TUI composer (<code>/vim</code>), a redesigned resume/fork picker, and raw scrollback mode.</li>
+  <li><strong>What to do:</strong> Install the Chrome extension if your Codex workflows involve web browsing, scraping, or form-filling; use Codex-Spark for tasks that fit in 128K when you want faster or cheaper inference than the full Codex model. Verify your team's acceptable-use policy allows browser-level agent access before rolling the extension out broadly.</li>
+  <li><strong>Why trust it:</strong> Official OpenAI Codex changelog; version 0.129.0-alpha.15 confirmed in the OpenAI developer changelog for May 7, 2026.</li>
+  <li><strong>Skeptic check:</strong> Codex-Spark is text-only and in research preview — billing model and capability bounds will likely change; don't architect production workflows around its current behavior.</li>
+</ul>
+
+<h3>MCP blueprint pattern: agent reasons once, all future runs cost near-zero tokens</h3>
+<ul>
+  <li><strong>Source:</strong> Parmar, arXiv:2605.00827, May 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.00827">Separating Intelligence from Execution: A Workflow Engine for MCP — arXiv</a></li>
+  <li><strong>TL;DR:</strong> In the usual approach, an agent reasons about every MCP tool call every time it runs, spending tokens proportional to how many actions it takes — even for tasks it has solved before. This paper proposes having the agent reason once to produce a declarative JSON blueprint (a directed sequence of MCP tool calls with loops, parallel branches, and data piping), then execute all future runs via a single <code>run_workflow</code> call with near-zero reasoning overhead. The author reports over 99% token reduction per re-execution and deterministic, idempotent results.</li>
+  <li><strong>What to do:</strong> Watch this; no action yet. If you run MCP-heavy agents on the same repeating workflow (scheduled CI checks, nightly data pipelines, recurring test suites), the blueprint pattern is worth prototyping — but it requires building a custom MCP orchestration layer, which is not off-the-shelf today.</li>
+  <li><strong>Why trust it:</strong> Single researcher; tested on a graph with 1,200+ nodes and 2,800+ relationships. No independent replication yet.</li>
+  <li><strong>Skeptic check:</strong> The 99% token saving is against repeated reasoning, not against a cached or memoized baseline; real-world savings depend on how stable the workflow stays between runs — any change to the task requires re-reasoning.</li>
+</ul>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code GitHub releases/CHANGELOG), Cursor changelog, OpenAI (Codex changelog), arXiv (Parmar, 2605.00827). Search snippets from releasebot.io, forum.cursor.com, GitHub issue tracker, developers.openai.com, and alphaxiv.org used to supplement inaccessible primary sources.</p>
+
+  <p><strong>Skipped:</strong> Simon Willison's notes on the xAI/Anthropic Colossus data center deal (May 7 — infrastructure/environmental, no workflow change); llm-gemini 0.31 release (May 7 — gemini-3.1-flash-lite leaves preview, no practitioner workflow change); Codex <code>/goal</code> persisted workflows and permission profiles (broad Codex release from earlier in window, described at too high a level in snippets to verify concrete facts); arXiv 2605.03378 ARGUS prompt-injection defense (interesting but about building a new defense layer, not configuring existing tools); arXiv 2605.01920 Agentic Context Description Language (too abstract, no actionable finding for existing tools); arXiv 2605.01567 RL coding agent memory (too specialized, building new systems).</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — item coverage is from web-search snippets only. Hacker News front pages for May 7–8 not directly accessible; no threads above 200 points confirmed in window. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not accessible. No in-window posts confirmed from Latent Space, Hamel Husain, Chip Huyen, or Nathan Lambert. Windsurf changelog for May 7–8 not confirmed (no specific in-window release found). Gemini CLI latest stable (v0.40.0, April 28) outside window; preview v0.42.0 undated.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 via r.jina.ai — wanted exact version numbers for the May 7 Claude Code release.</li>
+    <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 via r.jina.ai — wanted full changelog text to confirm all May 7 feature details.</li>
+    <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 via r.jina.ai — wanted exact Cursor 3.3 release date and full feature descriptions.</li>
+    <li><a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — not fetched directly — wanted to confirm all 0.129.0 features and precise release timestamp.</li>
+    <li><a href="https://arxiv.org/html/2605.00827">arxiv.org/html/2605.00827</a> — 403 via r.jina.ai — wanted full paper text to verify benchmark details and token-saving measurement methodology.</li>
+    <li><a href="https://simonwillison.net/2026/May/7/xai-anthropic/">simonwillison.net — Notes on the xAI/Anthropic data center deal</a> — 403 — wanted to verify whether any practitioner-relevant workflow implications were buried below the headline.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
