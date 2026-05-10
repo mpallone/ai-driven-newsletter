@@ -3,82 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-09T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-09, 5 items</title>
+  <meta name="published" content="2026-05-10T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-10, 1 item</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-09, 5 items</h1>
+<h1>AI Tools Digest — 2026-05-10, 1 item</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-08T12:00:00Z – 2026-05-09T12:00:00Z.</p>
+<p class="window-note">Window: 2026-05-09T12:00:00Z – 2026-05-10T12:00:00Z.</p>
 
-<h3>Ask Claude Code for self-contained HTML, not Markdown, on deliverables</h3>
+<h3>MCP OAuth tokens survive concurrent server refresh</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison (linking to Thariq Shihipar, Anthropic Claude Code team), May 8, 2026</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/8/unreasonable-effectiveness-of-html/">Using Claude Code: The Unreasonable Effectiveness of HTML — simonwillison.net</a></li>
-  <li><strong>TL;DR:</strong> When the output is meant to be read by a human — a plan, comparison, code review, explainer, or status report — asking Claude Code to produce a self-contained <code>.html</code> file yields something you'll actually open and navigate rather than a wall of Markdown you'll skim. Thariq Shihipar (Anthropic) illustrated this with 20 concrete example files; each trades a flat text document for one with layout, colour, and navigation. The explicit carve-out is short conversational replies, code-only outputs, and terminal-style answers.</li>
-  <li><strong>What to do:</strong> Add "produce a self-contained HTML file" to your prompts or system prompt for report-style, comparison, and review tasks — leave it off for code-only outputs and conversational exchanges.</li>
-  <li><strong>Why trust it:</strong> Written by Thariq Shihipar, Anthropic engineer on the Claude Code team; 20 concrete example <code>.html</code> files published; HN thread (id 48071940) opened within hours of publication. Single author, no controls.</li>
-  <li><strong>Skeptic check:</strong> Practitioner recommendation backed by examples, not a controlled study — the claim that HTML is "more useful" is not independently measured.</li>
-</ul>
-
-<h3>Cursor Bugbot now learns from PR feedback to cut false positives over time</h3>
-<ul>
-  <li><strong>Source:</strong> Cursor blog, May 8, 2026</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/blog/bugbot-learning">Bugbot now self-improves with learned rules — Cursor blog</a></li>
-  <li><strong>TL;DR:</strong> Bugbot turns developer reactions (thumbs up/down) and human reviewer comments on pull requests into persistent rules that shape all future reviews in that repo. Teams and Enterprise plans can now also give Bugbot access to MCP servers for additional context (issue tracker, docs, etc.) through the Bugbot dashboard. Since the beta opened, 110,000+ repos enabled learning and 44,000+ rules were auto-generated; the stated resolution rate is now ~80%, which Cursor claims is 15 percentage points above the next closest AI code-review product.</li>
-  <li><strong>What to do:</strong> Enable Bugbot learning and consistently react to its comments — thumbs up on a good catch, thumbs down on a false positive; both feed the rule engine directly. On Teams/Enterprise, connect your issue-tracker or docs MCP server from the Bugbot dashboard.</li>
-  <li><strong>Why trust it:</strong> Official Cursor blog post; concrete aggregate numbers (110k repos, 44k rules); resolution rate compared to a named competitor class. Cursor's own benchmark, no independent replication.</li>
-  <li><strong>Skeptic check:</strong> "Resolution rate" counts bugs fixed before merge; 20% unresolved could be false positives or intentional decisions to fix later — the denominator matters for interpreting the 80% claim.</li>
-</ul>
-
-<h3>Rewording your LLM eval criteria flips up to 9% of verdicts on clear-cut cases</h3>
-<ul>
-  <li><strong>Source:</strong> Weng, Feng, Xie — arXiv:2605.06161, appeared May 8, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.06161">Beyond Accuracy: Policy Invariance as a Reliability Test for LLM Safety Judges — arXiv</a></li>
-  <li><strong>TL;DR:</strong> Using an LLM to score your agent's outputs is now standard practice, but rewording the evaluation criteria while keeping the meaning the same flips up to 9.1% of verdicts above baseline noise. More troubling: 18–43% of those flips land on cases where the answer should be obvious. The eval score your pipeline reports is less stable than it looks.</li>
-  <li><strong>What to do:</strong> Before trusting an LLM judge pipeline, run the evaluation criteria through 3–5 semantically equivalent rewrites and measure what fraction of verdicts change; if you see more than ~5% flips on unambiguous cases, treat your scores as directional only.</li>
-  <li><strong>Why trust it:</strong> Submitted May 7, 2026 (appeared May 8); systematic content-preserving rewrites tested against baseline jitter; flip rates broken down by case ambiguity; three falsifiable criteria formalized.</li>
-  <li><strong>Skeptic check:</strong> Tests focus on safety-style evaluation tasks; verdict stability for code-quality or helpfulness judges may differ — the finding does not yet generalize beyond safety scoring.</li>
-</ul>
-
-<h3>Coding agents lose ~30 accuracy points when all production constraints stack at once</h3>
-<ul>
-  <li><strong>Source:</strong> Dente, Satriani, Papotti — arXiv:2605.06445, appeared May 8, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.06445">Constraint Decay: The Fragility of LLM Agents in Backend Code Generation — arXiv</a></li>
-  <li><strong>TL;DR:</strong> Coding agents that pass tests on simple specs fail significantly once you add database schemas, ORMs, architectural patterns, and framework conventions all at once. Assertion pass rates drop ~30 points on average from unconstrained to fully constrained tasks. Minimal, explicit frameworks (Flask) outperform convention-heavy ones (FastAPI, Django) by a substantial margin — the gap is driven by data-layer defects (wrong query composition, ORM runtime violations) that agents generate when they must infer conventions rather than follow explicit specs.</li>
-  <li><strong>What to do:</strong> Test your coding agent against the full constraint set it will face in production, not simplified stand-ins; when an agent bootstraps new backend code, bias toward explicit minimal frameworks before layering in convention-heavy dependencies.</li>
-  <li><strong>Why trust it:</strong> 80 greenfield + 20 feature-implementation tasks across 8 web frameworks; quantitative assertion pass-rate measurement; submitted May 7, appeared May 8, 2026.</li>
-  <li><strong>Skeptic check:</strong> Backend web API generation tasks only — the ~30-point drop and framework rankings may not hold for frontend, data pipelines, or infrastructure work.</li>
-</ul>
-
-<h3>Claude Code: failing read-only shell calls no longer cancel their parallel siblings</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code CHANGELOG, ~May 8–9, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
-  <li><strong>TL;DR:</strong> A bug caused a failing read-only shell call (<code>grep</code>, <code>git diff</code>, <code>ls</code>) to cancel every other parallel tool call in the same batch. That is now fixed: each call runs to completion independently. A separate fix in the same release batch stops 1M-context model sessions from throwing a false "Prompt is too long" error before the session actually reaches the API limit — the autocompact window calculation was wrong on large-context models.</li>
-  <li><strong>What to do:</strong> Update Claude Code; if you added <code>|| true</code> or similar hacks to read-only shell commands to prevent them from killing sibling parallel calls, remove those workarounds.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic CHANGELOG; fix described in search snippets as released within the last 1–2 days. Exact version number not confirmed from available sources — verify with <code>claude --version</code> after updating.</li>
-  <li><strong>Skeptic check:</strong> Release date is approximate; the fix may already be in whatever version you have installed.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code official changelog + release aggregators (releasebot.io, changelogs.info), May 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — code.claude.com</a></li>
+  <li><strong>TL;DR:</strong> Two May 9 Claude Code releases address three separate issues that waste turns or force re-authentication. First (v2.1.137): the VS Code extension was not activating at all on Windows — the whole extension was silently dead on startup. Second (v2.1.138, per aggregators): when multiple remote MCP servers all tried to refresh their OAuth tokens at the same time, they clobbered each other's refresh tokens, causing a "please re-login" prompt each day for anyone running three or more remote servers. Third (v2.1.138, per aggregators): LSP diagnostic messages recorded before an edit were appearing in Claude's view after the edit completed, causing Claude to re-read the file it just finished editing — burning tokens on a turn that accomplished nothing.</li>
+  <li><strong>What to do:</strong> Run <code>npm update -g @anthropic-ai/claude-code</code> or your equivalent update command. If you run multiple remote MCP servers and were seeing daily re-authentication prompts, that should stop. If Claude was visibly re-reading files immediately after editing them, that loop should also stop.</li>
+  <li><strong>Why trust it:</strong> The v2.1.137 VS Code Windows fix is confirmed directly from the official Claude Code changelog at code.claude.com. The v2.1.138 MCP OAuth race and LSP staleness fixes are reported by release aggregators (releasebot.io, changelogs.info) that track the upstream CHANGELOG.md; the official changelog entry for v2.1.138 reads only "Internal fixes" — the aggregators' detailed descriptions could not be independently verified because the GitHub CHANGELOG.md and claudefa.st returned 403 during this run.</li>
+  <li><strong>Skeptic check:</strong> The detailed MCP OAuth and LSP fixes attributed to v2.1.138 by aggregators may be from adjacent version entries misattributed during aggregation, or they may have shipped in earlier versions already on your machine — confirm with <code>claude --version</code> before and after updating.</li>
 </ul>
 
 <div class="footer">
-  <p><strong>Sources used today:</strong> Simon Willison / Thariq Shihipar (simonwillison.net, thariqs.github.io); Cursor blog (bugbot-learning); Weng, Feng, Xie (arXiv:2605.06161); Dente, Satriani, Papotti (arXiv:2605.06445); Anthropic (Claude Code GitHub releases/CHANGELOG). Search snippets from releasebot.io, claudefa.st, changelogs.info, and HN item 48071940 used to supplement inaccessible primary sources.</p>
+  <p><strong>Sources used today:</strong> Anthropic Claude Code official changelog (code.claude.com); releasebot.io Claude Code May 2026 release tracker; changelogs.info Claude Code changelog.</p>
 
-  <p><strong>Skipped:</strong> Claude Code MCP stdio corruption fix and <code>CLAUDE_CODE_SESSION_ID</code> env var (confirmed May 6 — before window); Codex GPT-5.5 availability (April 23 — before window); AWS MCP Server GA (May 6 — before window); Windsurf v2.2.17 (May 6 — before window); Anthropic multi-agent research engineering post (June 2025 — before window); Claude Code rate limit doubling / SpaceX compute deal (May 6 — before window, infrastructure only); Simon Willison xAI/Anthropic notes (May 7 — before window, infrastructure, no workflow change); Nathan Lambert "The distillation panic" (~May 4 — before window, model architecture focus); Claude Code GitHub issue #40459 omitClaudeMd subagent regression (filed March 2026 — before window).</p>
+  <p><strong>Skipped:</strong> Cursor 3.3 PR review + parallel agent plan execution (May 7 — before window); Windsurf 2.0 with Devin integration (May 6 — before window); ServiceNow Build Agent GA in Cursor/Windsurf/Claude Code/Copilot (May 5–6 — before window); Claude Opus 4.7 (April 16 — before window); MCP 2026 roadmap post (March 9 — before window); ARGUS prompt-injection defense paper arXiv:2605.03378 (~May 3–5 — before window); Simon Willison's May 9 Luke Curley WebRTC quote (not AI tools relevant); Nathan Lambert "The distillation panic" (May 4 — before window, model architecture); Anthropic "Demystifying evals for AI agents" blog (January 2026 — before window); Anthropic "Opus 4.5 beats performance engineering exam" blog (January 2026 — before window).</p>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — all item details obtained from web-search snippets only. HN front page for May 8 not directly accessible; HN score for item 48071940 not confirmed. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not accessible. No in-window posts confirmed from Latent Space, Hamel Husain, Chip Huyen, or Eugene Yan. Windsurf: most recent confirmed release is v2.2.17 on May 6 — no May 8–9 release found. Cursor changelog page not directly fetched; May 8 Bugbot date confirmed from search snippet descriptions only. arXiv submission dates for 2605.06161 and 2605.06445 confirmed as May 7 via search snippets (listed on arXiv May 8).</p>
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed fetches returned 403; direct WebFetch to GitHub CHANGELOG.md, claudefa.st, and releasebot.io also returned 403 — detailed v2.1.138 fix descriptions come from search-snippet summaries only. HN front page inaccessible. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/LocalLLaMA, r/vibecoding) not accessible. No confirmed May 9–10 posts from Latent Space, Hamel Husain, Eugene Yan, Chip Huyen, or Nathan Lambert. Windsurf: no release confirmed after v2.2.17 on May 6.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://simonwillison.net/2026/May/8/unreasonable-effectiveness-of-html/">simonwillison.net — HTML effectiveness post</a> — 403 via r.jina.ai — wanted full post text to confirm all claimed use-case examples and explicit carve-outs.</li>
-    <li><a href="https://thariqs.github.io/html-effectiveness/">thariqs.github.io/html-effectiveness/</a> — 403 via r.jina.ai — wanted to review the 20 example HTML files directly.</li>
-    <li><a href="https://news.ycombinator.com/item?id=48071940">news.ycombinator.com — HN thread 48071940</a> — 403 via r.jina.ai — wanted exact point score and top comments to confirm community resonance threshold.</li>
-    <li><a href="https://cursor.com/blog/bugbot-learning">cursor.com/blog/bugbot-learning</a> — 403 via r.jina.ai — wanted full post text to confirm May 8 publication date and exact feature details.</li>
-    <li><a href="https://arxiv.org/abs/2605.06161">arxiv.org/abs/2605.06161</a> — 403 via r.jina.ai — wanted full abstract and author details to verify eval methodology and measurement scope.</li>
-    <li><a href="https://arxiv.org/abs/2605.06445">arxiv.org/abs/2605.06445</a> — 403 via r.jina.ai — wanted full abstract to verify framework comparison methodology and task counts.</li>
-    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 via r.jina.ai — wanted exact version numbers for May 8–9 Claude Code releases to confirm the parallel shell fix date.</li>
+    <li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">github.com — Claude Code CHANGELOG.md</a> — 403 via r.jina.ai — wanted to confirm exact fix descriptions attributed to v2.1.138 by aggregators.</li>
+    <li><a href="https://releasebot.io/updates/anthropic/claude-code">releasebot.io — Claude Code release tracker</a> — 403 via r.jina.ai — wanted per-version breakdown of May 9 entries to confirm MCP OAuth and LSP fix attribution.</li>
+    <li><a href="https://news.ycombinator.com/front">news.ycombinator.com — HN front page</a> — 403 via r.jina.ai — wanted May 9–10 top posts ≥200 points on AI tools topics.</li>
   </ul>
 </div>
 
