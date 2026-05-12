@@ -3,51 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-11T11:15:07Z">
-  <title>AI Tools Digest — 2026-05-11, 2 items</title>
+  <meta name="published" content="2026-05-12T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-12, 4 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-11, 2 items</h1>
+<h1>AI Tools Digest — 2026-05-12, 4 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-09T12:00:00Z – 2026-05-11T11:15:07Z. Quiet 47-hour window; two items met the inclusion bar.</p>
+<p class="window-note">Window: 2026-05-11T11:15:07Z – 2026-05-12T12:00:00Z.</p>
 
-<h3>Claude Code MCP stdio servers no longer blow up memory with debug output</h3>
+<h3>Claude Code /goal replaces turn-by-turn task supervision</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code CHANGELOG, May 8–9, 2026 (v2.1.136–v2.1.138)</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
-  <li><strong>TL;DR:</strong> If a <code>stdio</code> MCP server writes anything other than valid JSON-RPC to <code>stdout</code> — debug logs, startup banners, random print statements — Claude Code was buffering all of it indefinitely, causing sessions to climb past 10 GB RSS. That memory leak is now fixed. In the same release batch: MCP servers that connect but silently return zero tools (because <code>tools/list</code> fails) now retry once automatically and show <code>connected · tools fetch failed</code> in <code>/mcp</code> instead of looking healthy while being useless. Separately, the VS Code extension was failing to activate on Windows at all (v2.1.137 fix).</li>
-  <li><strong>What to do:</strong> Update Claude Code (<code>npm update -g @anthropic-ai/claude-code</code>); if any of your MCP stdio servers write non-JSON to <code>stdout</code> (logging frameworks, startup messages), redirect that output to <code>stderr</code> so it never hits the protocol channel — the fix prevents the leak but the cleaner long-term fix is correct server behavior.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic CHANGELOG; specific version numbers (v2.1.136, v2.1.137, v2.1.138) confirmed from search snippets citing the GitHub releases page; exact fix description matches the issue filed in GitHub issue #33735 describing sessions reaching 18 GB. Exact version for each sub-fix not independently verified — check <code>claude --version</code> and the changelog directly.</li>
-  <li><strong>Skeptic check:</strong> The memory fix may land in v2.1.136 (May 8) rather than v2.1.138 (May 9); the exact version boundary was not confirmed from available sources — update to latest either way.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.139, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.139">Claude Code v2.1.139 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> The new <code>/goal</code> command takes a plain-English completion condition ("all tests pass", "the PR description is ready") and keeps Claude running turn after turn until a small fast model checks the condition and confirms it is true — you don't supervise each turn, you come back when it's done. The same release adds <strong>agent view</strong> (<code>claude agents</code>): a single dashboard listing every session with its state (running, waiting for your input, done), so you can manage several background tasks without juggling terminal tabs. Also fixed: Bedrock and Vertex users were getting 400 errors when <code>ENABLE_PROMPT_CACHING_1H</code> was set; that is now resolved.</li>
+  <li><strong>What to do:</strong> Update to v2.1.139 (<code>npm update -g @anthropic-ai/claude-code</code>), then try <code>/goal all tests pass</code> on a well-scoped task to see the autonomous loop in action; run <code>claude agents</code> if you regularly juggle more than two parallel sessions.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; version number (v2.1.139, May 11) confirmed from the Claude Code GitHub releases page and multiple third-party summaries citing the same changelog; feature mechanics described consistently across Anthropic docs (code.claude.com/docs/en/goal) and the official Anthropic blog post on agent view.</li>
+  <li><strong>Skeptic check:</strong> The fast model that checks the condition after each turn adds latency and token cost per loop iteration; for simple tasks this overhead may outweigh the convenience gain — benchmark on your own workload before using it as the default.</li>
 </ul>
 
-<h3>Top LLM agents detect stale memories correctly only 55% of the time</h3>
+<h3>Bugbot high effort finds 36% more bugs per run</h3>
 <ul>
-  <li><strong>Source:</strong> Hanxiang Chao, Yihan Bai, Rui Sheng, Tianle Li, Yushi Sun — arXiv:2605.06527, submitted May 7, appeared May 8–9, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.06527">STALE: Can LLM Agents Know When Their Memories Are No Longer Valid? — arXiv</a></li>
-  <li><strong>TL;DR:</strong> Agents that maintain long-term memory fail badly when earlier stored facts are quietly invalidated by later observations — not overwritten, just made wrong. The hardest case is what the authors call "Implicit Conflict": a new message makes a stored memory wrong without ever directly saying so (e.g., "I moved to Berlin" silently invalidates a stored home address). Tested across 400 scenarios spanning 100 everyday topics with contexts up to 150K tokens, the best evaluated frontier model gets only 55.2% overall accuracy across three capabilities: detecting that a stored belief is now outdated, rejecting questions that assume the old state is still true, and applying the updated state in downstream behavior.</li>
-  <li><strong>What to do:</strong> Do not rely on agents to self-diagnose when their persisted memory is stale; add explicit memory-validation steps in your harness — at re-entry points in long-running sessions, have the agent re-read relevant stored facts and check whether anything in the recent conversation contradicts them before acting.</li>
-  <li><strong>Why trust it:</strong> 400 expert-validated scenarios, 1,200 evaluation queries across three probing dimensions, contexts up to 150K tokens; frontier LLMs and specialized memory frameworks both tested; submitted May 7, appeared arXiv May 8–9, 2026.</li>
-  <li><strong>Skeptic check:</strong> Scenarios cover everyday topics — failure rates on structured, domain-specific agent memory (code repository state, task tracking) may differ; the benchmark does not test production harnesses that already include explicit validation logic.</li>
+  <li><strong>Source:</strong> Cursor, changelog entry May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/05-11-26">Cursor changelog — May 11, 2026</a></li>
+  <li><strong>TL;DR:</strong> Cursor's Bugbot PR reviewer now ships with three configurable effort levels: Default (0.7 bugs found per run on average, fast), High (0.95 bugs per run, slower and more expensive), and Custom (you write a natural-language rule — "use high effort for PRs touching payments code" — and Bugbot decides per-PR). The jump from Default to High is roughly 36% more bugs caught per run. Alongside this, Bugbot drops its flat $40/seat/month fee and moves to usage-based billing for Teams and Individual plans; you only pay for reviews that actually run.</li>
+  <li><strong>What to do:</strong> Use Default effort as your baseline; switch to High or a Custom rule only for PRs in high-risk areas (auth, payments, data migrations) where catching one extra bug justifies the increased cost and wait time; check your Bugbot spend after the first billing cycle under usage-based pricing.</li>
+  <li><strong>Why trust it:</strong> Cursor's own changelog with per-tier average bug counts (0.7 Default, 0.95 High) drawn from Bugbot's production run history; the 79% "resolved at merge" figure for Default effort adds a baseline quality signal. Cursor's own data — no independent replication.</li>
+  <li><strong>Skeptic check:</strong> "Bugs found per run" averages obscure variance — for a specific repo or team, high effort may find zero extra bugs or many more; calibrate on your own PR history before locking in a blanket high-effort policy.</li>
+</ul>
+
+<h3>Make any LLM prompt script directly executable</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison, simonwillison.net, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/11/llm-shebang/">TIL: Using LLM in the shebang line of a script — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Simon Willison's <a href="https://github.com/simonw/llm">LLM CLI tool</a> can live in a shebang line, making a plain-text file a first-class executable. Minimum working form: <code>#!/usr/bin/env -S llm -f Generate an SVG of a pelican riding a bicycle</code>. The <code>-S</code> flag is essential — without it, <code>env</code> treats everything after the command name as one string instead of splitting into separate arguments. To add tool calls, append <code>-T tool_name</code>; to bundle a full prompt with custom Python tool functions, point the shebang at a YAML template file instead of an inline <code>-f</code> string.</li>
+  <li><strong>What to do:</strong> If you use the LLM CLI tool, turn your frequently-reused prompts into <code>chmod +x</code> scripts in your <code>~/bin</code> directory — they become self-documenting, composable with pipes, and callable from shell aliases or other scripts.</li>
+  <li><strong>Why trust it:</strong> Simon Willison is the author and maintainer of the LLM CLI tool; the technique is a working code snippet from his own TIL blog, confirmed executable. The <code>-S</code> flag behavior in <code>env</code> is a documented POSIX extension present in GNU coreutils and macOS.</li>
+  <li><strong>Skeptic check:</strong> Works only if the LLM CLI tool is installed in the environment where the script runs; breaks silently in Docker images or CI environments that do not have it, so check portability before relying on shebang scripts in shared pipelines.</li>
+</ul>
+
+<h3>Claude Platform on AWS reaches general availability</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic / AWS, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/claude-platform-on-aws">Introducing the Claude Platform on AWS — Anthropic blog</a></li>
+  <li><strong>TL;DR:</strong> AWS is now the first cloud provider hosting a full Anthropic-native Claude Platform — not just model access via Amazon Bedrock, but the complete API surface: Messages, Files, Batch, Managed Agents, Agent Skills, and code execution, authenticated through AWS IAM and billed through your existing AWS account. Opus 4.7, Sonnet 4.6, and Haiku 4.5 are available at launch; new models will ship there as they release. No separate Anthropic account is required.</li>
+  <li><strong>What to do:</strong> If your stack already runs on AWS, evaluate switching to the Claude Platform on AWS endpoint to consolidate billing and access Managed Agents and Agent Skills without maintaining a separate Anthropic API key; review IAM permission requirements and check regional availability against your data-residency constraints before migrating production traffic.</li>
+  <li><strong>Why trust it:</strong> Joint announcement from Anthropic and AWS; GA date of May 11, 2026 confirmed on the official AWS "What's New" page and the Anthropic blog, with the announcement consistent across multiple independent tech news sources.</li>
+  <li><strong>Skeptic check:</strong> Anthropic noted this is for teams without specific regional data-residency requirements — if your workload is residency-constrained, verify the available Claude Platform on AWS regions before migrating.</li>
 </ul>
 
 <div class="footer">
-  <p><strong>Sources used today:</strong> Anthropic (Claude Code GitHub releases/CHANGELOG, v2.1.136–v2.1.138); Chao, Bai, Sheng, Li, Sun (arXiv:2605.06527). Search snippets from releasebot.io, claudefa.st, and claudelog.com used to supplement inaccessible primary sources.</p>
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.139 GitHub release, claude.com/blog, code.claude.com docs); Cursor (changelog May 11, 2026); Simon Willison (simonwillison.net, May 11, 2026); AWS / Anthropic (Claude Platform on AWS GA announcement, May 11, 2026). Search snippets from releasebot.io, claudefa.st, claude-world.com, testingcatalog.com, and buildfastwithai.com used to supplement inaccessible primary sources.</p>
 
-  <p><strong>Skipped:</strong> Cursor 3.3 PR review + parallel agents (May 7 — before window); AlphaEvolve "scaling impact" DeepMind blog (May 7 — before window); ServiceNow Build Agent GA in Claude Code / Cursor / Windsurf (May 6 — before window); Claude Security public beta (April 30 — before window); Claude Code project purge / <code>/tui</code> / <code>ANTHROPIC_BEDROCK_SERVICE_TIER</code> features (May 1–6 — before window); arXiv papers 2605.06161 and 2605.06445 (covered in previous digest); arXiv 2605.05700 proactive coding assistants (submitted May 7 — borderline; finding is about simulator-vs-real trace gap, not directly actionable for practitioners using existing tools); Simon Willison quote from Andrew Quinn (May 10 — opinion/reflection, no evidence meeting inclusion bar); MCP stateless HTTP transport (announced roadmap item targeting June 2026, not yet shipped); 1 funding/infrastructure post; 2 leaderboard updates; ChatGPT Images 2.0 / GPT-Realtime-2 (no workflow change for agent harness practitioners).</p>
+  <p><strong>Skipped:</strong> Claude Managed Agents: Dreaming, Outcomes, Multiagent Orchestration (announced May 6 at Code with Claude — before window); Claude Code rate limit doubling (announced May 6 — before window); Simon Willison "Learning on the Shop floor" (Shopify River agent, May 11 — analysis piece, no reproducible evidence meeting inclusion bar); Simon Willison "Your AI Use Is Breaking My Brain" and "A quote from James Shore" (May 11 — commentary without primary evidence); arXiv:2605.07180 BoundaryRouter agent routing (date within window unconfirmed; borderline practitioner relevance for users of existing tools); arXiv LCM Lossless Context Management (HN score 81, below 200-point threshold; exact arXiv submission date not confirmed within window); Cursor Bugbot Autofix blog post (date not confirmed within current window); Windsurf — no confirmed in-window releases found; no confirmed HN items ≥200 points within window.</p>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — all item details obtained from web-search snippets only. Exact version assignments for the MCP stdout memory fix not independently confirmed. HN front pages for May 10–11 not directly accessible; no HN items ≥200 points on AI coding tools confirmed for this window. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not accessible. No in-window posts confirmed from Latent Space, Nathan Lambert, Hamel Husain, Chip Huyen, or Eugene Yan. arXiv listings for May 9–11 not directly fetched (403 on arxiv.org); papers submitted Friday May 8 (appearing Monday May 11) not enumerated.</p>
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — all item details obtained from web-search snippets and secondary summaries only. arXiv listings for May 11–12 not directly fetched; May 12 new submissions not enumerated. Reddit subreddits (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not checked. No in-window posts confirmed from Latent Space, Nathan Lambert, Hamel Husain, Chip Huyen, or Eugene Yan. HN front-page scores for May 11–12 not directly confirmed.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 via r.jina.ai — wanted exact version numbers and per-fix assignments for the May 8–9 releases.</li>
-    <li><a href="https://arxiv.org/abs/2605.06527">arxiv.org/abs/2605.06527</a> — 403 via r.jina.ai — wanted full abstract and per-model breakdown to verify the 55.2% figure and which frontier models were tested.</li>
-    <li><a href="https://news.ycombinator.com/front?day=2026-05-10">news.ycombinator.com/front?day=2026-05-10</a> — 403 via r.jina.ai — wanted point scores for May 10 front-page AI items to apply the ≥200 threshold.</li>
-    <li><a href="https://news.ycombinator.com/front?day=2026-05-11">news.ycombinator.com/front?day=2026-05-11</a> — 403 via r.jina.ai — same as above for May 11.</li>
-    <li><a href="https://simonwillison.net/2026/May/10/andrew-quinn/">simonwillison.net — Andrew Quinn quote (May 10)</a> — 403 via r.jina.ai — wanted full quote text to assess practitioner relevance.</li>
-    <li><a href="https://arxiv.org/list/cs.CL/2026-05-11">arxiv.org/list/cs.CL/2026-05-11</a> — 403 via r.jina.ai — wanted today's new submissions to check for in-window papers.</li>
+    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.139">github.com/anthropics/claude-code/releases/tag/v2.1.139</a> — 403 via r.jina.ai — wanted full release notes text to verify exact feature list and any additional fixes in v2.1.139 beyond those found in search snippets.</li>
+    <li><a href="https://code.claude.com/docs/en/goal">code.claude.com/docs/en/goal</a> — 403 via r.jina.ai — wanted exact mechanics of the condition-checking model (which model, per-check token cost, failure modes).</li>
+    <li><a href="https://cursor.com/changelog/05-11-26">cursor.com/changelog/05-11-26</a> — 403 via r.jina.ai — wanted full changelog text to confirm effort-level details and any items beyond Bugbot in the May 11 entry.</li>
+    <li><a href="https://simonwillison.net/2026/May/11/llm-shebang/">simonwillison.net/2026/May/11/llm-shebang/</a> — 403 via r.jina.ai — wanted full post for exact YAML template examples and any caveats Willison noted.</li>
+    <li><a href="https://claude.com/blog/claude-platform-on-aws">claude.com/blog/claude-platform-on-aws</a> — 403 via r.jina.ai — wanted full announcement for pricing details and regional availability list.</li>
+    <li><a href="https://aws.amazon.com/about-aws/whats-new/2026/05/claude-platform-aws/">aws.amazon.com/about-aws/whats-new/2026/05/claude-platform-aws/</a> — 403 via r.jina.ai — wanted exact GA date and any AWS-specific feature restrictions noted in the official announcement.</li>
+    <li><a href="https://arxiv.org/list/cs.CL/2026-05-12">arxiv.org/list/cs.CL/2026-05-12</a> — 403 via r.jina.ai — wanted today's new submissions to check for in-window practitioner-relevant papers.</li>
   </ul>
 </div>
 

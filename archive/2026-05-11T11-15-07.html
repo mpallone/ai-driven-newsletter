@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-11T11:15:07Z">
+  <title>AI Tools Digest — 2026-05-11, 2 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-11, 2 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-09T12:00:00Z – 2026-05-11T11:15:07Z. Quiet 47-hour window; two items met the inclusion bar.</p>
+
+<h3>Claude Code MCP stdio servers no longer blow up memory with debug output</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code CHANGELOG, May 8–9, 2026 (v2.1.136–v2.1.138)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
+  <li><strong>TL;DR:</strong> If a <code>stdio</code> MCP server writes anything other than valid JSON-RPC to <code>stdout</code> — debug logs, startup banners, random print statements — Claude Code was buffering all of it indefinitely, causing sessions to climb past 10 GB RSS. That memory leak is now fixed. In the same release batch: MCP servers that connect but silently return zero tools (because <code>tools/list</code> fails) now retry once automatically and show <code>connected · tools fetch failed</code> in <code>/mcp</code> instead of looking healthy while being useless. Separately, the VS Code extension was failing to activate on Windows at all (v2.1.137 fix).</li>
+  <li><strong>What to do:</strong> Update Claude Code (<code>npm update -g @anthropic-ai/claude-code</code>); if any of your MCP stdio servers write non-JSON to <code>stdout</code> (logging frameworks, startup messages), redirect that output to <code>stderr</code> so it never hits the protocol channel — the fix prevents the leak but the cleaner long-term fix is correct server behavior.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic CHANGELOG; specific version numbers (v2.1.136, v2.1.137, v2.1.138) confirmed from search snippets citing the GitHub releases page; exact fix description matches the issue filed in GitHub issue #33735 describing sessions reaching 18 GB. Exact version for each sub-fix not independently verified — check <code>claude --version</code> and the changelog directly.</li>
+  <li><strong>Skeptic check:</strong> The memory fix may land in v2.1.136 (May 8) rather than v2.1.138 (May 9); the exact version boundary was not confirmed from available sources — update to latest either way.</li>
+</ul>
+
+<h3>Top LLM agents detect stale memories correctly only 55% of the time</h3>
+<ul>
+  <li><strong>Source:</strong> Hanxiang Chao, Yihan Bai, Rui Sheng, Tianle Li, Yushi Sun — arXiv:2605.06527, submitted May 7, appeared May 8–9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.06527">STALE: Can LLM Agents Know When Their Memories Are No Longer Valid? — arXiv</a></li>
+  <li><strong>TL;DR:</strong> Agents that maintain long-term memory fail badly when earlier stored facts are quietly invalidated by later observations — not overwritten, just made wrong. The hardest case is what the authors call "Implicit Conflict": a new message makes a stored memory wrong without ever directly saying so (e.g., "I moved to Berlin" silently invalidates a stored home address). Tested across 400 scenarios spanning 100 everyday topics with contexts up to 150K tokens, the best evaluated frontier model gets only 55.2% overall accuracy across three capabilities: detecting that a stored belief is now outdated, rejecting questions that assume the old state is still true, and applying the updated state in downstream behavior.</li>
+  <li><strong>What to do:</strong> Do not rely on agents to self-diagnose when their persisted memory is stale; add explicit memory-validation steps in your harness — at re-entry points in long-running sessions, have the agent re-read relevant stored facts and check whether anything in the recent conversation contradicts them before acting.</li>
+  <li><strong>Why trust it:</strong> 400 expert-validated scenarios, 1,200 evaluation queries across three probing dimensions, contexts up to 150K tokens; frontier LLMs and specialized memory frameworks both tested; submitted May 7, appeared arXiv May 8–9, 2026.</li>
+  <li><strong>Skeptic check:</strong> Scenarios cover everyday topics — failure rates on structured, domain-specific agent memory (code repository state, task tracking) may differ; the benchmark does not test production harnesses that already include explicit validation logic.</li>
+</ul>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code GitHub releases/CHANGELOG, v2.1.136–v2.1.138); Chao, Bai, Sheng, Li, Sun (arXiv:2605.06527). Search snippets from releasebot.io, claudefa.st, and claudelog.com used to supplement inaccessible primary sources.</p>
+
+  <p><strong>Skipped:</strong> Cursor 3.3 PR review + parallel agents (May 7 — before window); AlphaEvolve "scaling impact" DeepMind blog (May 7 — before window); ServiceNow Build Agent GA in Claude Code / Cursor / Windsurf (May 6 — before window); Claude Security public beta (April 30 — before window); Claude Code project purge / <code>/tui</code> / <code>ANTHROPIC_BEDROCK_SERVICE_TIER</code> features (May 1–6 — before window); arXiv papers 2605.06161 and 2605.06445 (covered in previous digest); arXiv 2605.05700 proactive coding assistants (submitted May 7 — borderline; finding is about simulator-vs-real trace gap, not directly actionable for practitioners using existing tools); Simon Willison quote from Andrew Quinn (May 10 — opinion/reflection, no evidence meeting inclusion bar); MCP stateless HTTP transport (announced roadmap item targeting June 2026, not yet shipped); 1 funding/infrastructure post; 2 leaderboard updates; ChatGPT Images 2.0 / GPT-Realtime-2 (no workflow change for agent harness practitioners).</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — all item details obtained from web-search snippets only. Exact version assignments for the MCP stdout memory fix not independently confirmed. HN front pages for May 10–11 not directly accessible; no HN items ≥200 points on AI coding tools confirmed for this window. Reddit (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not accessible. No in-window posts confirmed from Latent Space, Nathan Lambert, Hamel Husain, Chip Huyen, or Eugene Yan. arXiv listings for May 9–11 not directly fetched (403 on arxiv.org); papers submitted Friday May 8 (appearing Monday May 11) not enumerated.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 via r.jina.ai — wanted exact version numbers and per-fix assignments for the May 8–9 releases.</li>
+    <li><a href="https://arxiv.org/abs/2605.06527">arxiv.org/abs/2605.06527</a> — 403 via r.jina.ai — wanted full abstract and per-model breakdown to verify the 55.2% figure and which frontier models were tested.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-10">news.ycombinator.com/front?day=2026-05-10</a> — 403 via r.jina.ai — wanted point scores for May 10 front-page AI items to apply the ≥200 threshold.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-11">news.ycombinator.com/front?day=2026-05-11</a> — 403 via r.jina.ai — same as above for May 11.</li>
+    <li><a href="https://simonwillison.net/2026/May/10/andrew-quinn/">simonwillison.net — Andrew Quinn quote (May 10)</a> — 403 via r.jina.ai — wanted full quote text to assess practitioner relevance.</li>
+    <li><a href="https://arxiv.org/list/cs.CL/2026-05-11">arxiv.org/list/cs.CL/2026-05-11</a> — 403 via r.jina.ai — wanted today's new submissions to check for in-window papers.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
