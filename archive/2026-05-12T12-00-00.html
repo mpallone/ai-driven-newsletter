@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-12T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-12, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-12, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-11T11:15:07Z – 2026-05-12T12:00:00Z.</p>
+
+<h3>Claude Code /goal replaces turn-by-turn task supervision</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.139, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.139">Claude Code v2.1.139 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> The new <code>/goal</code> command takes a plain-English completion condition ("all tests pass", "the PR description is ready") and keeps Claude running turn after turn until a small fast model checks the condition and confirms it is true — you don't supervise each turn, you come back when it's done. The same release adds <strong>agent view</strong> (<code>claude agents</code>): a single dashboard listing every session with its state (running, waiting for your input, done), so you can manage several background tasks without juggling terminal tabs. Also fixed: Bedrock and Vertex users were getting 400 errors when <code>ENABLE_PROMPT_CACHING_1H</code> was set; that is now resolved.</li>
+  <li><strong>What to do:</strong> Update to v2.1.139 (<code>npm update -g @anthropic-ai/claude-code</code>), then try <code>/goal all tests pass</code> on a well-scoped task to see the autonomous loop in action; run <code>claude agents</code> if you regularly juggle more than two parallel sessions.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; version number (v2.1.139, May 11) confirmed from the Claude Code GitHub releases page and multiple third-party summaries citing the same changelog; feature mechanics described consistently across Anthropic docs (code.claude.com/docs/en/goal) and the official Anthropic blog post on agent view.</li>
+  <li><strong>Skeptic check:</strong> The fast model that checks the condition after each turn adds latency and token cost per loop iteration; for simple tasks this overhead may outweigh the convenience gain — benchmark on your own workload before using it as the default.</li>
+</ul>
+
+<h3>Bugbot high effort finds 36% more bugs per run</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor, changelog entry May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/05-11-26">Cursor changelog — May 11, 2026</a></li>
+  <li><strong>TL;DR:</strong> Cursor's Bugbot PR reviewer now ships with three configurable effort levels: Default (0.7 bugs found per run on average, fast), High (0.95 bugs per run, slower and more expensive), and Custom (you write a natural-language rule — "use high effort for PRs touching payments code" — and Bugbot decides per-PR). The jump from Default to High is roughly 36% more bugs caught per run. Alongside this, Bugbot drops its flat $40/seat/month fee and moves to usage-based billing for Teams and Individual plans; you only pay for reviews that actually run.</li>
+  <li><strong>What to do:</strong> Use Default effort as your baseline; switch to High or a Custom rule only for PRs in high-risk areas (auth, payments, data migrations) where catching one extra bug justifies the increased cost and wait time; check your Bugbot spend after the first billing cycle under usage-based pricing.</li>
+  <li><strong>Why trust it:</strong> Cursor's own changelog with per-tier average bug counts (0.7 Default, 0.95 High) drawn from Bugbot's production run history; the 79% "resolved at merge" figure for Default effort adds a baseline quality signal. Cursor's own data — no independent replication.</li>
+  <li><strong>Skeptic check:</strong> "Bugs found per run" averages obscure variance — for a specific repo or team, high effort may find zero extra bugs or many more; calibrate on your own PR history before locking in a blanket high-effort policy.</li>
+</ul>
+
+<h3>Make any LLM prompt script directly executable</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison, simonwillison.net, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/11/llm-shebang/">TIL: Using LLM in the shebang line of a script — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Simon Willison's <a href="https://github.com/simonw/llm">LLM CLI tool</a> can live in a shebang line, making a plain-text file a first-class executable. Minimum working form: <code>#!/usr/bin/env -S llm -f Generate an SVG of a pelican riding a bicycle</code>. The <code>-S</code> flag is essential — without it, <code>env</code> treats everything after the command name as one string instead of splitting into separate arguments. To add tool calls, append <code>-T tool_name</code>; to bundle a full prompt with custom Python tool functions, point the shebang at a YAML template file instead of an inline <code>-f</code> string.</li>
+  <li><strong>What to do:</strong> If you use the LLM CLI tool, turn your frequently-reused prompts into <code>chmod +x</code> scripts in your <code>~/bin</code> directory — they become self-documenting, composable with pipes, and callable from shell aliases or other scripts.</li>
+  <li><strong>Why trust it:</strong> Simon Willison is the author and maintainer of the LLM CLI tool; the technique is a working code snippet from his own TIL blog, confirmed executable. The <code>-S</code> flag behavior in <code>env</code> is a documented POSIX extension present in GNU coreutils and macOS.</li>
+  <li><strong>Skeptic check:</strong> Works only if the LLM CLI tool is installed in the environment where the script runs; breaks silently in Docker images or CI environments that do not have it, so check portability before relying on shebang scripts in shared pipelines.</li>
+</ul>
+
+<h3>Claude Platform on AWS reaches general availability</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic / AWS, May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/claude-platform-on-aws">Introducing the Claude Platform on AWS — Anthropic blog</a></li>
+  <li><strong>TL;DR:</strong> AWS is now the first cloud provider hosting a full Anthropic-native Claude Platform — not just model access via Amazon Bedrock, but the complete API surface: Messages, Files, Batch, Managed Agents, Agent Skills, and code execution, authenticated through AWS IAM and billed through your existing AWS account. Opus 4.7, Sonnet 4.6, and Haiku 4.5 are available at launch; new models will ship there as they release. No separate Anthropic account is required.</li>
+  <li><strong>What to do:</strong> If your stack already runs on AWS, evaluate switching to the Claude Platform on AWS endpoint to consolidate billing and access Managed Agents and Agent Skills without maintaining a separate Anthropic API key; review IAM permission requirements and check regional availability against your data-residency constraints before migrating production traffic.</li>
+  <li><strong>Why trust it:</strong> Joint announcement from Anthropic and AWS; GA date of May 11, 2026 confirmed on the official AWS "What's New" page and the Anthropic blog, with the announcement consistent across multiple independent tech news sources.</li>
+  <li><strong>Skeptic check:</strong> Anthropic noted this is for teams without specific regional data-residency requirements — if your workload is residency-constrained, verify the available Claude Platform on AWS regions before migrating.</li>
+</ul>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.139 GitHub release, claude.com/blog, code.claude.com docs); Cursor (changelog May 11, 2026); Simon Willison (simonwillison.net, May 11, 2026); AWS / Anthropic (Claude Platform on AWS GA announcement, May 11, 2026). Search snippets from releasebot.io, claudefa.st, claude-world.com, testingcatalog.com, and buildfastwithai.com used to supplement inaccessible primary sources.</p>
+
+  <p><strong>Skipped:</strong> Claude Managed Agents: Dreaming, Outcomes, Multiagent Orchestration (announced May 6 at Code with Claude — before window); Claude Code rate limit doubling (announced May 6 — before window); Simon Willison "Learning on the Shop floor" (Shopify River agent, May 11 — analysis piece, no reproducible evidence meeting inclusion bar); Simon Willison "Your AI Use Is Breaking My Brain" and "A quote from James Shore" (May 11 — commentary without primary evidence); arXiv:2605.07180 BoundaryRouter agent routing (date within window unconfirmed; borderline practitioner relevance for users of existing tools); arXiv LCM Lossless Context Management (HN score 81, below 200-point threshold; exact arXiv submission date not confirmed within window); Cursor Bugbot Autofix blog post (date not confirmed within current window); Windsurf — no confirmed in-window releases found; no confirmed HN items ≥200 points within window.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed and direct WebFetch calls returned 403 — all item details obtained from web-search snippets and secondary summaries only. arXiv listings for May 11–12 not directly fetched; May 12 new submissions not enumerated. Reddit subreddits (r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding) not checked. No in-window posts confirmed from Latent Space, Nathan Lambert, Hamel Husain, Chip Huyen, or Eugene Yan. HN front-page scores for May 11–12 not directly confirmed.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.139">github.com/anthropics/claude-code/releases/tag/v2.1.139</a> — 403 via r.jina.ai — wanted full release notes text to verify exact feature list and any additional fixes in v2.1.139 beyond those found in search snippets.</li>
+    <li><a href="https://code.claude.com/docs/en/goal">code.claude.com/docs/en/goal</a> — 403 via r.jina.ai — wanted exact mechanics of the condition-checking model (which model, per-check token cost, failure modes).</li>
+    <li><a href="https://cursor.com/changelog/05-11-26">cursor.com/changelog/05-11-26</a> — 403 via r.jina.ai — wanted full changelog text to confirm effort-level details and any items beyond Bugbot in the May 11 entry.</li>
+    <li><a href="https://simonwillison.net/2026/May/11/llm-shebang/">simonwillison.net/2026/May/11/llm-shebang/</a> — 403 via r.jina.ai — wanted full post for exact YAML template examples and any caveats Willison noted.</li>
+    <li><a href="https://claude.com/blog/claude-platform-on-aws">claude.com/blog/claude-platform-on-aws</a> — 403 via r.jina.ai — wanted full announcement for pricing details and regional availability list.</li>
+    <li><a href="https://aws.amazon.com/about-aws/whats-new/2026/05/claude-platform-aws/">aws.amazon.com/about-aws/whats-new/2026/05/claude-platform-aws/</a> — 403 via r.jina.ai — wanted exact GA date and any AWS-specific feature restrictions noted in the official announcement.</li>
+    <li><a href="https://arxiv.org/list/cs.CL/2026-05-12">arxiv.org/list/cs.CL/2026-05-12</a> — 403 via r.jina.ai — wanted today's new submissions to check for in-window practitioner-relevant papers.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
