@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-14T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-14, 5 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-14, 5 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-12T12:00:00Z – 2026-05-14T12:00:00Z.</p>
+
+<h3>Subagent summaries now cached, cutting ~3× per-subagent cost in Claude Code</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.140, May 13, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.140">Claude Code v2.1.140 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Sub-agent progress summaries now participate in prompt caching, dropping the <code>cache_creation</code> token charge when subagents report back to the orchestrator by roughly 3×. The same release makes <code>subagent_type</code> in the Agent tool case- and separator-insensitive, so <code>"Code Reviewer"</code> and <code>"code-reviewer"</code> now resolve to the same agent without a tool-match failure. Also fixed: <code>/goal</code> no longer hangs silently when <code>disableAllHooks</code> or <code>allowManagedHooksOnly</code> is set — it now shows a clear message instead of an indicator that never resolves.</li>
+  <li><strong>What to do:</strong> Update to v2.1.140 (<code>npm update -g @anthropic-ai/claude-code</code>) and check your token dashboard after the next multi-subagent session; if you maintain agent configuration files that specify <code>subagent_type</code>, the casing enforcement is now gone, but align them to the canonical kebab-case names anyway to stay readable.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; "~3×" figure sourced from ClaudeWorld v2.1.140 release notes and May 2026 Claude Code update documentation, consistent with earlier search results. The <code>subagent_type</code> matching change is confirmed from multiple changelog summaries.</li>
+  <li><strong>Skeptic check:</strong> The 3× figure is an average across workloads; actual savings depend on subagent summary length and how often the cache is hit in your specific session structure — short summaries or low-repetition workloads will see less benefit.</li>
+</ul>
+
+<h3>Cursor cloud agents now run in version-controlled, secret-scoped dev environments</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor, blog post and changelog, May 13, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/blog/cloud-agent-development-environments">Development environments for your agents — Cursor blog</a></li>
+  <li><strong>TL;DR:</strong> Cursor cloud agents now run inside Dockerfile-based development environments you configure once and reuse across sessions. Multi-repo support lets one environment contain all the repos an agent needs, eliminating per-session setup. Build layer caching makes environment rebuilds 70% faster when only some layers change. Secrets are scoped per-environment so agents in one environment cannot read another's credentials. Every environment has a version history you can review and roll back, and admins can restrict rollback to admins only. An audit log captures every team member's environment changes.</li>
+  <li><strong>What to do:</strong> If you're running Cursor cloud agents on ad-hoc setups, migrate to a Dockerfile-based environment this week: you get free reproducibility, instant rollback if an environment change breaks agents, and secret isolation without any extra configuration beyond scoping secrets at creation time.</li>
+  <li><strong>Why trust it:</strong> Official Cursor blog post and changelog from May 13, 2026; 70% build speed improvement stated in the Cursor changelog; details consistent across cursor.com changelog, StartupHub.ai summary, and the Cursor community forum thread on multi-repo support.</li>
+  <li><strong>Skeptic check:</strong> The 70% faster rebuild figure applies only when your Dockerfile has cacheable layers that are actually reused — single-step Dockerfiles or frequently changed base layers won't see this gain.</li>
+</ul>
+
+<h3>Gemini CLI v0.42.0 drafts reusable agent skills from your past sessions</h3>
+<ul>
+  <li><strong>Source:</strong> Google / Gemini CLI, v0.42.0 and v0.43.0-preview.0, May 12, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0">Gemini CLI v0.42.0 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Gemini CLI v0.42.0 introduces Auto Memory Inbox: the tool mines your past sessions in the background and proposes durable memory updates and reusable Agent Skills, which you review and promote via <code>/memory inbox</code>. The concurrent v0.43.0-preview.0 adds surgical code edits (the model is now steered toward the <code>edit</code> tool for targeted changes, reducing how much of the file it rewrites and how many context tokens it consumes) and session portability (export a chat session to a file; import it in another terminal via a CLI flag).</li>
+  <li><strong>What to do:</strong> Enable Auto Memory (<code>"experimental": { "autoMemory": true }</code> in <code>settings.json</code>), run a week of normal sessions, then review <code>/memory inbox</code> before manually adding memories — it may surface patterns you'd otherwise write by hand. If you're on the preview channel, surgical code edits reduce token waste on large-file edits with no prompt change needed.</li>
+  <li><strong>Why trust it:</strong> Official Gemini CLI GitHub release page; Auto Memory mechanics confirmed in geminicli.com docs; surgical code edits and session portability confirmed in the v0.43.0-preview.0 changelog. The Gemini CLI project is Google-maintained and open-source.</li>
+  <li><strong>Skeptic check:</strong> Auto Memory is still experimental; skills it proposes are inferred from session patterns and may generalize incorrectly from debugging sessions or one-off tasks — review each proposal before promoting it.</li>
+</ul>
+
+<h3>LLM CLI 0.32a2 shows GPT-5 reasoning tokens inline during tool calls</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison, simonwillison.net, May 12, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/12/llm/">Release: llm 0.32a2 — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> LLM 0.32a2 switches reasoning-capable OpenAI models from <code>/v1/chat/completions</code> to the <code>/v1/responses</code> endpoint, which enables interleaved reasoning across tool calls for GPT-5 class models. Summarized reasoning tokens now stream to stderr in a distinct color between tool invocations, so you can see exactly why the model chose a tool or constructed unusual arguments. Pass <code>-R</code> or <code>--hide-reasoning</code> to suppress them. Also fixed: tool-calling conversation histories were not correctly restored from SQLite, causing broken multi-turn tool sessions.</li>
+  <li><strong>What to do:</strong> Update (<code>pip install -U llm</code>), run a GPT-5 model with tool calls, and watch the reasoning output to debug unexpected tool selections or argument construction — it replaces the guessing you'd otherwise do when a tool call fails silently.</li>
+  <li><strong>Why trust it:</strong> Simon Willison is the author and maintainer of the LLM CLI tool; this is his own release announcement for a version he shipped. The <code>/v1/responses</code> endpoint switch is a factual API change, not a measurement. The SQLite bug fix is a regression addressed in this release.</li>
+  <li><strong>Skeptic check:</strong> The reasoning visibility applies only to OpenAI GPT-5 class models via the <code>/v1/responses</code> endpoint — other providers (Anthropic, Gemini, etc.) continue using their existing endpoints and are unaffected by this change.</li>
+</ul>
+
+<h3>Larger models don't consistently beat small ones on tool calls; cheap models can cost more</h3>
+<ul>
+  <li><strong>Source:</strong> Microsoft Research &amp; Stanford, arXiv:2605.07112, submitted May 8, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.07112">Switchcraft: AI Model Router for Agentic Tool Calling — arXiv</a></li>
+  <li><strong>TL;DR:</strong> Across five standard tool-calling benchmarks, bigger models do not consistently outperform smaller ones on tool-use tasks. More practically: a nominally cheaper model can end up costing <em>more</em> per task than a larger model if it generates many more reasoning tokens before each tool call. The paper's routing system (Switchcraft, not yet a product) achieves accuracy matching the best individual model while cutting inference cost 84% by picking the smallest capable model per call.</li>
+  <li><strong>What to do:</strong> Before defaulting to your largest model for agent tool use, run a quick benchmark on your actual tool catalog with a smaller model — and measure total tokens per task completion, not just per-token price, since reasoning-heavy smaller models can cost more end-to-end than a faster, less verbose larger model.</li>
+  <li><strong>Why trust it:</strong> Evaluated on ~13,000 API calls across 12 models on five function-calling benchmarks by Microsoft Research and Stanford; independent benchmarks, not vendor-reported. Submitted May 8, 2026.</li>
+  <li><strong>Skeptic check:</strong> The benchmarks are synthetic function-calling tasks; how well the "smaller model often suffices" finding transfers to production agent catalogs with many overlapping or ambiguously described tools has not been measured.</li>
+</ul>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.140 GitHub release, ClaudeWorld release notes, Releasebot May 2026 Claude Code updates); Cursor (blog post and changelog, May 13, 2026, cursor.com); Google / Gemini CLI (v0.42.0 GitHub release, geminicli.com docs, v0.43.0-preview.0 changelog); Simon Willison (simonwillison.net, May 12, 2026); Microsoft Research &amp; Stanford (arXiv:2605.07112).</p>
+
+  <p><strong>Skipped:</strong> Claude Code desktop app redesign (announced April 15, 2026 — before window); Windsurf 2.0 / Agent Command Center (announced April 15, 2026 — before window); AWS MCP Server GA (announced May 6, 2026 — before window); Nathan Lambert "How open model ecosystems compound" (May 12, 2026 — analysis of open-model ecosystem dynamics in China, no actionable tool configuration guidance); OpenAI "What Parameter Golf taught us" (May 13, 2026 — about training small LMs, not about how to use existing tools); TSCG arXiv:2605.04107 (submitted May 4, 2026 — outside 7-day arXiv window); Claude Code v2.1.139 (May 11, 2026 — before window, covered in prior digest); HN front page — no confirmed items ≥200 points within window found; no confirmed in-window posts from Latent Space, Hamel Husain, Chip Huyen, or Eugene Yan.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls and direct WebFetch calls returned 403 — all item details obtained from web-search snippets and secondary summaries. arXiv listings for May 12–14 not directly fetched; detailed paper abstracts obtained via search snippets only. Reddit subreddits not checked. HN front-page point counts for May 12–14 not directly confirmed — relied on search results that did not surface any items ≥200 points in this window.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.140">github.com/anthropics/claude-code/releases/tag/v2.1.140</a> — 403 via r.jina.ai — wanted full release notes text to verify the exact "3×" cache_creation figure and complete list of v2.1.140 changes.</li>
+    <li><a href="https://cursor.com/blog/cloud-agent-development-environments">cursor.com/blog/cloud-agent-development-environments</a> — 403 via r.jina.ai — wanted exact publication date and full list of dev environment features beyond what appeared in search snippets.</li>
+    <li><a href="https://geminicli.com/docs/changelogs/latest/">geminicli.com/docs/changelogs/latest/</a> — 403 via r.jina.ai — wanted to confirm whether surgical code edits landed in v0.42.0 stable or only in v0.43.0-preview.0.</li>
+    <li><a href="https://simonwillison.net/2026/May/12/llm/">simonwillison.net/2026/May/12/llm/</a> — 403 via r.jina.ai — wanted full post for complete list of changes in LLM 0.32a2 beyond what search snippets surfaced.</li>
+    <li><a href="https://arxiv.org/list/cs.CL/2026-05-12">arxiv.org/list/cs.CL/2026-05-12</a> — 403 via r.jina.ai — wanted May 12 new submissions to check for practitioner-relevant papers not surfaced by keyword searches.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>

@@ -3,80 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-14T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-14, 5 items</title>
+  <meta name="published" content="2026-05-15T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-15, 5 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-14, 5 items</h1>
+<h1>AI Tools Digest — 2026-05-15, 5 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-12T12:00:00Z – 2026-05-14T12:00:00Z.</p>
+<p class="window-note">Window: 2026-05-14T12:00:00Z – 2026-05-15T12:00:00Z.</p>
 
-<h3>Subagent summaries now cached, cutting ~3× per-subagent cost in Claude Code</h3>
+<p>All five items today come from the Claude Code v2.1.142 release (May 14, 2026). Five distinct practitioner-relevant changes, each with a concrete action.</p>
+
+<h3>Agent dispatch now accepts model and permission flags</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.140, May 13, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.140">Claude Code v2.1.140 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> Sub-agent progress summaries now participate in prompt caching, dropping the <code>cache_creation</code> token charge when subagents report back to the orchestrator by roughly 3×. The same release makes <code>subagent_type</code> in the Agent tool case- and separator-insensitive, so <code>"Code Reviewer"</code> and <code>"code-reviewer"</code> now resolve to the same agent without a tool-match failure. Also fixed: <code>/goal</code> no longer hangs silently when <code>disableAllHooks</code> or <code>allowManagedHooksOnly</code> is set — it now shows a clear message instead of an indicator that never resolves.</li>
-  <li><strong>What to do:</strong> Update to v2.1.140 (<code>npm update -g @anthropic-ai/claude-code</code>) and check your token dashboard after the next multi-subagent session; if you maintain agent configuration files that specify <code>subagent_type</code>, the casing enforcement is now gone, but align them to the canonical kebab-case names anyway to stay readable.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release; "~3×" figure sourced from ClaudeWorld v2.1.140 release notes and May 2026 Claude Code update documentation, consistent with earlier search results. The <code>subagent_type</code> matching change is confirmed from multiple changelog summaries.</li>
-  <li><strong>Skeptic check:</strong> The 3× figure is an average across workloads; actual savings depend on subagent summary length and how often the cache is hit in your specific session structure — short summaries or low-repetition workloads will see less benefit.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> <code>claude agents</code> (the agent view launcher) now accepts <code>--permission-mode</code>, <code>--model</code>, <code>--effort</code>, <code>--mcp-config</code>, <code>--plugin-dir</code>, <code>--settings</code>, <code>--add-dir</code>, and <code>--dangerously-skip-permissions</code>. Every background session you dispatch from agent view starts with those settings rather than inheriting whatever defaults the target directory happens to have. The active defaults show up in the agent view footer so you know what each dispatched session will use.</li>
+  <li><strong>What to do:</strong> Update to v2.1.142 (<code>npm update -g @anthropic-ai/claude-code</code>), then add <code>--permission-mode plan --model opus --effort high</code> to your <code>claude agents</code> launch command if you want all dispatched sessions locked to specific settings; tweak per-flag as your workflow requires.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release published May 14, 2026; confirmed by Claude Code docs at code.claude.com/docs/en/agent-view and multiple third-party changelog trackers (Releasebot, ClaudeLog, ClaudeFA.st). The feature requires v2.1.142 or later — earlier versions silently ignore the flags.</li>
+  <li><strong>Skeptic check:</strong> These flags set dispatch-time defaults, not hard locks; sessions still read remaining settings from the directory they run in, so one flag set cannot override every config source.</li>
 </ul>
 
-<h3>Cursor cloud agents now run in version-controlled, secret-scoped dev environments</h3>
+<h3>Fast mode default upgrades from Opus 4.6 to Opus 4.7</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor, blog post and changelog, May 13, 2026</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/blog/cloud-agent-development-environments">Development environments for your agents — Cursor blog</a></li>
-  <li><strong>TL;DR:</strong> Cursor cloud agents now run inside Dockerfile-based development environments you configure once and reuse across sessions. Multi-repo support lets one environment contain all the repos an agent needs, eliminating per-session setup. Build layer caching makes environment rebuilds 70% faster when only some layers change. Secrets are scoped per-environment so agents in one environment cannot read another's credentials. Every environment has a version history you can review and roll back, and admins can restrict rollback to admins only. An audit log captures every team member's environment changes.</li>
-  <li><strong>What to do:</strong> If you're running Cursor cloud agents on ad-hoc setups, migrate to a Dockerfile-based environment this week: you get free reproducibility, instant rollback if an environment change breaks agents, and secret isolation without any extra configuration beyond scoping secrets at creation time.</li>
-  <li><strong>Why trust it:</strong> Official Cursor blog post and changelog from May 13, 2026; 70% build speed improvement stated in the Cursor changelog; details consistent across cursor.com changelog, StartupHub.ai summary, and the Cursor community forum thread on multi-repo support.</li>
-  <li><strong>Skeptic check:</strong> The 70% faster rebuild figure applies only when your Dockerfile has cacheable layers that are actually reused — single-step Dockerfiles or frequently changed base layers won't see this gain.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Fast mode — Claude Code's lower-latency, lower-cost response toggle — now uses Opus 4.7 as its default model instead of Opus 4.6. The change is automatic on update. Set <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code> to pin back to Opus 4.6 if you need reproducibility against a specific model version.</li>
+  <li><strong>What to do:</strong> If you have been benchmarking fast-mode cost against Opus 4.6 pricing, rerun those calculations against Opus 4.7 rates after updating; if your evaluations or regression tests depend on Opus 4.6 output characteristics, set the override env var before updating.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; independently noted in a third-party YouTube Shorts specifically about this change, and confirmed by multiple changelog summaries.</li>
+  <li><strong>Skeptic check:</strong> —</li>
 </ul>
 
-<h3>Gemini CLI v0.42.0 drafts reusable agent skills from your past sessions</h3>
+<h3>Agent threads must now report results in their final message, not .md files</h3>
 <ul>
-  <li><strong>Source:</strong> Google / Gemini CLI, v0.42.0 and v0.43.0-preview.0, May 12, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0">Gemini CLI v0.42.0 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> Gemini CLI v0.42.0 introduces Auto Memory Inbox: the tool mines your past sessions in the background and proposes durable memory updates and reusable Agent Skills, which you review and promote via <code>/memory inbox</code>. The concurrent v0.43.0-preview.0 adds surgical code edits (the model is now steered toward the <code>edit</code> tool for targeted changes, reducing how much of the file it rewrites and how many context tokens it consumes) and session portability (export a chat session to a file; import it in another terminal via a CLI flag).</li>
-  <li><strong>What to do:</strong> Enable Auto Memory (<code>"experimental": { "autoMemory": true }</code> in <code>settings.json</code>), run a week of normal sessions, then review <code>/memory inbox</code> before manually adding memories — it may surface patterns you'd otherwise write by hand. If you're on the preview channel, surgical code edits reduce token waste on large-file edits with no prompt change needed.</li>
-  <li><strong>Why trust it:</strong> Official Gemini CLI GitHub release page; Auto Memory mechanics confirmed in geminicli.com docs; surgical code edits and session portability confirmed in the v0.43.0-preview.0 changelog. The Gemini CLI project is Google-maintained and open-source.</li>
-  <li><strong>Skeptic check:</strong> Auto Memory is still experimental; skills it proposes are inferred from session patterns and may generalize incorrectly from debugging sessions or one-off tasks — review each proposal before promoting it.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142 system prompt change, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/Piebald-AI/claude-code-system-prompts">Piebald-AI/claude-code-system-prompts — system prompt changelog tracker</a></li>
+  <li><strong>TL;DR:</strong> Anthropic updated the agent thread system prompt in v2.1.142 to explicitly instruct agent threads to return their reports, summaries, findings, and analysis directly in their final message — rather than writing them to <code>.md</code> files and telling the parent agent to read the file. The same update makes file path handling uniform: agent threads now always require absolute paths unconditionally (the previous conditional for relative paths is removed).</li>
+  <li><strong>What to do:</strong> If you have subagent threads that write output files and then return a file path, shift them to return the content inline in the final turn; this aligns with how Claude is now steered and avoids a pattern the system prompt actively discourages.</li>
+  <li><strong>Why trust it:</strong> Confirmed by Piebald-AI/claude-code-system-prompts, which tracks every system prompt change across 179 Claude Code versions and updates within minutes of each release — the most granular independent verification available for prompt-level changes.</li>
+  <li><strong>Skeptic check:</strong> This is a steering instruction in the system prompt, not an API constraint — existing agents that write files will not error out, but model behavior will drift toward inline reporting over time.</li>
 </ul>
 
-<h3>LLM CLI 0.32a2 shows GPT-5 reasoning tokens inline during tool calls</h3>
+<h3>Single-file plugins now need only a root-level SKILL.md</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison, simonwillison.net, May 12, 2026</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/12/llm/">Release: llm 0.32a2 — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> LLM 0.32a2 switches reasoning-capable OpenAI models from <code>/v1/chat/completions</code> to the <code>/v1/responses</code> endpoint, which enables interleaved reasoning across tool calls for GPT-5 class models. Summarized reasoning tokens now stream to stderr in a distinct color between tool invocations, so you can see exactly why the model chose a tool or constructed unusual arguments. Pass <code>-R</code> or <code>--hide-reasoning</code> to suppress them. Also fixed: tool-calling conversation histories were not correctly restored from SQLite, causing broken multi-turn tool sessions.</li>
-  <li><strong>What to do:</strong> Update (<code>pip install -U llm</code>), run a GPT-5 model with tool calls, and watch the reasoning output to debug unexpected tool selections or argument construction — it replaces the guessing you'd otherwise do when a tool call fails silently.</li>
-  <li><strong>Why trust it:</strong> Simon Willison is the author and maintainer of the LLM CLI tool; this is his own release announcement for a version he shipped. The <code>/v1/responses</code> endpoint switch is a factual API change, not a measurement. The SQLite bug fix is a regression addressed in this release.</li>
-  <li><strong>Skeptic check:</strong> The reasoning visibility applies only to OpenAI GPT-5 class models via the <code>/v1/responses</code> endpoint — other providers (Anthropic, Gemini, etc.) continue using their existing endpoints and are unaffected by this change.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Previously, a Claude Code plugin had to include a <code>skills/</code> subdirectory to surface any skills. v2.1.142 removes that requirement: if a plugin has a <code>SKILL.md</code> at its root and no <code>skills/</code> directory, it is automatically registered as a skill. Separately, the <code>/plugin details</code> pane and <code>claude plugin details</code> command now list any LSP servers the plugin provides.</li>
+  <li><strong>What to do:</strong> Simplify single-skill plugins: move <code>SKILL.md</code> to the plugin root and delete the <code>skills/</code> wrapper directory; run <code>claude plugin details &lt;name&gt;</code> after updating to verify the skill appears and any LSP servers are listed correctly.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; changelog entry confirmed across multiple trackers and the Claude Code docs for plugin creation.</li>
+  <li><strong>Skeptic check:</strong> —</li>
 </ul>
 
-<h3>Larger models don't consistently beat small ones on tool calls; cheap models can cost more</h3>
+<h3><code>MCP_TOOL_TIMEOUT</code> was silently capped at 60 seconds for remote servers</h3>
 <ul>
-  <li><strong>Source:</strong> Microsoft Research &amp; Stanford, arXiv:2605.07112, submitted May 8, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.07112">Switchcraft: AI Model Router for Agentic Tool Calling — arXiv</a></li>
-  <li><strong>TL;DR:</strong> Across five standard tool-calling benchmarks, bigger models do not consistently outperform smaller ones on tool-use tasks. More practically: a nominally cheaper model can end up costing <em>more</em> per task than a larger model if it generates many more reasoning tokens before each tool call. The paper's routing system (Switchcraft, not yet a product) achieves accuracy matching the best individual model while cutting inference cost 84% by picking the smallest capable model per call.</li>
-  <li><strong>What to do:</strong> Before defaulting to your largest model for agent tool use, run a quick benchmark on your actual tool catalog with a smaller model — and measure total tokens per task completion, not just per-token price, since reasoning-heavy smaller models can cost more end-to-end than a faster, less verbose larger model.</li>
-  <li><strong>Why trust it:</strong> Evaluated on ~13,000 API calls across 12 models on five function-calling benchmarks by Microsoft Research and Stanford; independent benchmarks, not vendor-reported. Submitted May 8, 2026.</li>
-  <li><strong>Skeptic check:</strong> The benchmarks are synthetic function-calling tasks; how well the "smaller model often suffices" finding transfers to production agent catalogs with many overlapping or ambiguously described tools has not been measured.</li>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Setting <code>MCP_TOOL_TIMEOUT</code> to a value above 60 seconds had no effect on remote HTTP and SSE MCP servers — calls were hard-capped at 60 seconds regardless of the env var. v2.1.142 fixes this: the env var now actually raises the per-request fetch timeout for those server types.</li>
+  <li><strong>What to do:</strong> If you have remote MCP tools that fail on long-running operations (database queries, file analysis, slow external APIs), set <code>MCP_TOOL_TIMEOUT</code> to your required number of seconds and update to v2.1.142 — the setting will now be honored.</li>
+  <li><strong>Why trust it:</strong> Bug and fix described in the v2.1.142 changelog; this class of silent env-var misconfiguration is independently verifiable by testing tool call duration before and after updating.</li>
+  <li><strong>Skeptic check:</strong> —</li>
 </ul>
 
 <div class="footer">
-  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.140 GitHub release, ClaudeWorld release notes, Releasebot May 2026 Claude Code updates); Cursor (blog post and changelog, May 13, 2026, cursor.com); Google / Gemini CLI (v0.42.0 GitHub release, geminicli.com docs, v0.43.0-preview.0 changelog); Simon Willison (simonwillison.net, May 12, 2026); Microsoft Research &amp; Stanford (arXiv:2605.07112).</p>
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.142 GitHub release, May 14, 2026); Piebald-AI/claude-code-system-prompts (system prompt change tracker); ClaudeLog; ClaudeFA.st; Releasebot; code.claude.com/docs.</p>
 
-  <p><strong>Skipped:</strong> Claude Code desktop app redesign (announced April 15, 2026 — before window); Windsurf 2.0 / Agent Command Center (announced April 15, 2026 — before window); AWS MCP Server GA (announced May 6, 2026 — before window); Nathan Lambert "How open model ecosystems compound" (May 12, 2026 — analysis of open-model ecosystem dynamics in China, no actionable tool configuration guidance); OpenAI "What Parameter Golf taught us" (May 13, 2026 — about training small LMs, not about how to use existing tools); TSCG arXiv:2605.04107 (submitted May 4, 2026 — outside 7-day arXiv window); Claude Code v2.1.139 (May 11, 2026 — before window, covered in prior digest); HN front page — no confirmed items ≥200 points within window found; no confirmed in-window posts from Latent Space, Hamel Husain, Chip Huyen, or Eugene Yan.</p>
+  <p><strong>Skipped:</strong> Simon Willison "Not so locked in any more" (May 14, 2026) — short commentary on a quote about programming language fungibility, no measurements or evidence; OpenAI API changes May 14 (GPT-5.5 Instant as new default model, realtime voice model releases, DALL-E 2/3 and Realtime API Beta deprecations) — not relevant to coding agent harness or prompt/context engineering practice; 3 funding posts; arXiv papers checked but none submitted May 14 passed the "changes how I would configure a tool tomorrow" test. No confirmed HN front-page items at or above 200 points within this window.</p>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls and direct WebFetch calls returned 403 — all item details obtained from web-search snippets and secondary summaries. arXiv listings for May 12–14 not directly fetched; detailed paper abstracts obtained via search snippets only. Reddit subreddits not checked. HN front-page point counts for May 12–14 not directly confirmed — relied on search results that did not surface any items ≥200 points in this window.</p>
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls and direct WebFetch calls returned 403 — all item details obtained from web search snippets and secondary summaries. GitHub releases page for v2.1.142 inaccessible directly; details confirmed through multiple independent search results. HN front page for May 14 not directly accessible; relied on search to surface any items at or above 200 points. Latent Space, Eugene Yan, Hamel Husain, Chip Huyen — no May 14–15 posts surfaced by search.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.140">github.com/anthropics/claude-code/releases/tag/v2.1.140</a> — 403 via r.jina.ai — wanted full release notes text to verify the exact "3×" cache_creation figure and complete list of v2.1.140 changes.</li>
-    <li><a href="https://cursor.com/blog/cloud-agent-development-environments">cursor.com/blog/cloud-agent-development-environments</a> — 403 via r.jina.ai — wanted exact publication date and full list of dev environment features beyond what appeared in search snippets.</li>
-    <li><a href="https://geminicli.com/docs/changelogs/latest/">geminicli.com/docs/changelogs/latest/</a> — 403 via r.jina.ai — wanted to confirm whether surgical code edits landed in v0.42.0 stable or only in v0.43.0-preview.0.</li>
-    <li><a href="https://simonwillison.net/2026/May/12/llm/">simonwillison.net/2026/May/12/llm/</a> — 403 via r.jina.ai — wanted full post for complete list of changes in LLM 0.32a2 beyond what search snippets surfaced.</li>
-    <li><a href="https://arxiv.org/list/cs.CL/2026-05-12">arxiv.org/list/cs.CL/2026-05-12</a> — 403 via r.jina.ai — wanted May 12 new submissions to check for practitioner-relevant papers not surfaced by keyword searches.</li>
+    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">github.com/anthropics/claude-code/releases/tag/v2.1.142</a> — 403 via r.jina.ai — wanted full release notes text to verify complete list of v2.1.142 changes beyond what search snippets surfaced.</li>
+    <li><a href="https://github.com/Piebald-AI/claude-code-system-prompts/blob/main/CHANGELOG.md">Piebald-AI/claude-code-system-prompts CHANGELOG.md</a> — 403 via r.jina.ai — wanted exact diff text for the agent thread notes system prompt change in v2.1.142.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-14">news.ycombinator.com/front?day=2026-05-14</a> — 403 — wanted May 14 front-page story list to check for items at or above 200 points.</li>
+    <li><a href="https://simonwillison.net/2026/May/14/not-so-locked-in/">simonwillison.net/2026/May/14/not-so-locked-in/</a> — 403 — wanted full post content to evaluate whether the programming-language-fungibility argument met the evidence bar.</li>
   </ul>
 </div>
 
