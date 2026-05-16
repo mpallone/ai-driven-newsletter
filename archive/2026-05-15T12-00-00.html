@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-15T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-15, 5 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-15, 5 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-14T12:00:00Z – 2026-05-15T12:00:00Z.</p>
+
+<p>All five items today come from the Claude Code v2.1.142 release (May 14, 2026). Five distinct practitioner-relevant changes, each with a concrete action.</p>
+
+<h3>Agent dispatch now accepts model and permission flags</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> <code>claude agents</code> (the agent view launcher) now accepts <code>--permission-mode</code>, <code>--model</code>, <code>--effort</code>, <code>--mcp-config</code>, <code>--plugin-dir</code>, <code>--settings</code>, <code>--add-dir</code>, and <code>--dangerously-skip-permissions</code>. Every background session you dispatch from agent view starts with those settings rather than inheriting whatever defaults the target directory happens to have. The active defaults show up in the agent view footer so you know what each dispatched session will use.</li>
+  <li><strong>What to do:</strong> Update to v2.1.142 (<code>npm update -g @anthropic-ai/claude-code</code>), then add <code>--permission-mode plan --model opus --effort high</code> to your <code>claude agents</code> launch command if you want all dispatched sessions locked to specific settings; tweak per-flag as your workflow requires.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release published May 14, 2026; confirmed by Claude Code docs at code.claude.com/docs/en/agent-view and multiple third-party changelog trackers (Releasebot, ClaudeLog, ClaudeFA.st). The feature requires v2.1.142 or later — earlier versions silently ignore the flags.</li>
+  <li><strong>Skeptic check:</strong> These flags set dispatch-time defaults, not hard locks; sessions still read remaining settings from the directory they run in, so one flag set cannot override every config source.</li>
+</ul>
+
+<h3>Fast mode default upgrades from Opus 4.6 to Opus 4.7</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Fast mode — Claude Code's lower-latency, lower-cost response toggle — now uses Opus 4.7 as its default model instead of Opus 4.6. The change is automatic on update. Set <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1</code> to pin back to Opus 4.6 if you need reproducibility against a specific model version.</li>
+  <li><strong>What to do:</strong> If you have been benchmarking fast-mode cost against Opus 4.6 pricing, rerun those calculations against Opus 4.7 rates after updating; if your evaluations or regression tests depend on Opus 4.6 output characteristics, set the override env var before updating.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; independently noted in a third-party YouTube Shorts specifically about this change, and confirmed by multiple changelog summaries.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Agent threads must now report results in their final message, not .md files</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142 system prompt change, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/Piebald-AI/claude-code-system-prompts">Piebald-AI/claude-code-system-prompts — system prompt changelog tracker</a></li>
+  <li><strong>TL;DR:</strong> Anthropic updated the agent thread system prompt in v2.1.142 to explicitly instruct agent threads to return their reports, summaries, findings, and analysis directly in their final message — rather than writing them to <code>.md</code> files and telling the parent agent to read the file. The same update makes file path handling uniform: agent threads now always require absolute paths unconditionally (the previous conditional for relative paths is removed).</li>
+  <li><strong>What to do:</strong> If you have subagent threads that write output files and then return a file path, shift them to return the content inline in the final turn; this aligns with how Claude is now steered and avoids a pattern the system prompt actively discourages.</li>
+  <li><strong>Why trust it:</strong> Confirmed by Piebald-AI/claude-code-system-prompts, which tracks every system prompt change across 179 Claude Code versions and updates within minutes of each release — the most granular independent verification available for prompt-level changes.</li>
+  <li><strong>Skeptic check:</strong> This is a steering instruction in the system prompt, not an API constraint — existing agents that write files will not error out, but model behavior will drift toward inline reporting over time.</li>
+</ul>
+
+<h3>Single-file plugins now need only a root-level SKILL.md</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Previously, a Claude Code plugin had to include a <code>skills/</code> subdirectory to surface any skills. v2.1.142 removes that requirement: if a plugin has a <code>SKILL.md</code> at its root and no <code>skills/</code> directory, it is automatically registered as a skill. Separately, the <code>/plugin details</code> pane and <code>claude plugin details</code> command now list any LSP servers the plugin provides.</li>
+  <li><strong>What to do:</strong> Simplify single-skill plugins: move <code>SKILL.md</code> to the plugin root and delete the <code>skills/</code> wrapper directory; run <code>claude plugin details &lt;name&gt;</code> after updating to verify the skill appears and any LSP servers are listed correctly.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release; changelog entry confirmed across multiple trackers and the Claude Code docs for plugin creation.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3><code>MCP_TOOL_TIMEOUT</code> was silently capped at 60 seconds for remote servers</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.142, May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">Claude Code v2.1.142 — GitHub releases</a></li>
+  <li><strong>TL;DR:</strong> Setting <code>MCP_TOOL_TIMEOUT</code> to a value above 60 seconds had no effect on remote HTTP and SSE MCP servers — calls were hard-capped at 60 seconds regardless of the env var. v2.1.142 fixes this: the env var now actually raises the per-request fetch timeout for those server types.</li>
+  <li><strong>What to do:</strong> If you have remote MCP tools that fail on long-running operations (database queries, file analysis, slow external APIs), set <code>MCP_TOOL_TIMEOUT</code> to your required number of seconds and update to v2.1.142 — the setting will now be honored.</li>
+  <li><strong>Why trust it:</strong> Bug and fix described in the v2.1.142 changelog; this class of silent env-var misconfiguration is independently verifiable by testing tool call duration before and after updating.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<div class="footer">
+  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.142 GitHub release, May 14, 2026); Piebald-AI/claude-code-system-prompts (system prompt change tracker); ClaudeLog; ClaudeFA.st; Releasebot; code.claude.com/docs.</p>
+
+  <p><strong>Skipped:</strong> Simon Willison "Not so locked in any more" (May 14, 2026) — short commentary on a quote about programming language fungibility, no measurements or evidence; OpenAI API changes May 14 (GPT-5.5 Instant as new default model, realtime voice model releases, DALL-E 2/3 and Realtime API Beta deprecations) — not relevant to coding agent harness or prompt/context engineering practice; 3 funding posts; arXiv papers checked but none submitted May 14 passed the "changes how I would configure a tool tomorrow" test. No confirmed HN front-page items at or above 200 points within this window.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls and direct WebFetch calls returned 403 — all item details obtained from web search snippets and secondary summaries. GitHub releases page for v2.1.142 inaccessible directly; details confirmed through multiple independent search results. HN front page for May 14 not directly accessible; relied on search to surface any items at or above 200 points. Latent Space, Eugene Yan, Hamel Husain, Chip Huyen — no May 14–15 posts surfaced by search.</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.142">github.com/anthropics/claude-code/releases/tag/v2.1.142</a> — 403 via r.jina.ai — wanted full release notes text to verify complete list of v2.1.142 changes beyond what search snippets surfaced.</li>
+    <li><a href="https://github.com/Piebald-AI/claude-code-system-prompts/blob/main/CHANGELOG.md">Piebald-AI/claude-code-system-prompts CHANGELOG.md</a> — 403 via r.jina.ai — wanted exact diff text for the agent thread notes system prompt change in v2.1.142.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-14">news.ycombinator.com/front?day=2026-05-14</a> — 403 — wanted May 14 front-page story list to check for items at or above 200 points.</li>
+    <li><a href="https://simonwillison.net/2026/May/14/not-so-locked-in/">simonwillison.net/2026/May/14/not-so-locked-in/</a> — 403 — wanted full post content to evaluate whether the programming-language-fungibility argument met the evidence bar.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
