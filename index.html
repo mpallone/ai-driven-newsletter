@@ -3,103 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-16T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-16, 7 items</title>
+  <meta name="published" content="2026-05-17T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-17, 4 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-16, 7 items</h1>
+<h1>AI Tools Digest — 2026-05-17, 4 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-15T12:00:00Z – 2026-05-16T12:00:00Z.</p>
+<p class="window-note">Window: 2026-05-16T12:00:00Z – 2026-05-17T12:00:00Z. No vendor releases or practitioner posts cleared the inclusion bar in this 24-hour window. All four items are arXiv papers drawn from the 7-day lookback (May 10–17).</p>
 
-<p>Five items from Claude Code v2.1.143 (May 15), one paper on MCP documentation quality, and one note on xAI Grok Build's agent competition architecture.</p>
-
-<h3>Idle background sessions now keep their config</h3>
+<h3>Eleven harness components determine whether coding agents ship reliable code</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.143, May 15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">Claude Code v2.1.143 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> When a background session wakes from idle, it now retains the model and effort level you set — instead of resetting to defaults. Separately, <code>/bg</code> now also preserves <code>--mcp-config</code>, <code>--settings</code>, <code>--add-dir</code>, <code>--plugin-dir</code>, and <code>--strict-mcp-config</code> across session respawn, so your MCP servers and non-default settings survive the full background session lifecycle.</li>
-  <li><strong>What to do:</strong> Update to v2.1.143 and stop hard-coding model and effort redundantly in every background task definition — the settings will stick across idle cycles and respawns.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release, confirmed across multiple independent changelog trackers (Releasebot, ClaudeLog, developertoolkit.ai); GitHub releases page was inaccessible but details matched across at least three independent search-snippet sources.</li>
-  <li><strong>Skeptic check:</strong> Only affects sessions you have backgrounded via <code>/bg</code>; foreground sessions have always preserved these settings.</li>
+  <li><strong>Source:</strong> Huang et al., arXiv:2605.13357, submitted May 13, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.13357">arXiv:2605.13357 — AI Harness Engineering: A Runtime Substrate for Foundation-Model Software Agents</a></li>
+  <li><strong>TL;DR:</strong> When coding agents underperform, the gap is almost always in the harness — the infrastructure between model and codebase — not in the model itself. Researchers analyzed two production coding-agent systems (Claude Code and OpenHands) and found both must handle eleven distinct responsibilities: task specification, context selection, tool access, project memory, task state tracking, observability, failure attribution, verification, permissions, entropy auditing, and intervention recording. Missing any one is a reliability hole independent of which model you plug in.</li>
+  <li><strong>What to do:</strong> Audit your agent harness against the eleven components; for each one, ask whether your harness handles it explicitly — any gap is a reliability fix you can make without swapping models.</li>
+  <li><strong>Why trust it:</strong> Analysis of two deployed production coding-agent codebases (Claude Code TypeScript source and OpenHands), cross-referenced to derive the shared responsibility set; authors also propose a four-level ladder (H0–H3) grading how much runtime support is exposed to the agent.</li>
+  <li><strong>Skeptic check:</strong> The eleven components were derived from two systems that share significant design philosophy; a harness built on radically different assumptions might partition responsibilities differently or identify additional components.</li>
 </ul>
 
-<h3>Claude Code now enforces plugin dependency order</h3>
+<h3>Agent benchmark scores overstate success when outcome checks are shallow</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.143, May 15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">Claude Code v2.1.143 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> <code>claude plugin disable &lt;name&gt;</code> now refuses if another currently-enabled plugin depends on the target, and prints a copy-pasteable command to disable the entire dependency chain at once. Going the other way, <code>claude plugin enable &lt;name&gt;</code> now force-enables all transitive dependencies automatically.</li>
-  <li><strong>What to do:</strong> If you have a multi-plugin setup where one plugin wraps or depends on another, test <code>claude plugin disable</code> after updating — the hint output will show you the exact chain to run if the command refuses.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release, described identically across multiple independent changelog trackers.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>Source:</strong> Gao &amp; Zhou, arXiv:2605.10448, submitted May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.10448">arXiv:2605.10448 — Can Agent Benchmarks Support Their Scores? Evidence-Supported Bounds for Interactive-Agent Evaluation</a></li>
+  <li><strong>TL;DR:</strong> Many agent benchmark tasks count a run as passed when a surface signal fires (the Save button was clicked, the command exited 0) without verifying whether the intended state actually changed. A meaningful fraction of "passed" runs on five major public benchmarks are unverifiable by the evidence the benchmark actually stores — meaning reported scores are partly fiction.</li>
+  <li><strong>What to do:</strong> In your own agent evals, write outcome checks that verify actual state — database contents, file contents, API return values, or real side effects — not just surface signals like UI state or command exit codes.</li>
+  <li><strong>Why trust it:</strong> Outcome evidence layer applied to five established public benchmarks (ANDROIDWORLD, AGENTDOJO, APPWORLD, tau-bench retail, and MINIWOB); each completed run assigned one of three labels (Evidence Pass, Evidence Fail, Unknown) based on what stored artifacts the benchmark actually captures.</li>
+  <li><strong>Skeptic check:</strong> The paper diagnoses the problem and classifies existing checks; it does not supply correct replacement checks for every benchmark task — you still have to design the right verifications for your specific use case.</li>
 </ul>
 
-<h3>Plugin marketplace now shows projected token costs</h3>
+<h3>Per-span trace annotation localizes agent failures far better than outcome-only checks</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.143, May 15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">Claude Code v2.1.143 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> The <code>/plugin marketplace browse</code> pane now shows per-turn and per-invocation token cost estimates for each plugin before you install it. This is the first time you can compare token overhead across plugins at browse time rather than discovering costs after installation and seeing it in your billing.</li>
-  <li><strong>What to do:</strong> Before adding new plugins to a cost-sensitive workflow, open <code>/plugin marketplace</code> and check the per-turn estimates; high-cost plugins are candidates for selective enabling per task type rather than always-on.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release, consistent across multiple changelog sources.</li>
-  <li><strong>Skeptic check:</strong> These are estimates, not hard caps; actual token use will vary with context window size and model.</li>
+  <li><strong>Source:</strong> Madvil et al., arXiv:2605.14865, submitted May 14, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.14865">arXiv:2605.14865 — Holistic Evaluation and Failure Diagnosis of AI Agents</a></li>
+  <li><strong>TL;DR:</strong> Knowing that an agent task failed tells you almost nothing about where in the trace the failure actually happened. Pairing a top-down task-level verdict with bottom-up per-span verdicts — scoring each tool call, reasoning step, and output independently — pinpoints the exact failing step and produces a rationale for each verdict. This scales to traces of arbitrary length because each span is assessed independently.</li>
+  <li><strong>What to do:</strong> When debugging agent failures, annotate the trace span-by-span (each tool call, each reasoning block, each output) with an independent pass/fail verdict and a one-line reason before concluding anything about the overall failure — this localization step is what determines what to actually fix.</li>
+  <li><strong>Why trust it:</strong> Evaluated on the TRAIL benchmark against GAIA and SWE-Bench; relative gains over prior baselines of up to 38% on category F1, up to 3.5× on localization accuracy, and up to 12.5× on joint localization accuracy.</li>
+  <li><strong>Skeptic check:</strong> TRAIL is a structured benchmark purpose-built for this type of evaluation; whether the span-level gains hold for messier, longer traces produced by production agents on open-ended tasks is not shown.</li>
 </ul>
 
-<h3>New setting skips worktrees for background sessions</h3>
+<h3>How you compile skill context matters as much as which skill you retrieve</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.143, May 15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">Claude Code v2.1.143 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> Setting <code>worktree.bgIsolation: "none"</code> in your Claude Code config lets background sessions edit the working copy directly rather than spinning up an <code>EnterWorktree</code> step first. The setting exists specifically for repos where git worktrees are impractical — monorepos with complex toolchains, repos that inline submodules, and similar setups.</li>
-  <li><strong>What to do:</strong> If background sessions are failing or slow because of worktree setup in a repo that can't support isolated worktrees cleanly, add <code>worktree.bgIsolation: "none"</code> to your project <code>settings.json</code> — but understand this trades isolation for compatibility; concurrent background sessions in the same repo can now conflict.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release; feature described consistently and precisely across sources.</li>
-  <li><strong>Skeptic check:</strong> Disabling isolation is a compatibility escape hatch, not a recommended default; concurrent background sessions become unsafe.</li>
-</ul>
-
-<h3>Claude Code PowerShell now bypasses execution policy</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic, Claude Code v2.1.143, May 15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">Claude Code v2.1.143 — GitHub releases</a></li>
-  <li><strong>TL;DR:</strong> The PowerShell tool now passes <code>-ExecutionPolicy Bypass</code> automatically, so scripts and tools silently blocked by a restrictive policy on Windows/WSL now run. Set <code>CLAUDE_CODE_POWERSHELL_RESPECT_EXECUTION_POLICY=1</code> to opt out and restore the previous behavior.</li>
-  <li><strong>What to do:</strong> If PowerShell-based tools have been silently failing in Claude Code on Windows, update to v2.1.143 — you no longer need to pre-configure execution policy separately. If your environment has a security requirement that the restricted policy be enforced, set the opt-out env var before updating.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release; change is unambiguous and independently verifiable by testing script execution before and after update.</li>
-  <li><strong>Skeptic check:</strong> Bypass mode runs scripts regardless of source; on managed corporate Windows machines, confirm with your security team before deploying.</li>
-</ul>
-
-<h3>Weak API descriptions cause most MCP agent failures</h3>
-<ul>
-  <li><strong>Source:</strong> Lima et al., arXiv:2605.14312, submitted May 14, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.14312">arXiv:2605.14312 — Making OpenAPI Documentation Agent-Ready</a></li>
-  <li><strong>TL;DR:</strong> A team wrapping 16 production REST APIs (~600 endpoints) as MCP tools found that APIs which worked fine as microservices caused consistent agent failures at task planning, tool selection, and payload construction — not because of model limitations, but because of documentation quality problems: vague descriptions, explanations split across unrelated fields, and endpoints that mixed multiple concerns. They built a multi-agent detection tool (Hermes) that scans OpenAPI specs and generates per-endpoint diagnostic reports flagging these issues.</li>
-  <li><strong>What to do:</strong> Before exposing a REST API as an MCP tool, treat your OpenAPI description text as prompt input: each endpoint description should state one thing clearly, avoid mixing operational concerns, and provide enough context that an agent can correctly choose it over similar-looking endpoints. Run an LLM pass over your OpenAPI spec looking specifically for vague verbs, missing payload semantics, and descriptions that copy the endpoint path rather than explaining behavior.</li>
-  <li><strong>Why trust it:</strong> Industrial study on 16 production APIs / ~600 endpoints; failures measured against actual agent task-completion, not synthetic benchmarks. Full paper text was behind a fetch block — key findings confirmed from arXiv abstract and multiple search snippets; the specific smell taxonomy and numeric detection rates were not verified from the full text.</li>
-  <li><strong>Skeptic check:</strong> Study was conducted in one microservice architecture; whether the same documentation issues cause failures in directly-authored MCP servers (rather than REST-to-MCP wrappers) is not established by this work.</li>
-</ul>
-
-<h3>Grok Build evaluates competing agents before delivery</h3>
-<ul>
-  <li><strong>Source:</strong> xAI, Grok Build early beta, announced May 14–15, 2026</li>
-  <li><strong>Link:</strong> <a href="https://docs.x.ai/developers/release-notes">xAI release notes — docs.x.ai</a></li>
-  <li><strong>TL;DR:</strong> xAI launched Grok Build, a terminal coding agent (currently early beta, SuperGrok Heavy subscribers only), whose defining architecture feature is Arena Mode: instead of returning a single solution, it runs up to eight parallel agents on the same problem, scores and ranks their outputs automatically, and only then surfaces the result to the developer. The tool is local-first — source code is not sent to xAI servers. The underlying model is <code>grok-code-fast-1</code>.</li>
-  <li><strong>What to do:</strong> Watch this; no action yet — the Arena Mode pattern (run N agents against the same problem, rank internally before human review) is the useful architectural idea here, independent of the specific tool. If you're designing a code-generation harness, this is the competitive-evaluation pattern to evaluate for your own multi-agent workflows.</li>
-  <li><strong>Why trust it:</strong> Multiple independent news sources (Engadget, CIO Dive, Android Headlines, Dataconomy) all reporting on xAI's own announcement; technical details consistent across sources. SWE-Bench figure excluded per hard-exclude rule.</li>
-  <li><strong>Skeptic check:</strong> Early beta, high-cost subscriber tier only; Arena Mode runs up to 8× agent cost per task — whether the quality of ranked results justifies the cost has no independent evidence yet.</li>
+  <li><strong>Source:</strong> Meng et al., arXiv:2605.10114, submitted May 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.10114">arXiv:2605.10114 — SkillRAE: Agent Skill-Based Context Compilation for Retrieval-Augmented Execution</a></li>
+  <li><strong>TL;DR:</strong> When an agent retrieves a relevant skill from a library, most systems inject the full skill document into context. This paper shows that compiling the retrieved evidence — selecting only the most relevant sub-sections and compacting them before injection — produces substantially better task completion than injecting whole skill documents. The gain comes from the compilation step, not just from retrieval quality.</li>
+  <li><strong>What to do:</strong> When writing skill files for your agent, front-load the critical execution steps and keep them tight; strip preamble, documentation prose, and examples that add tokens without adding execution value — the paper shows that what a retrieved skill contains at the start, and how compactly it is written, is what agents act on.</li>
+  <li><strong>Why trust it:</strong> Evaluated on two public benchmarks; 11.7% improvement over prior state-of-the-art on SkillsBench, with ablations confirming that context compilation (not retrieval alone) drives the gain.</li>
+  <li><strong>Skeptic check:</strong> SkillsBench is a controlled benchmark; whether the same skill-file structure choices matter equally in human-authored Claude Code skill files run against real, varied codebases is not directly tested.</li>
 </ul>
 
 <div class="footer">
-  <p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.143 release, via Releasebot, ClaudeLog, developertoolkit.ai changelog trackers); Lima et al. (arXiv:2605.14312); xAI (Grok Build beta announcement, via Engadget, CIO Dive, Android Headlines, Dataconomy).</p>
+  <p><strong>Sources used today:</strong> arXiv — Huang et al. (2605.13357); Gao &amp; Zhou (2605.10448); Madvil et al. (2605.14865); Meng et al. (2605.10114).</p>
 
-  <p><strong>Skipped:</strong> Cursor cloud agent dev environments (May 13 changelog — outside window); Cursor Bugbot billing change (~May 11 announcement — outside window); xAI Grok Build SWE-Bench score 70.8% (leaderboard win, no methodology change); OpenAI ChatGPT personal finance launch (unrelated to coding agents or prompt engineering); MCP TypeScript SDK update May 16 (update confirmed but specific version and changelog unverifiable — noted in Coverage gaps). 0 funding posts, 0 hype takes.</p>
+  <p><strong>Skipped:</strong> Claude Code v2.1.143 (May 15) — already covered in the previous newsletter. Cursor 3.4 multi-repo agent environments (May 13) — outside the 24-hour window. Windsurf Gemini 3.1 Pro addition — outside window. Claude Managed Agents on AWS GA (May 13) — outside window. 1 funding/partnership post (Gates Foundation, May 14). Multiple leaderboard comparisons without methodology changes. arXiv papers: 2605.09998 (Continual Harness) — Pokemon-game test case does not pass "changes how I'd configure a tool tomorrow"; 2605.13625 (How to Interpret Agent Behavior) — research vocabulary paper, not actionable for practitioners.</p>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls returned 403 — all item details obtained via web search snippets and secondary summaries. HN front page for May 15–16 not directly accessible; no items at or above 200 points surfaced by search in this window. Simon Willison (May 15–16), Hamel Husain, Eugene Yan, Chip Huyen, Latent Space — no posts surfaced by search for this window. MCP TypeScript SDK was updated May 16 (confirmed by repository activity), but the specific release version and changelog text were blocked; excluded rather than misattribute specific changes to the wrong date.</p>
+  <p><strong>Coverage gaps:</strong> All WebFetch calls (both r.jina.ai-prefixed and direct) returned 403 — all item details obtained via web search snippets and secondary summaries. HN front page for May 16–17 not directly accessible; no items at or above 200 points surfaced by search in this window. Simon Willison, Hamel Husain, Eugene Yan, Chip Huyen, Nathan Lambert (Interconnects), Latent Space — no posts found specifically in the May 16–17 window.</p>
 
   <p><strong>Inaccessible links:</strong></p>
   <ul>
-    <li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.143">github.com/anthropics/claude-code/releases/tag/v2.1.143</a> — 403 via r.jina.ai — wanted full release notes to verify the complete list of v2.1.143 changes beyond search snippets.</li>
-    <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 via r.jina.ai — wanted authoritative changelog text with exact wording for v2.1.143 items.</li>
-    <li><a href="https://arxiv.org/html/2605.14312">arxiv.org/html/2605.14312</a> — 403 via r.jina.ai — wanted full paper text to verify the specific smell taxonomy and numeric detection rates.</li>
-    <li><a href="https://github.com/modelcontextprotocol/typescript-sdk/releases">github.com/modelcontextprotocol/typescript-sdk/releases</a> — 403 via r.jina.ai — wanted specific release version and changelog for the confirmed May 16 SDK update.</li>
-    <li><a href="https://simonwillison.net/2026/May/15/">simonwillison.net/2026/May/15/</a> — 403 — wanted May 15 post list to check for relevant items.</li>
-    <li><a href="https://simonwillison.net/2026/May/16/">simonwillison.net/2026/May/16/</a> — 403 — wanted May 16 post list to check for relevant items.</li>
+    <li><a href="https://arxiv.org/abs/2605.13357">arxiv.org/abs/2605.13357</a> — 403 — wanted to verify the full eleven-component list and the H0–H3 ladder details from the paper text.</li>
+    <li><a href="https://arxiv.org/abs/2605.10448">arxiv.org/abs/2605.10448</a> — 403 — wanted to see the per-benchmark breakdown of Evidence Pass vs. Unknown vs. Evidence Fail rates.</li>
+    <li><a href="https://arxiv.org/abs/2605.14865">arxiv.org/abs/2605.14865</a> — 403 — wanted to verify the exact experimental setup and which baseline the 12.5× joint localization gain is relative to.</li>
+    <li><a href="https://arxiv.org/abs/2605.10114">arxiv.org/abs/2605.10114</a> — 403 — wanted to confirm whether the paper makes specific skill-file structure recommendations or whether the "front-load execution steps" takeaway is inferred from the method.</li>
+    <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted May 16–17 post list to check for relevant items.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-16">news.ycombinator.com/front?day=2026-05-16</a> — 403 — wanted to check for any AI-tools posts with 200+ points on May 16.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-17">news.ycombinator.com/front?day=2026-05-17</a> — 403 — wanted to check for any AI-tools posts with 200+ points on May 17.</li>
   </ul>
 </div>
 
