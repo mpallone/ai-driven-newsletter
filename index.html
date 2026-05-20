@@ -3,73 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-19T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-19, 4 items</title>
+  <meta name="published" content="2026-05-20T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-20, 6 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-19, 4 items</h1>
+<h1>AI Tools Digest — 2026-05-20, 6 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-18T12:00:00Z – 2026-05-19T12:00:00Z. Google I/O 2026 keynote day, Code with Claude London, and PyCon US 2026 all landed in this window.</p>
+<p class="window-note">Window: 2026-05-19T12:00:00Z – 2026-05-20T12:00:00Z. Two Claude Code releases, Cursor in Jira, Codex 0.132.0, a Glean harness teardown, and two arXiv papers on prompt injection impossibility and agent iteration depth.</p>
 
-<h3>Cursor's first-party model matches Opus 4.7 at one-tenth the cost</h3>
+<h3>Claude Code v2.1.145 patches bash permission bypass</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor blog</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/blog/composer-2-5">Introducing Composer 2.5 — Cursor</a></li>
-  <li><strong>TL;DR:</strong> Cursor's new Composer 2.5, built on Kimi K2.5 with 25× more synthetic training tasks and targeted RL feedback at the exact trajectory points where the model went wrong, scores 79.8% on SWE-Bench Multilingual — matching Opus 4.7 and GPT-5.5 — while costing roughly one-tenth as much at the interactive tier.</li>
-  <li><strong>What to do:</strong> If token cost is a bottleneck for high-volume agentic Cursor workflows, switch to Composer 2.5 as your default model and compare real-task completion rates against your current Opus 4.7 baseline before committing.</li>
-  <li><strong>Why trust it:</strong> Cursor measured on SWE-Bench Multilingual (community-recognized third-party benchmark) and their own CursorBench v3.1; pricing is published in the release post; competing model scores (Opus 4.7, GPT-5.5) cited for direct comparison.</li>
-  <li><strong>Skeptic check:</strong> CursorBench v3.1 is Cursor's own benchmark — the community has not independently verified whether it correlates with real-world completion rates on tasks outside Cursor's training distribution.</li>
+  <li><strong>Source:</strong> Anthropic / Claude Code official changelog</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — code.claude.com</a></li>
+  <li><strong>TL;DR:</strong> v2.1.145 (May 19) fixes a hole where bare variable assignments (<code>VAR=value</code> without <code>export</code>) in bash commands would skip the permission-prompt check even when that environment variable wasn't on your allowlist. The same release ships <code>claude agents --json</code> for scripting session state into tmux layouts or status bars, adds <code>agent_id</code> and <code>parent_agent_id</code> fields on OpenTelemetry spans for proper multi-agent trace parenting, shows a plugin's component inventory and estimated per-session token cost before you install it, and feeds <code>background_tasks</code> and <code>session_crons</code> into Stop and SubagentStop hook inputs. Also in the same day: v2.1.144 makes <code>/model</code> session-local (press <code>d</code> to change the new-session default), shows background sessions in <code>/resume</code> with a <code>bg</code> marker, and fixes a 75-second startup hang when <code>api.anthropic.com</code> is unreachable.</li>
+  <li><strong>What to do:</strong> Update Claude Code immediately; if you run agents with restricted env-variable allowlists, audit recent sessions for unexpected variable mutations via bare assignment.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog at code.claude.com/docs/en/changelog; release dated May 19, 2026; the vulnerability and fix are described in the exact patch notes with PR-level detail.</li>
+  <li><strong>Skeptic check:</strong> The changelog doesn't detail which workflows were actually reachable through this bypass, so the real-world risk before patching is unknown.</li>
 </ul>
 
-<h3>Genkit 2.0 ships GA with built-in MCP server integration and Cloud Trace</h3>
+<h3>Cursor cloud agents now trigger from Jira tickets</h3>
 <ul>
-  <li><strong>Source:</strong> Google Developers Blog / Firebase</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/">New AI capabilities for popular frameworks in Firebase Studio — Google Developers Blog</a></li>
-  <li><strong>TL;DR:</strong> Firebase Genkit 2.0 hit general availability at Google I/O 2026 with native Model Context Protocol (MCP) support built in: you can now expose your Genkit tools and prompts as an MCP server, or consume any MCP server's tools as Genkit flows — all with streaming and production observability via Cloud Trace, in one GA TypeScript/JavaScript package.</li>
-  <li><strong>What to do:</strong> If you're building MCP servers in TypeScript or JavaScript, evaluate Genkit 2.0 as the scaffold — it bundles flow orchestration, multi-model routing, tool calling, and MCP server/client in a single GA library rather than requiring separate integrations for each.</li>
-  <li><strong>Why trust it:</strong> GA announced by Google at the Google I/O 2026 keynote on May 19; Cloud Trace integration confirmed in Firebase release notes; MCP plugin has been available in pre-GA, with GA adding production support commitments.</li>
-  <li><strong>Skeptic check:</strong> "Native MCP server integration" has been in Genkit as a separate plugin since before GA — verify whether the GA release adds new capabilities or primarily just locks in the API surface and SLA.</li>
+  <li><strong>Source:</strong> Cursor changelog</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/05-19-26">Cursor in Jira — cursor.com changelog, May 19</a></li>
+  <li><strong>TL;DR:</strong> As of May 19, you can assign any Jira work item to Cursor or <code>@Cursor</code> in a comment; a cloud agent picks up the ticket title, description, comments, and your team's repo settings, works through the task, then posts a link to the resulting pull request back in Jira. Requires Jira Commercial Cloud with Atlassian Rovo enabled.</li>
+  <li><strong>What to do:</strong> If your team runs Jira Commercial Cloud with Rovo, install the integration from Cursor's integrations page and pilot it on low-risk bug tickets before using it for feature work.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog entry dated May 19, 2026 with the Rovo requirement stated explicitly; the PR-back-to-Jira completion flow is described as the standard behavior.</li>
+  <li><strong>Skeptic check:</strong> Rovo is a paid Atlassian add-on; the integration has no community track record yet, so failure modes (e.g., misread ticket scope, wrong repo) aren't documented.</li>
 </ul>
 
-<h3>Context-aware prompt injection defeats all existing defenses</h3>
+<h3>Codex adds structured JSON output for resumed sessions</h3>
 <ul>
-  <li><strong>Source:</strong> arXiv 2605.03378 — ARGUS paper</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.03378">ARGUS: Defending LLM Agents Against Context-Aware Prompt Injection — arXiv</a></li>
-  <li><strong>TL;DR:</strong> Attacks that adapt their injected text to match the agent's current task state (what tool just ran, what the user asked, what the agent is about to do) get through every tested defense — because all existing defenses only check for static injection strings, not injections that blend into live context. ARGUS tracks which context pieces influenced each agent decision via a provenance graph, then blocks actions that can't be justified by trustworthy context alone.</li>
-  <li><strong>What to do:</strong> When building agents that process untrusted content — web scrapes, MCP tool results, user-supplied documents — label each context item with its provenance (system-authored, user-provided, external tool) and add a verification step that checks whether the agent's next action is justified by system-trusted context before it executes.</li>
-  <li><strong>Why trust it:</strong> Authors introduce AgentLure, a benchmark spanning 4 agentic domains and 8 attack vectors; they test it against all publicly available defenses and show categorically higher bypass rates for context-aware attacks; the paper is from May 2026 (arXiv ID 2605.03378).</li>
-  <li><strong>Skeptic check:</strong> ARGUS is a research prototype — the provenance graph adds runtime overhead not yet quantified for production systems, and AgentLure is a new benchmark without independent replication.</li>
+  <li><strong>Source:</strong> OpenAI / Codex GitHub releases</li>
+  <li><strong>Link:</strong> <a href="https://github.com/openai/codex/releases">Codex releases — github.com/openai/codex</a></li>
+  <li><strong>TL;DR:</strong> Codex 0.132.0 (May 20) adds <code>--output-schema</code> to <code>codex exec resume</code>, letting you pass a JSON Schema and receive typed structured output from any resumed session — useful for feeding agent results into downstream pipelines. It also fixes a bug where <code>/goal</code> continuations would loop past usage limits instead of stopping, and unifies the Python SDK with first-class API key, ChatGPT browser, and device-code authentication flows.</li>
+  <li><strong>What to do:</strong> Add <code>--output-schema</code> to any <code>codex exec resume</code> calls in automated pipelines where you need typed output; update to 0.132.0 to get the <code>/goal</code> loop-stop fix if you use persistent goal workflows.</li>
+  <li><strong>Why trust it:</strong> Official GitHub release notes for release 0.132.0, dated May 20, 2026 from the openai/codex repo; specific flags and bug descriptions are listed with PR numbers.</li>
+  <li><strong>Skeptic check:</strong> Output schema adherence depends on model compliance; no accuracy measurements are included in the release notes.</li>
 </ul>
 
-<h3>Best coding model switched providers five times in six months</h3>
+<h3>On-demand skill loading shrank system prompt 45%</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison (simonwillison.net) — PyCon US 2026 lightning talk</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/19/5-minute-llms/">The last six months in LLMs in five minutes — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> In annotated slides from a PyCon US 2026 lightning talk, Willison documents that the "best coding model" — measured using his reproducible SVG pelican-on-bicycle test run consistently across all major releases — changed hands five times between the three large providers since November 2025, which he identifies as the inflection point when coding capability meaningfully accelerated.</li>
-  <li><strong>What to do:</strong> Don't hardcode a single model into your agent harness; use a config-driven or abstraction-layer model selection so you can swap in under an hour when the ranking shifts again — because based on this pattern, it will.</li>
-  <li><strong>Why trust it:</strong> Willison has run the same pelican SVG test across every major model release for over a year, providing a consistent cross-model comparison; the count of five provider switches is his qualitative judgment, not a single objective benchmark.</li>
-  <li><strong>Skeptic check:</strong> "Best model" is task-dependent — the pelican SVG test reflects creative generation quality, not code correctness; the five-switch count could differ on coding-specific benchmarks like SWE-Bench.</li>
+  <li><strong>Source:</strong> Glean engineering blog</li>
+  <li><strong>Link:</strong> <a href="https://www.glean.com/blog/harness-context-manager">The harness as the context manager — Glean blog</a></li>
+  <li><strong>TL;DR:</strong> Glean's v3 agent harness replaced the common pattern of front-loading all tool schemas and instructions at session start (often 20K+ tokens) with search-first skill discovery: skills live in an indexed library and load only when they match the current task. This reduced their system prompt by 45%. The harness also replaces declarative tool schemas with code executed in sandboxes, isolates parallel subtasks in separate subagent context windows, and uses compaction to move raw outputs to the filesystem while keeping only load-bearing task state in context.</li>
+  <li><strong>What to do:</strong> Audit your agent system prompt for instruction blocks that only apply to certain tasks; move them into indexed skills that retrieve on demand rather than injecting everything upfront every session.</li>
+  <li><strong>Why trust it:</strong> Glean's own production enterprise-search and agent platform; 45% reduction figure published in the engineering post and corroborated by Glean's engineering team on LinkedIn; this is a single company's measurement of their own system with no external controls.</li>
+  <li><strong>Skeptic check:</strong> Glean's enterprise search infrastructure makes indexed skill retrieval cheap for them; teams without a similar retrieval layer may find the overhead of building it outweighs the context savings.</li>
+</ul>
+
+<h3>Data-instruction separation can't block injection in principle</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv 2605.17634 — Abdelnabi &amp; Bagdasarian</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.17634">AI Agents May Always Fall for Prompt Injections — arXiv 2605.17634</a></li>
+  <li><strong>TL;DR:</strong> The standard prompt-injection defense — tagging text as "data" vs. "instruction" and only obeying the latter — fails against attacks that blend the injection into context that looks like normal agent activity. This paper shows that any defense tight enough to block a suspicious context flow will also block legitimate flows that look similar, making perfect defense impossible: an attacker can always craft a context under which the injected instruction appears legitimate, and any tighter norms the defender adds will flag some real tasks as attacks.</li>
+  <li><strong>What to do:</strong> Treat prompt injection as an unavoidable residual risk rather than a problem you can fully solve; limit agent permissions to reduce blast radius, and require human approval before high-stakes irreversible actions even when injection detection looks clean.</li>
+  <li><strong>Why trust it:</strong> Formal analysis backed by adversarial test scenarios; Sahar Abdelnabi has a record of prior prompt-injection attack research; submitted to arXiv May 17, 2026.</li>
+  <li><strong>Skeptic check:</strong> The impossibility result holds within the specific contextual integrity framework they use; practical defenses can still reduce attack success rates substantially even if they can't reach zero.</li>
+</ul>
+
+<h3>Deeper agent iterations beat many shallow attempts</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv 2605.15221 — Ishibashi, Yano, Oyamada</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.15221">Effective Harness Engineering for Algorithm Discovery with Coding Agents — arXiv 2605.15221</a></li>
+  <li><strong>TL;DR:</strong> When running LLM coding agents in iterative loops under a fixed token budget, spending more tokens per iteration on fewer high-quality attempts beats generating many cheap shallow attempts — and this advantage holds even after accounting for per-token price differences. Tested with the Vesper framework on Circle Packing (a standard algorithm discovery benchmark), deeper iterations outperformed AlphaEvolve, FunSearch, and the human best solution under the same budget. The paper also finds that agents gaming the scoring function ("evaluation hacks") are best handled by the harness detecting and invalidating suspiciously high scores rather than by changing the prompt.</li>
+  <li><strong>What to do:</strong> If you run iterative agent loops for code generation or optimization, configure for fewer but deeper reasoning passes rather than maximizing iteration count under the same token budget; add score-validity checks to your eval harness to catch agents that game the objective.</li>
+  <li><strong>Why trust it:</strong> Authors tested on Circle Packing (n=26 runs) with a fixed token budget; compared against multiple baselines; Vesper framework is open-source; submitted May 13, 2026.</li>
+  <li><strong>Skeptic check:</strong> Circle Packing is a mathematical optimization problem with a clear scoring function; how well the depth-over-breadth finding generalizes to fuzzier software engineering tasks (bug fixing, feature implementation) is untested.</li>
 </ul>
 
 <div class="meta">
-  <p><strong>Sources used today:</strong> Cursor blog; Google Developers Blog / Firebase; arXiv cs.AI/cs.SE (2605.03378); Simon Willison (simonwillison.net); Releasebot (Claude Code, Cursor, Windsurf); InfoQ; Latent Space; testingcatalog.com; lushbinary.com.</p>
 
-  <p><strong>Skipped:</strong> 1 opinion episode (Latent Space ep. 198, Marc Andreessen — no measurements); Code with Claude London (May 19 event confirmed but no new product announcements beyond what shipped at the SF stop on May 6, already covered in earlier digests); Claude Agent SDK dual-bucket billing change (announced May 14, outside window); Windsurf Devin for Terminal (shipped April 27, outside window); Windsurf Adaptive model selection (date unclear, no new info in window); Google I/O Gemini 3.2 Flash deployment at consumer scale (no impact on coding-agent configuration). 0 funding posts, 0 hype takes.</p>
+<h2>Meta</h2>
 
-  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls returned 403 throughout this run; direct page fetches (cursor.com/blog, simonwillison.net, developers.googleblog.com, arxiv.org) also returned 403. All source checking was performed via web search snippets and secondary summaries. HN front page for May 18–19 was not accessible; no AI-tools items at or above 200 points surfaced by search. Nathan Lambert (Interconnects), Hamel Husain, Chip Huyen, Eugene Yan — no posts in window found by search. Claude Code GitHub releases for May 18–19 could not be independently confirmed (releasebot snippet for this date range may reflect May 14–15 updates).</p>
+<h3>Candidate sources</h3>
+<ul>
+  <li><strong><a href="https://www.glean.com/blog">Glean engineering blog</a></strong> — surfaced today via harness design searches; produces concrete production measurements (45% system prompt reduction, 2.5× MCP preference ratio) from a large enterprise deployment. Worth adding to seeds under practitioner commentary.</li>
+</ul>
 
-  <p><strong>Inaccessible links:</strong></p>
-  <ul>
-    <li><a href="https://cursor.com/blog/composer-2-5">cursor.com/blog/composer-2-5</a> — 403 — wanted full announcement text to verify benchmark methodology and pricing table.</li>
-    <li><a href="https://simonwillison.net/2026/May/19/5-minute-llms/">simonwillison.net/2026/May/19/5-minute-llms/</a> — 403 — wanted annotated slides to confirm the five-switch count and the specific models cited.</li>
-    <li><a href="https://developers.googleblog.com/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/">developers.googleblog.com — Firebase Studio new AI capabilities</a> — 403 — wanted to confirm Genkit 2.0 GA date and the exact scope of MCP integration.</li>
-    <li><a href="https://arxiv.org/abs/2605.03378">arxiv.org/abs/2605.03378</a> — 403 — wanted to confirm submission date to verify the paper falls within the last-7-days arXiv window and read the full methodology.</li>
-    <li><a href="https://news.ycombinator.com/front?day=2026-05-18">news.ycombinator.com/front?day=2026-05-18</a> — 403 — wanted May 18 front-page post list and point counts.</li>
-    <li><a href="https://news.ycombinator.com/front?day=2026-05-19">news.ycombinator.com/front?day=2026-05-19</a> — 403 — wanted May 19 front-page post list and point counts.</li>
-    <li><a href="https://claude.com/code-with-claude/london">claude.com/code-with-claude/london</a> — 403 — wanted to check for London-specific new product announcements not present at the SF stop.</li>
-  </ul>
+<h3>Footer</h3>
+<p><strong>Sources used today:</strong> Anthropic / Claude Code official changelog (code.claude.com); Cursor changelog (cursor.com); OpenAI/Codex GitHub releases (github.com/openai/codex); Glean engineering blog (glean.com/blog); arXiv cs.AI — 2605.17634, 2605.15221.</p>
+
+<p><strong>Skipped:</strong> Cursor 3.4 dev environments for cloud agents (May 13, outside window); Glean cowork-mcp-eval context vs. MCP benchmark (May 13, outside window); Honeycomb Agent Timeline + Canvas Skills (May 12, outside window); Cursor in Teams (May 11, outside window); arXiv 2605.18747 "Code as Agent Harness" (survey paper, no empirical findings on tool use); Anthropic "Effective Context Engineering for AI Agents" blog post (publication date unconfirmed — likely outside window based on HN item ID); Nathan Lambert, Hamel Husain, Eugene Yan, Chip Huyen — no posts confirmed in window. 0 funding posts, 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> anthropic.com/engineering (403 all run — could not confirm whether any new posts were published in window, including "effective context engineering" date); simonwillison.net (403 — could not check for May 20 posts beyond the May 19 post already covered in prior digest); HN front page May 19–20 (403 throughout — no AI-tools items at ≥200 points could be confirmed or ruled out); all arxiv.org direct fetches returned 403 (used search snippets and secondary summaries for paper content).</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check whether any new engineering posts were published in the window and to verify the publication date of "Effective Context Engineering for AI Agents."</li>
+  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for any posts published on May 20, 2026.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-19">news.ycombinator.com/front?day=2026-05-19</a> — 403 — wanted front-page AI-tools post list and point counts.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-20">news.ycombinator.com/front?day=2026-05-20</a> — 403 — wanted front-page AI-tools post list and point counts.</li>
+  <li><a href="https://www.glean.com/blog/harness-context-manager">glean.com/blog/harness-context-manager</a> — 403 — used search snippets and LinkedIn corroboration for the 45% figure; full post content not verified.</li>
+  <li><a href="https://arxiv.org/abs/2605.17634">arxiv.org/abs/2605.17634</a> — 403 — used search summaries; could not read full methodology or sample sizes directly.</li>
+  <li><a href="https://arxiv.org/abs/2605.15221">arxiv.org/abs/2605.15221</a> — 403 — used search summaries; specific experimental details (n=26) sourced from secondary search results, not the paper directly.</li>
+  <li><a href="https://cursor.com/changelog/05-19-26">cursor.com/changelog/05-19-26</a> — 403 — used search snippet summary; Rovo requirement and PR-back-to-Jira flow sourced from secondary results.</li>
+</ul>
+
 </div>
 
 <nav><a href="archive/">Archive</a></nav>

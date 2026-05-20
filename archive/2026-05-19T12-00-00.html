@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-19T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-19, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-19, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-18T12:00:00Z – 2026-05-19T12:00:00Z. Google I/O 2026 keynote day, Code with Claude London, and PyCon US 2026 all landed in this window.</p>
+
+<h3>Cursor's first-party model matches Opus 4.7 at one-tenth the cost</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor blog</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/blog/composer-2-5">Introducing Composer 2.5 — Cursor</a></li>
+  <li><strong>TL;DR:</strong> Cursor's new Composer 2.5, built on Kimi K2.5 with 25× more synthetic training tasks and targeted RL feedback at the exact trajectory points where the model went wrong, scores 79.8% on SWE-Bench Multilingual — matching Opus 4.7 and GPT-5.5 — while costing roughly one-tenth as much at the interactive tier.</li>
+  <li><strong>What to do:</strong> If token cost is a bottleneck for high-volume agentic Cursor workflows, switch to Composer 2.5 as your default model and compare real-task completion rates against your current Opus 4.7 baseline before committing.</li>
+  <li><strong>Why trust it:</strong> Cursor measured on SWE-Bench Multilingual (community-recognized third-party benchmark) and their own CursorBench v3.1; pricing is published in the release post; competing model scores (Opus 4.7, GPT-5.5) cited for direct comparison.</li>
+  <li><strong>Skeptic check:</strong> CursorBench v3.1 is Cursor's own benchmark — the community has not independently verified whether it correlates with real-world completion rates on tasks outside Cursor's training distribution.</li>
+</ul>
+
+<h3>Genkit 2.0 ships GA with built-in MCP server integration and Cloud Trace</h3>
+<ul>
+  <li><strong>Source:</strong> Google Developers Blog / Firebase</li>
+  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/">New AI capabilities for popular frameworks in Firebase Studio — Google Developers Blog</a></li>
+  <li><strong>TL;DR:</strong> Firebase Genkit 2.0 hit general availability at Google I/O 2026 with native Model Context Protocol (MCP) support built in: you can now expose your Genkit tools and prompts as an MCP server, or consume any MCP server's tools as Genkit flows — all with streaming and production observability via Cloud Trace, in one GA TypeScript/JavaScript package.</li>
+  <li><strong>What to do:</strong> If you're building MCP servers in TypeScript or JavaScript, evaluate Genkit 2.0 as the scaffold — it bundles flow orchestration, multi-model routing, tool calling, and MCP server/client in a single GA library rather than requiring separate integrations for each.</li>
+  <li><strong>Why trust it:</strong> GA announced by Google at the Google I/O 2026 keynote on May 19; Cloud Trace integration confirmed in Firebase release notes; MCP plugin has been available in pre-GA, with GA adding production support commitments.</li>
+  <li><strong>Skeptic check:</strong> "Native MCP server integration" has been in Genkit as a separate plugin since before GA — verify whether the GA release adds new capabilities or primarily just locks in the API surface and SLA.</li>
+</ul>
+
+<h3>Context-aware prompt injection defeats all existing defenses</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv 2605.03378 — ARGUS paper</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.03378">ARGUS: Defending LLM Agents Against Context-Aware Prompt Injection — arXiv</a></li>
+  <li><strong>TL;DR:</strong> Attacks that adapt their injected text to match the agent's current task state (what tool just ran, what the user asked, what the agent is about to do) get through every tested defense — because all existing defenses only check for static injection strings, not injections that blend into live context. ARGUS tracks which context pieces influenced each agent decision via a provenance graph, then blocks actions that can't be justified by trustworthy context alone.</li>
+  <li><strong>What to do:</strong> When building agents that process untrusted content — web scrapes, MCP tool results, user-supplied documents — label each context item with its provenance (system-authored, user-provided, external tool) and add a verification step that checks whether the agent's next action is justified by system-trusted context before it executes.</li>
+  <li><strong>Why trust it:</strong> Authors introduce AgentLure, a benchmark spanning 4 agentic domains and 8 attack vectors; they test it against all publicly available defenses and show categorically higher bypass rates for context-aware attacks; the paper is from May 2026 (arXiv ID 2605.03378).</li>
+  <li><strong>Skeptic check:</strong> ARGUS is a research prototype — the provenance graph adds runtime overhead not yet quantified for production systems, and AgentLure is a new benchmark without independent replication.</li>
+</ul>
+
+<h3>Best coding model switched providers five times in six months</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison (simonwillison.net) — PyCon US 2026 lightning talk</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/May/19/5-minute-llms/">The last six months in LLMs in five minutes — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> In annotated slides from a PyCon US 2026 lightning talk, Willison documents that the "best coding model" — measured using his reproducible SVG pelican-on-bicycle test run consistently across all major releases — changed hands five times between the three large providers since November 2025, which he identifies as the inflection point when coding capability meaningfully accelerated.</li>
+  <li><strong>What to do:</strong> Don't hardcode a single model into your agent harness; use a config-driven or abstraction-layer model selection so you can swap in under an hour when the ranking shifts again — because based on this pattern, it will.</li>
+  <li><strong>Why trust it:</strong> Willison has run the same pelican SVG test across every major model release for over a year, providing a consistent cross-model comparison; the count of five provider switches is his qualitative judgment, not a single objective benchmark.</li>
+  <li><strong>Skeptic check:</strong> "Best model" is task-dependent — the pelican SVG test reflects creative generation quality, not code correctness; the five-switch count could differ on coding-specific benchmarks like SWE-Bench.</li>
+</ul>
+
+<div class="meta">
+  <p><strong>Sources used today:</strong> Cursor blog; Google Developers Blog / Firebase; arXiv cs.AI/cs.SE (2605.03378); Simon Willison (simonwillison.net); Releasebot (Claude Code, Cursor, Windsurf); InfoQ; Latent Space; testingcatalog.com; lushbinary.com.</p>
+
+  <p><strong>Skipped:</strong> 1 opinion episode (Latent Space ep. 198, Marc Andreessen — no measurements); Code with Claude London (May 19 event confirmed but no new product announcements beyond what shipped at the SF stop on May 6, already covered in earlier digests); Claude Agent SDK dual-bucket billing change (announced May 14, outside window); Windsurf Devin for Terminal (shipped April 27, outside window); Windsurf Adaptive model selection (date unclear, no new info in window); Google I/O Gemini 3.2 Flash deployment at consumer scale (no impact on coding-agent configuration). 0 funding posts, 0 hype takes.</p>
+
+  <p><strong>Coverage gaps:</strong> All r.jina.ai-prefixed WebFetch calls returned 403 throughout this run; direct page fetches (cursor.com/blog, simonwillison.net, developers.googleblog.com, arxiv.org) also returned 403. All source checking was performed via web search snippets and secondary summaries. HN front page for May 18–19 was not accessible; no AI-tools items at or above 200 points surfaced by search. Nathan Lambert (Interconnects), Hamel Husain, Chip Huyen, Eugene Yan — no posts in window found by search. Claude Code GitHub releases for May 18–19 could not be independently confirmed (releasebot snippet for this date range may reflect May 14–15 updates).</p>
+
+  <p><strong>Inaccessible links:</strong></p>
+  <ul>
+    <li><a href="https://cursor.com/blog/composer-2-5">cursor.com/blog/composer-2-5</a> — 403 — wanted full announcement text to verify benchmark methodology and pricing table.</li>
+    <li><a href="https://simonwillison.net/2026/May/19/5-minute-llms/">simonwillison.net/2026/May/19/5-minute-llms/</a> — 403 — wanted annotated slides to confirm the five-switch count and the specific models cited.</li>
+    <li><a href="https://developers.googleblog.com/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/">developers.googleblog.com — Firebase Studio new AI capabilities</a> — 403 — wanted to confirm Genkit 2.0 GA date and the exact scope of MCP integration.</li>
+    <li><a href="https://arxiv.org/abs/2605.03378">arxiv.org/abs/2605.03378</a> — 403 — wanted to confirm submission date to verify the paper falls within the last-7-days arXiv window and read the full methodology.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-18">news.ycombinator.com/front?day=2026-05-18</a> — 403 — wanted May 18 front-page post list and point counts.</li>
+    <li><a href="https://news.ycombinator.com/front?day=2026-05-19">news.ycombinator.com/front?day=2026-05-19</a> — 403 — wanted May 19 front-page post list and point counts.</li>
+    <li><a href="https://claude.com/code-with-claude/london">claude.com/code-with-claude/london</a> — 403 — wanted to check for London-specific new product announcements not present at the SF stop.</li>
+  </ul>
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
