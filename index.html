@@ -3,53 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-21T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-21, 2 items</title>
+  <meta name="published" content="2026-05-22T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-22, 2 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-21, 2 items</h1>
+<h1>AI Tools Digest — 2026-05-22, 2 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-20T12:00:00Z – 2026-05-21T12:00:00Z. Two items: Google retired Gemini CLI at Google I/O and replaced it with Antigravity CLI (June 18 migration deadline), and Claude Code v2.1.146 renamed <code>/simplify</code> to <code>/code-review</code> while fixing a silent suppression of <code>AskUserQuestion</code> in auto mode.</p>
+<p class="window-note">Window: 2026-05-21T12:00:00Z – 2026-05-22T12:00:00Z. Two items: Claude Code v2.1.147 fixes silent bugs in plugin multi-type tool registration and hook pattern matching (plus a same-day Bash hotfix in v2.1.148), and an open GitHub issue documents a positional drop in subagent <code>tools:</code> frontmatter arrays.</p>
 
-<h3>Gemini CLI is being retired; Antigravity CLI is the replacement</h3>
+<h3>Claude Code v2.1.147 fixes plugin tool registration and hook pattern bugs</h3>
 <ul>
-  <li><strong>Source:</strong> Google Developers Blog</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Transitioning Gemini CLI to Antigravity CLI — Google Developers Blog</a></li>
-  <li><strong>TL;DR:</strong> Google announced at I/O 2026 (May 19–20) that Gemini CLI is being shut down for free, Pro, and Ultra users on June 18, 2026. The replacement is Antigravity CLI — a Go rewrite of the Node.js-based Gemini CLI that shares the same agent harness as the new Antigravity 2.0 desktop app. Your existing Agent Skills, Hooks, and Subagents carry over; Extensions are renamed Antigravity plugins. Skills work the same way as before: they sit dormant and load into context on demand when a request matches the skill's description. API-key users and enterprise Gemini Code Assist licenses get more time before the cutoff.</li>
-  <li><strong>What to do:</strong> Install Antigravity CLI and test your existing skill and hook configurations against it before June 18; update any shell aliases, CI scripts, or documentation that invoke <code>gemini</code> or <code>gemini-cli</code> to use the new binary.</li>
-  <li><strong>Why trust it:</strong> Official announcement on the Google Developers Blog as part of Google I/O 2026; the June 18 cutoff date and user-tier details are stated explicitly; confirmed by coverage from The Register, TechCrunch, and MarkTechPost on May 19–20, 2026.</li>
-  <li><strong>Skeptic check:</strong> Google's post acknowledges "no 1:1 feature parity right out of the gate" without specifying which features are missing — gap details may only surface after users migrate.</li>
+  <li><strong>Source:</strong> Anthropic / Claude Code — GitHub Releases</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code Releases — github.com/anthropics/claude-code</a></li>
+  <li><strong>TL;DR:</strong> v2.1.147 (May 21, 20:39 UTC) fixes three silent failures that directly affect harness engineers. First: plugin agents that declared more than one <code>Agent(...)</code> type in their <code>tools:</code> frontmatter were silently keeping only the last type — multi-type plugin dispatchers were broken for all but the last entry. Second: hook <code>if</code> conditions using pattern syntax like <code>PowerShell(git push*)</code> never matched; the only form that worked was <code>PowerShell(*)</code>. Third: <code>CLAUDE_CODE_SUBAGENT_MODEL</code> was not being propagated to teammate processes spawned by agent teams, so those processes silently fell back to the default model. Also new in this release: pinned background sessions (<code>Ctrl+T</code> in <code>claude agents</code>) now stay alive when idle, restart in place when updates land, and are evicted under memory pressure only after unpinned sessions. v2.1.148 (May 22, 01:16 UTC) is a same-day hotfix for a Bash exit-code-127 regression introduced by v2.1.147.</li>
+  <li><strong>What to do:</strong> Upgrade to v2.1.148; if any of your plugins declare multiple <code>Agent(...)</code> types in a single <code>tools:</code> block, verify that all types now register at runtime; review hook <code>if</code> conditions that use non-wildcard patterns and retest them after upgrading; if you set <code>CLAUDE_CODE_SUBAGENT_MODEL</code> in a multi-teammate configuration, confirm the model is now reaching all teammate processes.</li>
+  <li><strong>Why trust it:</strong> Official GitHub releases page for anthropics/claude-code; v2.1.147 timestamp (2026-05-21T20:39) and v2.1.148 timestamp (2026-05-22T01:16) confirmed by direct fetch of the releases page.</li>
+  <li><strong>Skeptic check:</strong> The changelog gives no indication of how many plugins used multi-type <code>Agent()</code> frontmatter in practice — if you never declared multiple Agent types in one block, none of these three fixes apply to you.</li>
 </ul>
 
-<h3>Claude Code v2.1.146 renames /simplify and fixes auto-mode handoff</h3>
+<h3>Open bug: subagent tools array silently drops first and last entries</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic / Claude Code official changelog</li>
-  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code Changelog — code.claude.com</a></li>
-  <li><strong>TL;DR:</strong> v2.1.146 (May 21) renames <code>/simplify</code> to <code>/code-review</code> and adds an optional effort-level argument so you can control how deep the review goes per invocation. More impactfully, auto mode was silently swallowing <code>AskUserQuestion</code> calls even when a user or skill had explicitly set up a human-in-the-loop step — this is now fixed, so explicit human handoffs always surface regardless of the mode. The release also fixes a Windows PowerShell CLI regression, broken MCP paginated resources and prompts, and <code>/background</code> incorrectly refusing skill-only commands, among 15+ total fixes.</li>
-  <li><strong>What to do:</strong> Update any scripts or skill definitions that call <code>/simplify</code> to use <code>/code-review</code>; if you built workflows where agents were supposed to pause for user input and that wasn't happening in auto mode, retest after updating.</li>
-  <li><strong>Why trust it:</strong> Official Claude Code changelog entry for v2.1.146, dated May 21, 2026, at code.claude.com/docs/en/changelog; specific command rename and bug descriptions are listed with the release notes.</li>
-  <li><strong>Skeptic check:</strong> The changelog doesn't say whether the <code>AskUserQuestion</code> suppression was an intentional design that was reversed or an unintended regression — the blast radius of affected workflows is unknown.</li>
+  <li><strong>Source:</strong> Claude Code GitHub Issues</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/issues/60237">Issue #60237 — Sub-agent frontmatter tools: array silently drops first and last positions at spawn time</a></li>
+  <li><strong>TL;DR:</strong> A GitHub issue filed in late May 2026 documents that when a subagent's frontmatter declares a <code>tools:</code> array with N entries, only positions 2 through N-1 survive at runtime — the first and last are dropped silently. A 7-entry array <code>[Edit, Read, Write, Bash, WebFetch, NotebookEdit, WebSearch]</code> yields a 5-tool runtime set, with Edit (position 1) and WebSearch (position 7) missing. This is a distinct bug from the multi-<code>Agent()</code>-type issue fixed in v2.1.147 — it affects every tool in the array by position, not the type-declaration logic. The bug is currently open and unconfirmed by Anthropic.</li>
+  <li><strong>What to do:</strong> Add a preflight check at the top of any subagent that asserts its expected tools are present before beginning work; as a temporary workaround, avoid putting critical tools at the first or last position of the <code>tools:</code> array.</li>
+  <li><strong>Why trust it:</strong> GitHub issue #60237 with specific reproduction steps and exact position mapping (reporter tested a 7-element array and documented which positions survive); multiple independent confirmations in the thread.</li>
+  <li><strong>Skeptic check:</strong> Not yet acknowledged by Anthropic as of the window close; may be limited to specific subagent types or plugin contexts — reproduce in your own harness before treating it as universal.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Google Developers Blog (developers.googleblog.com); Anthropic / Claude Code changelog (code.claude.com); TechCrunch, The Register, MarkTechPost (corroboration for Antigravity CLI timing).</p>
+<p><strong>Sources used today:</strong> Anthropic / Claude Code GitHub Releases (github.com/anthropics/claude-code/releases); Claude Code GitHub Issues (github.com/anthropics/claude-code/issues).</p>
 
-<p><strong>Skipped:</strong> Cursor Composer 2.5 (released May 18, outside window); Anthropic Managed Agents — Dreaming, Outcomes, Multiagent Orchestration (announced May 6 at Code with Claude SF, outside window); Latent Space "Extreme Harness Engineering" episode with Ryan Lopopolo (published April 7, outside window); arXiv 2605.19952 "Rethinking How to Remember: Beyond Atomic Facts in Lifelong LLM Agent Memory" (proposed architecture, no empirical evidence on using existing tools); arXiv 2605.18747 "Code as Agent Harness" (survey paper, no empirical findings, previously skipped). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+<p><strong>Skipped:</strong> Simon Willison's Datasette Agent 0.1a3 (May 21) — alpha release with interesting permission-gated tool patterns; excluded because simonwillison.net returned 403 and the content specific to 0.1a3 vs prior alphas could not be verified. Anthropic Claude Code quality postmortem (anthropic.com/engineering/april-23-postmortem, published April 23) — outside window. MCP 2026 roadmap (blog.modelcontextprotocol.io, published March 5) — outside window. Cursor 3.3 (May 7) and Windsurf Devin Local (late April) — outside window. 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> news.ycombinator.com/front (403 for May 20–21 — could not check for AI-tools items at ≥200 points); simonwillison.net (403 — could not check for May 20–21 posts); latent.space (403 — could not confirm whether "[AINews] Is Harness Engineering real?" was published in the window or earlier); all r.jina.ai prefixed fetches returned 403 for every URL attempted this run.</p>
+<p><strong>Coverage gaps:</strong> news.ycombinator.com/front (403 — could not check May 21–22 front-page AI-tools posts at ≥200 points); simonwillison.net (403 for all fetch attempts — confirmed via search snippets that Datasette Agent 0.1a3 and datasette-agent-sprites 0.1a0 were published May 21, but content unreadable); latent.space (403 — could not check for May 21–22 podcast episodes or newsletter posts); r/ClaudeCode, r/ClaudeAI, r/vibecoding (no direct Reddit access — searched by proxy only, no qualifying threads confirmed in window); hamel.dev, eugeneyan.com, huyenchip.com (no posts confirmed in window from search); arXiv cs.SE/cs.CL/cs.AI May 22 listings (403 on listing pages).</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">developers.googleblog.com — Transitioning Gemini CLI to Antigravity CLI</a> — 403 — used search snippet summaries and secondary coverage for migration details; primary post content not directly verified.</li>
-  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — used search-indexed changelog summaries; release note text for v2.1.146 sourced from releasebot.io and claudeupdates.dev aggregators.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-05-20">news.ycombinator.com/front?day=2026-05-20</a> — 403 — wanted front-page AI-tools post list and point counts for May 20.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-05-21">news.ycombinator.com/front?day=2026-05-21</a> — 403 — wanted front-page AI-tools post list and point counts for May 21.</li>
-  <li><a href="https://www.latent.space/p/ainews-is-harness-engineering-real">latent.space — [AINews] Is Harness Engineering real?</a> — 403 — could not confirm publication date; excluded due to unverifiable window membership.</li>
-  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for posts published May 20–21, 2026.</li>
+  <li><a href="https://simonwillison.net/2026/May/21/datasette-agent/">simonwillison.net — Datasette Agent announcement (May 21)</a> — 403 — wanted to verify which plugin-architecture features were new in 0.1a3 specifically; excluded from digest due to inability to read content.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-21">news.ycombinator.com/front?day=2026-05-21</a> — 403 — wanted AI-tools front-page post list and point counts for May 21.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-22">news.ycombinator.com/front?day=2026-05-22</a> — 403 — wanted AI-tools front-page post list and point counts for May 22.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — used GitHub releases page as the primary source instead.</li>
 </ul>
 
 </div>
