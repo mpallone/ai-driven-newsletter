@@ -3,40 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-24T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-24, 1 item</title>
+  <meta name="published" content="2026-05-26T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-26, 2 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-24, 1 item</h1>
+<h1>AI Tools Digest — 2026-05-26, 2 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-23T14:00:00Z – 2026-05-24T12:00:00Z. One qualifying item: a paper from the arXiv 7-day window (May 17–24) with empirical evidence that most agent failures are harness interface problems, not model problems. No new user-facing Claude Code releases in the primary window (v2.1.150, May 23, contained internal infrastructure changes only). No new posts from practitioner seed sources fell inside the primary window.</p>
+<p class="window-note">Window: 2026-05-24T12:00:00Z – 2026-05-26T12:00:00Z (primary); arXiv 7-day window May 19–26. Two qualifying items: one arXiv paper on keeping a context map in agent prompts (submitted May 19, within the 7-day window) and one news item about Claude Mythos briefly surfacing as a toggle in public Claude Code (May 25). No user-facing Claude Code releases in the primary window (v2.1.150, May 23, internal infrastructure only). No qualifying posts from practitioner seed blogs fell inside the primary window.</p>
 
-<h3>Fixing the harness beats upgrading the model for agent failures</h3>
+<h3>Add a small codebase map to your agent's prompt to cut iterations and cost</h3>
 <ul>
-  <li><strong>Source:</strong> arXiv cs.AI / cs.SE — Tianshi Xu, Huifeng Wen, Meng Li (submitted May 21, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.22166">Adapting the Interface, Not the Model: Runtime Harness Adaptation for Deterministic LLM Agents — arxiv.org</a></li>
-  <li><strong>TL;DR:</strong> Most repeated agent failures in structured task environments come from harness interface problems — mismatches in how tool outputs are formatted, how actions are described, how errors are fed back to the model — not from the model's underlying capability. The researchers patched only the harness layer (keeping model weights and benchmark environments frozen) and fixed the majority of failure cases across 7 benchmark environments and 18 model backends.</li>
-  <li><strong>What to do:</strong> When an agent repeatedly fails on a specific task, audit tool output formatting, action representation, and error feedback first — before concluding the model needs to be upgraded or swapped.</li>
-  <li><strong>Why trust it:</strong> Tested across 7 deterministic agent benchmarks and 18 model backbones; model weights and benchmark environments were held constant throughout; only the harness interface changed; 116 of 126 model-environment settings improved, with an 88.5% average relative improvement.</li>
-  <li><strong>Skeptic check:</strong> All benchmarks are deterministic, rule-governed environments (game-like or structured task settings); production harnesses dealing with messier real-world inputs and open-ended tasks may show different failure distributions, and the 90% interface-failure figure may not transfer directly.</li>
+  <li><strong>Source:</strong> Zhuohan Gu, Qizheng Zhang, Omar Khattab, Samuel Madden — arXiv cs.CL / cs.AI, submitted May 19, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.19932">PEEK: Context Map as an Orientation Cache for Long-Context LLM Agents — arxiv.org</a></li>
+  <li><strong>TL;DR:</strong> For agents that repeatedly work on the same codebase or document set, keeping a small structured "context map" in the prompt—updated after each session with what the agent learned—cuts the number of iterations the agent needs by 93–145 and reduces cost by 1.7–5.8× compared to the previous best approach.</li>
+  <li><strong>What to do:</strong> For any agent that hits the same repo repeatedly (code review, documentation, test generation), maintain a brief structured summary in the system prompt—what the repo contains, key schemas, important constants, which files are historically most useful—and update it at the end of each session based on what the agent found useful.</li>
+  <li><strong>Why trust it:</strong> Benchmarked on standardized long-context reasoning and information-aggregation tasks with comparisons to the ACE prompt-learning baseline; 6.3–34.0% accuracy improvement, 93–145 fewer iterations, 1.7–5.8× cost reduction vs. ACE; code is open source on GitHub.</li>
+  <li><strong>Skeptic check:</strong> The full PEEK system requires three interacting components (Distiller, Cartographer, Evictor) that practitioners would need to build; a simpler manual version—maintaining a CLAUDE.md or INDEX.md and updating it each session—captures some benefit but probably not the full measured gain.</li>
+</ul>
+
+<h3>Claude Mythos briefly appeared as a toggle in public Claude Code</h3>
+<ul>
+  <li><strong>Source:</strong> BleepingComputer; WinBuzzer — May 25–26, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.bleepingcomputer.com/news/artificial-intelligence/anthropics-restricted-claude-mythos-model-may-be-coming-to-claude-code/">Anthropic's restricted Claude Mythos model may be coming to Claude Code — BleepingComputer</a></li>
+  <li><strong>TL;DR:</strong> The model string <code>claude-mythos-1-preview</code> appeared briefly as a toggle in Claude Code's public interface on May 25 before being pulled—signaling that Anthropic is actively wiring the model (substantially more capable than Opus 4.7 on complex code and security tasks) into the standard Claude Code product.</li>
+  <li><strong>What to do:</strong> Watch for a Mythos model option in Claude Code settings; when it appears, it will likely be the better choice for tasks requiring deep multi-file code reasoning, autonomous long-running coding sessions, or security auditing.</li>
+  <li><strong>Why trust it:</strong> Multiple independent technology journalists confirmed the UI sighting on May 25; Anthropic has separately acknowledged Mythos is being prepared for Claude Code and Claude Security; about 50 partners have used the preview model to find 10,000+ high-severity vulnerabilities across production software.</li>
+  <li><strong>Skeptic check:</strong> No public release date announced; the model may remain restricted to security partners for months; capability claims come from partner-reported security use cases, not general coding benchmarks comparable to what most practitioners run.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> arXiv cs.AI / cs.SE (arxiv.org/abs/2605.22166).</p>
+<p><strong>Sources used today:</strong> arXiv cs.CL / cs.AI (arxiv.org/abs/2605.19932 — Gu, Zhang, Khattab, Madden); BleepingComputer; WinBuzzer.</p>
 
-<p><strong>Skipped:</strong> Claude Code v2.1.150 (May 23 — internal infrastructure only, no user-facing changes); Uber Claude Code budget story (original reporting April 2026, outside window); Cursor v3.5 (May 20, outside window); OpenAI Codex mobile (May 14, outside window); Gemini 3.5 Flash (May 19, outside window); arXiv 2605.15184 "Is Grep All You Need? How Agent Harnesses Reshape Agentic Search" (submitted May 14 — outside the 7-day arXiv window from May 24); arXiv 2605.18747 "Code as Agent Harness" (submitted May 18, within 7-day window but is a survey paper with no original empirical measurements — did not pass the "changes what you'd do tomorrow" test); Simon Willison Datasette Agent (May 21, outside primary window); Datadog State of AI Engineering 2026 (published April 21, outside window); Anthropic engineering blog (no posts confirmed in primary window). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+<p><strong>Skipped:</strong> Claude Code v2.1.150 (May 23 — internal infrastructure only, no user-facing changes); George Hotz "The Eternal Sloptember" (May 26 — opinion piece without measurements); Gemini CLI v0.43.0 (May 22 — just outside primary window; session portability and adaptive token estimation are practitioner-relevant but the announcement predates the window); Gemini CLI → Antigravity CLI transition (May 19–20 announcement — outside window; free/individual users have until June 18, 2026 to migrate); arXiv:2605.18747 "Code as Agent Harness" (May 18 — survey with no original empirical measurements, also reviewed in previous run); arXiv:2605.15221 "Effective Harness Engineering for Algorithm Discovery" (May 18 — one day outside the 7-day window); Simon Willison May 25 post on Pope Leo XIV AI encyclical (not practitioner-relevant); Cursor 3.4 (May 13 — outside window); Windsurf last qualifying update (May 12 — outside window); 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> news.ycombinator.com/front (403 — could not verify front-page point counts for May 23–24; HN searches used search snippets only); simonwillison.net (403 for all direct fetches — used search results to identify post titles and dates); latent.space feed (403); hamel.dev (no posts confirmed in window); eugeneyan.com (no posts confirmed in window); huyenchip.com (no posts confirmed in window); arxiv.org direct fetches (403 via jina.ai — confirmed paper details via search snippets and secondary sources); anthropic.com/engineering (403 — used search to confirm no new posts in primary window); releasebot.io (403 — confirmed Claude Code v2.1.150 details via search snippets).</p>
+<p><strong>Coverage gaps:</strong> news.ycombinator.com/front (403 and Algolia API 403 — could not verify front-page point counts for May 24–26; search used to identify candidate items); simonwillison.net (403 for direct fetches — post titles and dates confirmed via search results); arxiv.org direct fetches (403 via jina.ai — PEEK paper details confirmed via search snippets and GitHub repo); releasebot.io (403 — changelog details confirmed via code.claude.com/docs/en/changelog which fetched successfully); bleepingcomputer.com (403 — Mythos details confirmed via search snippets and WinBuzzer cross-reference).</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://arxiv.org/abs/2605.22166">arxiv.org/abs/2605.22166</a> — 403 via jina.ai — confirmed submission date and key findings via search snippets and a secondary blog post.</li>
-  <li><a href="https://news.ycombinator.com/front">news.ycombinator.com/front</a> — 403 — wanted the front-page post list with point counts for May 23–24 to verify any AI-tools items above the 200-point threshold.</li>
-  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 via jina.ai — wanted the full changelog for v2.1.150 to confirm no user-facing changes; confirmed via search snippets.</li>
+  <li><a href="https://arxiv.org/abs/2605.19932">arxiv.org/abs/2605.19932</a> — 403 — wanted the full abstract and empirical result tables; key numbers (accuracy gains, iteration counts, cost multipliers) confirmed via search snippets.</li>
+  <li><a href="https://www.bleepingcomputer.com/news/artificial-intelligence/anthropics-restricted-claude-mythos-model-may-be-coming-to-claude-code/">bleepingcomputer.com — Mythos in Claude Code</a> — 403 — wanted to confirm exact publication date and UI screenshot evidence; confirmed via search snippets and <a href="https://winbuzzer.com/2026/05/26/anthropics-mythos-moves-closer-to-claude-code-xcxwbn/">WinBuzzer May 26</a>.</li>
 </ul>
 
 </div>
