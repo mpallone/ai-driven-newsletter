@@ -3,49 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-27T12:00:00Z">
-  <title>AI Tools Digest — 2026-05-27, 2 items</title>
+  <meta name="published" content="2026-05-28T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-28, 3 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-27, 2 items</h1>
+<h1>AI Tools Digest — 2026-05-28, 3 items</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-26T12:00:00Z – 2026-05-27T12:00:00Z (primary); arXiv 7-day window May 20–27. Two qualifying items: one tool release (OpenAI Codex 0.134.0, May 26) and one arXiv paper on secure code generation prompting (submitted ~May 22). No new Claude Code releases since v2.1.150 (May 23). No qualifying posts from practitioner seed blogs in the primary window. HN front page and Reddit remained inaccessible (403).</p>
+<p class="window-note">Window: 2026-05-27T12:00:00Z – 2026-05-28T12:00:00Z (primary); arXiv 7-day window May 21–28. Three qualifying items: one enterprise cost benchmark (Uber/Claude Code, Fortune May 26 + Willison commentary May 27), one Claude Code release (v2.1.152, ~May 24–26), and one arXiv paper on prompt robustness (submitted May 25). HN front page and Reddit remained inaccessible (403). Most direct fetches returned 403; data confirmed via search snippets and secondary sources.</p>
 
-<h3>Mark read-only MCP tools with readOnlyHint to run them in parallel in Codex CLI</h3>
+<h3>Budget $1,200–$2,400/engineer/year for Claude Code at high enterprise adoption</h3>
 <ul>
-  <li><strong>Source:</strong> OpenAI Codex CLI changelog — v0.134.0, May 26, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/openai/codex/releases/tag/v0.134.0">openai/codex v0.134.0 — GitHub Releases</a></li>
-  <li><strong>TL;DR:</strong> The Codex CLI now runs MCP tools concurrently when the tool's schema declares <code>readOnlyHint: true</code>. Previously all tool calls ran sequentially regardless of whether they could safely overlap. The same release also adds searchable local conversation history (case-insensitive, with previews) and passes full conversation history into extension hooks, so hooks can now react to prior context rather than just the current turn.</li>
-  <li><strong>What to do:</strong> Audit your MCP server tool definitions and add <code>readOnlyHint: true</code> to any tool that only reads data (file reads, search, database lookups, API GETs); those tools will now run in parallel under Codex CLI, cutting round-trip time when the model calls several in one turn. If you write Codex extension hooks, update them to use the new conversation-history field in hook inputs.</li>
-  <li><strong>Why trust it:</strong> Change is documented in the official Codex v0.134.0 release notes published May 26, 2026 at 16:46 UTC on GitHub; the behavior is a deterministic code change, not a benchmark claim.</li>
-  <li><strong>Skeptic check:</strong> <code>readOnlyHint</code> parallelism is currently Codex CLI-specific; Claude Code, Cursor, and other MCP clients may not yet honor the hint for concurrency, so the benefit is narrowly scoped to Codex CLI users today.</li>
+  <li><strong>Source:</strong> Fortune, May 26, 2026 (citing Uber CTO Praveen Neppalli Naga via The Information); Simon Willison analysis, May 27, 2026</li>
+  <li><strong>Link:</strong> <a href="https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/">Uber burned through its entire 2026 AI budget in four months — Fortune</a></li>
+  <li><strong>TL;DR:</strong> Uber burned through its entire 2026 AI coding tools budget in 4 months, driven mainly by Claude Code. Monthly API costs per engineer ranged from $500 to $2,000 at near-full company adoption — 95% of Uber engineers use AI tools monthly, and 70% of committed code is AI-generated. No mature tooling yet exists for per-engineer or per-team spend caps at the granularity of cloud cost dashboards.</li>
+  <li><strong>What to do:</strong> Use $6K–$24K/engineer/year as your planning range when modeling a Claude Code rollout; set up spend-alert webhooks at the Anthropic API level before enabling company-wide access, because the platform does not yet provide team-level billing controls.</li>
+  <li><strong>Why trust it:</strong> Uber CTO Praveen Neppalli Naga confirmed the budget overrun directly to The Information; Fortune published the full interview May 26, 2026; per-engineer cost figures ($500–$2,000/month) and adoption metrics (95%, 70%) are attributed to the CTO interview, not internal estimates.</li>
+  <li><strong>Skeptic check:</strong> Uber ran an internal leaderboard that directly rewarded AI tool usage, likely pushing spend above what an unmanaged rollout would see; treat these as a high-adoption ceiling, not a median.</li>
 </ul>
 
-<h3>Add CWE mitigation steps to code-gen prompts to cut security issues by 57–95%</h3>
+<h3>Claude Code /code-review --fix applies suggested changes to your files automatically</h3>
 <ul>
-  <li><strong>Source:</strong> Mohammad Kharma et al. — arXiv cs.SE, submitted ~May 22, 2026</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.24300">Enhancing Reliability in LLM-Based Secure Code Generation — arxiv.org</a></li>
-  <li><strong>TL;DR:</strong> When prompting LLMs to write code, adding a structured chain-of-thought step that names the relevant CWEs (Common Weakness Enumeration) for the task and asks the model to reason through mitigations before writing the code cuts the count of security issues in the output by 57.6% in the primary test set and 94.5% in the validation set. Plain zero-shot and standard chain-of-thought prompting do not reliably improve security—and in C they can make it worse.</li>
-  <li><strong>What to do:</strong> For any task that generates security-sensitive code, add a section to your prompt that (1) names the CWE categories relevant to the task (e.g., CWE-89 for SQL, CWE-79 for web output, CWE-120 for C buffer operations) and (2) asks the model to reason through the mitigation for each before writing the implementation. Do not rely on a bare chain-of-thought or a generic "write secure code" instruction—neither reliably helps.</li>
-  <li><strong>Why trust it:</strong> 200-task primary dataset evaluated against three LLMs (GPT-5, Claude 4.5, Gemini 2.5) and three languages (C, Java, Python), with an external validation set (LLMSecEval); vulnerability counts verified via static analysis with expert review.</li>
-  <li><strong>Skeptic check:</strong> The 94.5% figure is from the smaller LLMSecEval validation set; the 57.6% primary-set figure is more representative. LLMSecEval tasks are constrained and may not cover the full complexity of production code; gains on benchmark prompts may be smaller in real workflows.</li>
+  <li><strong>Source:</strong> Anthropic — Claude Code v2.1.152 release notes, ~May 24–26, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — code.claude.com</a></li>
+  <li><strong>TL;DR:</strong> The built-in <code>/code-review</code> command gained a <code>--fix</code> flag that writes all suggested changes directly to your working tree — no manual copy-paste from review output. Add <code>--comment</code> instead to post findings as inline GitHub PR review comments. The same release also fixed a session hang that appeared after switching models or re-authenticating: old thinking-block signatures were persisting in conversation history and causing the agent to stall on retry.</li>
+  <li><strong>What to do:</strong> Replace bare <code>/code-review</code> with <code>/code-review --fix</code> as your default pre-push pass; review the resulting diff before committing. Use <code>--comment</code> when reviewing teammates' PRs so findings appear inline on GitHub. If you hit session hangs after a model switch, upgrade to v2.1.152 or later.</li>
+  <li><strong>Why trust it:</strong> Features documented in Anthropic's official v2.1.152 release notes; these are deterministic code changes, not performance claims.</li>
+  <li><strong>Skeptic check:</strong> <code>--fix</code> auto-applies all review findings in bulk — always review the working-tree diff before committing, especially on security-sensitive code.</li>
+</ul>
+
+<h3>Paraphrasing a prompt degrades agent accuracy more than reformatting it</h3>
+<ul>
+  <li><strong>Source:</strong> Zhang &amp; Guo — arXiv cs.CL, submitted May 25, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.25981">When Do LLM Agents Treat Surface Noise Differently from Semantic Noise? — arxiv.org</a></li>
+  <li><strong>TL;DR:</strong> Changing a prompt's wording — paraphrase, synonym substitution — causes chain-of-thought and ReAct agents to fail on tasks they previously got right more often than making equivalent formatting or structural changes (reordering, distractor insertion, whitespace). The effect held across 10 models from 7 different model families on reasoning and multi-hop QA tasks, and was confirmed on a held-out 11th model not used to develop the finding.</li>
+  <li><strong>What to do:</strong> When iterating on agent prompts, prefer structural edits (cut redundancy, reformat, reorganize) over rewriting sentences. If you paraphrase a system prompt or task description — including "improving" it with help from a model — run a sample of representative tasks before deploying the new version.</li>
+  <li><strong>Why trust it:</strong> 68-cell study across GSM8K, MATH, and HotpotQA; ~11,150 prompt variants across 10 LLMs; headline finding validated on a fully held-out 11th model (qwen2.5-14B-Instruct, 1,800 trajectories).</li>
+  <li><strong>Skeptic check:</strong> Statistical significance dissolved under stricter bootstrap assumptions in multiple cells; the held-out validation confirms the direction but not the magnitude, so treat this as a soft signal rather than a hard rule.</li>
 </ul>
 
 <div class="meta">
 
+<h2>Meta</h2>
+
+<h3>Prompt friction</h3>
+<p>The Anthropic engineering post <a href="https://www.anthropic.com/engineering/how-we-contain-claude">"How we contain Claude across products"</a> — covering brain/hands/session architecture, credential isolation, approval-fatigue data (93% prompt acceptance rate), and sandbox design — was published approximately 3 days before today's digest based on search metadata, meaning it fell ~2 days before the 24-hour primary window. It is highly actionable for practitioners building agents. The current 24-hour primary window consistently misses content published 2–3 days ago from engineering blogs that ship slowly but are worth capturing. One option: widen the primary window to 48 hours for vendor engineering blogs while keeping 24 hours for practitioner commentary and news.</p>
+
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> OpenAI Codex GitHub Releases (v0.134.0); arXiv cs.SE (arxiv.org/abs/2605.24300 — Kharma et al.).</p>
+<p><strong>Sources used today:</strong> Fortune (Uber AI budget/Claude Code adoption data, May 26, 2026); The Information (original Uber CTO interview, cited via Fortune); Simon Willison's Weblog (May 27, 2026, product-market-fit commentary); Anthropic Claude Code v2.1.152 release notes; arXiv:2605.25981 (Zhang &amp; Guo, May 25, 2026).</p>
 
-<p><strong>Skipped:</strong> OpenAI Codex 0.134.0 additional changes (MCP per-server environment targeting, OAuth for streamable HTTP servers, connector schema compaction — real improvements but no single-action takeaway beyond MCP concurrency already covered); arXiv:2605.24298 "Empirical Evaluation of LLM-Generated Code Security Across Prompting Methods" (May 22 — companion paper finding prompting alone has no statistically significant effect on total vulnerability count, but the companion 2605.24300 is more actionable); arXiv:2605.22502 "Compiling Agentic Workflows into LLM Weights" (May 21 — interesting 100× cost reduction claim for repetitive workflows but requires building a fine-tuned model, not a change to existing tool configuration); Base MCP launch (May 26 — DeFi/onchain integrations, not relevant to coding-agent practitioner focus); Simon Willison "The pressure" (May 26 — link post about AI-generated security reports overwhelming the curl project, no practitioner workflow action); Google I/O 2026 Antigravity CLI / Gemini 3.5 announcements (May 19 — outside primary window, already before previous digest's window opened); Claude Code v2.1.150 (May 23 — outside primary window, already skipped in prior digest); Hugging Face /agents.md for Gradio Spaces (April 17 — outside primary window); 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+<p><strong>Skipped:</strong> Anthropic "How we contain Claude" engineering post (~May 25 — outside 24-hour primary window; see Prompt friction above); Nathan Lambert "Some ideas for what comes next, May 2026" (May 26 — before window; reflection/opinion piece, no practitioner action items); Google DeepMind "Project Genie / Street View simulation" (May 27 — not relevant to coding-agent tooling); arXiv:2605.06445 "Constraint Decay in LLM Backend Code Generation" (submitted May 7, outside arXiv 7-day window; HN front-page discussion on May 27 but couldn't verify 200-point threshold due to 403); Cursor 3.3 parallel agent execution (released May 7, outside primary window); Windsurf Opus 4.7 fast mode availability (May 12, outside window); 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> news.ycombinator.com/front (403 — could not verify front-page point counts for May 26–27; search used to surface candidates); simonwillison.net (403 for direct fetches — post titles confirmed via search results); arxiv.org direct fetches (403 via jina.ai — paper details confirmed via search snippets); releasebot.io (403 — Codex details confirmed via GitHub releases and OpenAI developer docs via search); github.com/openai/codex/releases (403 via jina.ai — details confirmed via search snippets from the official changelog).</p>
+<p><strong>Coverage gaps:</strong> arxiv.org direct fetches (403 — all jina.ai and direct attempts blocked; paper details confirmed via search snippets); fortune.com (403 — paywalled; cost figures confirmed via multiple secondary reports and direct CTO attribution); simonwillison.net (403 on direct fetch — post content confirmed via search results); anthropic.com/engineering/how-we-contain-claude (403 — couldn't confirm publication date; excluded from digest); news.ycombinator.com (403 — couldn't verify point counts for HN posts); github.com (403 — Claude Code release details confirmed via search snippets from claudeupdates.dev and DevelopersIO).</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://arxiv.org/abs/2605.24300">arxiv.org/abs/2605.24300</a> — 403 — wanted exact submission date and full vulnerability count tables; key numbers confirmed via search snippets and HTML version.</li>
-  <li><a href="https://github.com/openai/codex/releases/tag/v0.134.0">github.com/openai/codex/releases/tag/v0.134.0</a> — 403 — wanted the complete release notes text; changes confirmed via OpenAI developer docs search snippets and release metadata (timestamp 2026-05-26T16:46:11Z).</li>
+  <li><a href="https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/">fortune.com — Uber AI budget article</a> — paywalled/403 — wanted the full CTO interview text; key figures confirmed via secondary sources (Briefs.co, Yahoo Finance, Simon Willison).</li>
+  <li><a href="https://www.anthropic.com/engineering/how-we-contain-claude">anthropic.com/engineering/how-we-contain-claude</a> — 403 — wanted the publication date to confirm it fell within the window; search metadata suggested ~May 25.</li>
+  <li><a href="https://arxiv.org/abs/2605.25981">arxiv.org/abs/2605.25981</a> — 403 — wanted the full paper text; key findings and submission date (May 25, 2026) confirmed via search snippets and HTML version.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted the complete v2.1.152 release notes; changes confirmed via search snippets from claudeupdates.dev and DevelopersIO.</li>
 </ul>
 
 </div>
