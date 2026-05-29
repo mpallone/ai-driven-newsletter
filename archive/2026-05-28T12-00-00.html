@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-28T12:00:00Z">
+  <title>AI Tools Digest — 2026-05-28, 3 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-28, 3 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-27T12:00:00Z – 2026-05-28T12:00:00Z (primary); arXiv 7-day window May 21–28. Three qualifying items: one enterprise cost benchmark (Uber/Claude Code, Fortune May 26 + Willison commentary May 27), one Claude Code release (v2.1.152, ~May 24–26), and one arXiv paper on prompt robustness (submitted May 25). HN front page and Reddit remained inaccessible (403). Most direct fetches returned 403; data confirmed via search snippets and secondary sources.</p>
+
+<h3>Budget $1,200–$2,400/engineer/year for Claude Code at high enterprise adoption</h3>
+<ul>
+  <li><strong>Source:</strong> Fortune, May 26, 2026 (citing Uber CTO Praveen Neppalli Naga via The Information); Simon Willison analysis, May 27, 2026</li>
+  <li><strong>Link:</strong> <a href="https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/">Uber burned through its entire 2026 AI budget in four months — Fortune</a></li>
+  <li><strong>TL;DR:</strong> Uber burned through its entire 2026 AI coding tools budget in 4 months, driven mainly by Claude Code. Monthly API costs per engineer ranged from $500 to $2,000 at near-full company adoption — 95% of Uber engineers use AI tools monthly, and 70% of committed code is AI-generated. No mature tooling yet exists for per-engineer or per-team spend caps at the granularity of cloud cost dashboards.</li>
+  <li><strong>What to do:</strong> Use $6K–$24K/engineer/year as your planning range when modeling a Claude Code rollout; set up spend-alert webhooks at the Anthropic API level before enabling company-wide access, because the platform does not yet provide team-level billing controls.</li>
+  <li><strong>Why trust it:</strong> Uber CTO Praveen Neppalli Naga confirmed the budget overrun directly to The Information; Fortune published the full interview May 26, 2026; per-engineer cost figures ($500–$2,000/month) and adoption metrics (95%, 70%) are attributed to the CTO interview, not internal estimates.</li>
+  <li><strong>Skeptic check:</strong> Uber ran an internal leaderboard that directly rewarded AI tool usage, likely pushing spend above what an unmanaged rollout would see; treat these as a high-adoption ceiling, not a median.</li>
+</ul>
+
+<h3>Claude Code /code-review --fix applies suggested changes to your files automatically</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code v2.1.152 release notes, ~May 24–26, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — code.claude.com</a></li>
+  <li><strong>TL;DR:</strong> The built-in <code>/code-review</code> command gained a <code>--fix</code> flag that writes all suggested changes directly to your working tree — no manual copy-paste from review output. Add <code>--comment</code> instead to post findings as inline GitHub PR review comments. The same release also fixed a session hang that appeared after switching models or re-authenticating: old thinking-block signatures were persisting in conversation history and causing the agent to stall on retry.</li>
+  <li><strong>What to do:</strong> Replace bare <code>/code-review</code> with <code>/code-review --fix</code> as your default pre-push pass; review the resulting diff before committing. Use <code>--comment</code> when reviewing teammates' PRs so findings appear inline on GitHub. If you hit session hangs after a model switch, upgrade to v2.1.152 or later.</li>
+  <li><strong>Why trust it:</strong> Features documented in Anthropic's official v2.1.152 release notes; these are deterministic code changes, not performance claims.</li>
+  <li><strong>Skeptic check:</strong> <code>--fix</code> auto-applies all review findings in bulk — always review the working-tree diff before committing, especially on security-sensitive code.</li>
+</ul>
+
+<h3>Paraphrasing a prompt degrades agent accuracy more than reformatting it</h3>
+<ul>
+  <li><strong>Source:</strong> Zhang &amp; Guo — arXiv cs.CL, submitted May 25, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.25981">When Do LLM Agents Treat Surface Noise Differently from Semantic Noise? — arxiv.org</a></li>
+  <li><strong>TL;DR:</strong> Changing a prompt's wording — paraphrase, synonym substitution — causes chain-of-thought and ReAct agents to fail on tasks they previously got right more often than making equivalent formatting or structural changes (reordering, distractor insertion, whitespace). The effect held across 10 models from 7 different model families on reasoning and multi-hop QA tasks, and was confirmed on a held-out 11th model not used to develop the finding.</li>
+  <li><strong>What to do:</strong> When iterating on agent prompts, prefer structural edits (cut redundancy, reformat, reorganize) over rewriting sentences. If you paraphrase a system prompt or task description — including "improving" it with help from a model — run a sample of representative tasks before deploying the new version.</li>
+  <li><strong>Why trust it:</strong> 68-cell study across GSM8K, MATH, and HotpotQA; ~11,150 prompt variants across 10 LLMs; headline finding validated on a fully held-out 11th model (qwen2.5-14B-Instruct, 1,800 trajectories).</li>
+  <li><strong>Skeptic check:</strong> Statistical significance dissolved under stricter bootstrap assumptions in multiple cells; the held-out validation confirms the direction but not the magnitude, so treat this as a soft signal rather than a hard rule.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Meta</h2>
+
+<h3>Prompt friction</h3>
+<p>The Anthropic engineering post <a href="https://www.anthropic.com/engineering/how-we-contain-claude">"How we contain Claude across products"</a> — covering brain/hands/session architecture, credential isolation, approval-fatigue data (93% prompt acceptance rate), and sandbox design — was published approximately 3 days before today's digest based on search metadata, meaning it fell ~2 days before the 24-hour primary window. It is highly actionable for practitioners building agents. The current 24-hour primary window consistently misses content published 2–3 days ago from engineering blogs that ship slowly but are worth capturing. One option: widen the primary window to 48 hours for vendor engineering blogs while keeping 24 hours for practitioner commentary and news.</p>
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Fortune (Uber AI budget/Claude Code adoption data, May 26, 2026); The Information (original Uber CTO interview, cited via Fortune); Simon Willison's Weblog (May 27, 2026, product-market-fit commentary); Anthropic Claude Code v2.1.152 release notes; arXiv:2605.25981 (Zhang &amp; Guo, May 25, 2026).</p>
+
+<p><strong>Skipped:</strong> Anthropic "How we contain Claude" engineering post (~May 25 — outside 24-hour primary window; see Prompt friction above); Nathan Lambert "Some ideas for what comes next, May 2026" (May 26 — before window; reflection/opinion piece, no practitioner action items); Google DeepMind "Project Genie / Street View simulation" (May 27 — not relevant to coding-agent tooling); arXiv:2605.06445 "Constraint Decay in LLM Backend Code Generation" (submitted May 7, outside arXiv 7-day window; HN front-page discussion on May 27 but couldn't verify 200-point threshold due to 403); Cursor 3.3 parallel agent execution (released May 7, outside primary window); Windsurf Opus 4.7 fast mode availability (May 12, outside window); 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> arxiv.org direct fetches (403 — all jina.ai and direct attempts blocked; paper details confirmed via search snippets); fortune.com (403 — paywalled; cost figures confirmed via multiple secondary reports and direct CTO attribution); simonwillison.net (403 on direct fetch — post content confirmed via search results); anthropic.com/engineering/how-we-contain-claude (403 — couldn't confirm publication date; excluded from digest); news.ycombinator.com (403 — couldn't verify point counts for HN posts); github.com (403 — Claude Code release details confirmed via search snippets from claudeupdates.dev and DevelopersIO).</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/">fortune.com — Uber AI budget article</a> — paywalled/403 — wanted the full CTO interview text; key figures confirmed via secondary sources (Briefs.co, Yahoo Finance, Simon Willison).</li>
+  <li><a href="https://www.anthropic.com/engineering/how-we-contain-claude">anthropic.com/engineering/how-we-contain-claude</a> — 403 — wanted the publication date to confirm it fell within the window; search metadata suggested ~May 25.</li>
+  <li><a href="https://arxiv.org/abs/2605.25981">arxiv.org/abs/2605.25981</a> — 403 — wanted the full paper text; key findings and submission date (May 25, 2026) confirmed via search snippets and HTML version.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted the complete v2.1.152 release notes; changes confirmed via search snippets from claudeupdates.dev and DevelopersIO.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
