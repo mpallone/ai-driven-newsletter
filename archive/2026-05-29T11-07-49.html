@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-29T11:07:49Z">
+  <title>AI Tools Digest — 2026-05-29, 3 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-29, 3 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-28T12:00:00Z – 2026-05-29T11:07:49Z. All three items come from Anthropic's May 28 Opus 4.8 launch: two cover API-level changes to how you run agentic loops (mid-conversation system messages, lower cache threshold, effort controls, adaptive thinking), and one covers the new Dynamic Workflows research preview in Claude Code. HN front page remained inaccessible (403). Direct fetches to anthropic.com, simonwillison.net, and most primary sources returned 403; findings confirmed via multiple consistent secondary reports and search snippets. arXiv 7-day window (May 22–29): no new paper met the bar — the one promising candidate (ARGUS, arXiv:2605.03378) was submitted May 5, outside the window. Codex CLI v0.134.0 MCP improvements (concurrent read-only tools, per-server env targeting) shipped May 26, just before the window cutoff; they appear in the Coverage gaps below.</p>
+
+<h3>Opus 4.8 lets you update system instructions mid-loop without breaking the prompt cache</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Opus 4.8 release notes, May 28, 2026; Simon Willison analysis, May 28, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/news/claude-opus-4-8">Introducing Claude Opus 4.8 — anthropic.com</a></li>
+  <li><strong>TL;DR:</strong> Opus 4.8 now accepts <code>role: "system"</code> entries inside the <code>messages</code> array (immediately after a user turn). You can inject updated permissions, token budgets, or environment state mid-task without rebuilding the full message history — the earlier turns stay cached. Bonus: the minimum prompt length that qualifies for caching dropped from roughly 2,048 tokens to 1,024, so shorter prompts that previously got no cache benefit now do. Older models including Opus 4.7 reject mid-conversation system entries with a 400 error.</li>
+  <li><strong>What to do:</strong> Replace any harness logic that restates the full system prompt to update mid-task instructions with a short appended <code>{"role": "system", "content": "..."}</code> entry; on long-running agentic tasks this keeps cache hits on all preceding turns and can drop effective input cost to ~5% of standard on cached batches.</li>
+  <li><strong>Why trust it:</strong> Documented in Anthropic's official Opus 4.8 release notes; these are deterministic API behavior changes, not benchmark claims. Simon Willison independently highlighted the same feature in his May 28 post.</li>
+  <li><strong>Skeptic check:</strong> Mid-conversation system placement rules aren't fully documented yet; test your specific message structure before deploying, since malformed placement still returns a 400.</li>
+</ul>
+
+<h3>Opus 4.8 defaults effort to "high" and only triggers reasoning when it judges it's needed</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Opus 4.8 API docs and release notes, May 28, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-8">What's new in Claude Opus 4.8 — platform.claude.com</a></li>
+  <li><strong>TL;DR:</strong> Opus 4.8 ships with a new <code>effort</code> parameter (values: <code>low</code>, <code>high</code>, <code>max</code>; default: <code>high</code> on all surfaces). Adaptive thinking is on at the <code>high</code> level: Claude only invokes its extended reasoning mode when it judges the current turn needs it, skipping it on simple lookups and short agentic steps. On Opus 4.7 at the same effort level, reasoning fired more broadly and wasted tokens on bimodal workloads. Setting <code>effort: low</code> trades some quality for speed and cost; <code>max</code> forces maximum reasoning every turn.</li>
+  <li><strong>What to do:</strong> Start with the default (<code>effort: high</code>) and monitor where you're spending thinking tokens; drop to <code>effort: low</code> for cheap routing or classification steps in multi-step pipelines, and reserve <code>max</code> for genuinely hard planning turns where you want full reasoning every time.</li>
+  <li><strong>Why trust it:</strong> Documented in Anthropic's official API docs as a defined API parameter with stated default; behavioral description of adaptive thinking reflects Anthropic's stated design intent, not an independent benchmark. Fast mode at 2× standard price / 2.5× speed is also documented in the same release, no code changes required to use it.</li>
+  <li><strong>Skeptic check:</strong> "Adaptive" thinking means the model decides when to reason, not you — hard to audit which turns it skipped reasoning on; if correctness matters, instrument your evals to catch silent reasoning omissions at <code>high</code>.</li>
+</ul>
+
+<h3>Claude Code Dynamic Workflows spins up to 1,000 subagents from a natural-language prompt</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — "Introducing dynamic workflows in Claude Code" blog post, May 28, 2026</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/introducing-dynamic-workflows-in-claude-code">Introducing dynamic workflows in Claude Code — claude.com</a></li>
+  <li><strong>TL;DR:</strong> Dynamic Workflows (research preview, Claude Code + Opus 4.8 only) takes a plain-English task description and auto-generates a JavaScript orchestration script on the fly. That script fans work out across up to 1,000 subagents (16 running concurrently), runs adversarial verification agents against results before folding them in, and reports a single consolidated answer. You enable it in Claude Code via <code>/effort xhigh</code>. Real-world case study: Jarred Sumner used an early version to port Bun from Zig to Rust — 750,000 lines of Rust, 99.8% of existing tests passing, 11 days from first commit to merge.</li>
+  <li><strong>What to do:</strong> Try Dynamic Workflows on your hardest repo-wide tasks (large refactors, cross-file migrations, broad test generation) by typing your task as you normally would and enabling <code>/effort xhigh</code>; because it's a research preview, review every orchestration script before it runs in production and expect rough edges in the adversarial verification step.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic launch post with documented hard limits (1,000 total agents, 16 concurrent); the Bun case study is from a named engineer (Jarred Sumner) on their actual codebase, not a controlled benchmark — take it as a ceiling example, not a median result.</li>
+  <li><strong>Skeptic check:</strong> Research preview status and auto-generated orchestration scripts mean the system can take unexpected paths; the Bun example is a single high-profile case with an experienced user, not a representative workload sample.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><a href="https://agentpedia.codes/blog/claude-opus-4-8-api-migration-prompting">agentpedia.codes</a> — surfaced via multiple Opus 4.8 search results; provided the clearest secondary documentation of the mid-conversation system message placement rules and effort parameter defaults. Unknown track record; needs more observation before promoting to seed list.</li>
+</ul>
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic news (Claude Opus 4.8 launch, May 28, 2026); Anthropic Claude Code blog (Dynamic Workflows, May 28, 2026); Anthropic API docs (platform.claude.com, Opus 4.8 what's new, effort docs); Simon Willison's Weblog (May 28, 2026, Opus 4.8 analysis); 9to5Google (May 28, 2026); MarkTechPost (May 28, 2026); agentpedia.codes (API migration guide).</p>
+
+<p><strong>Skipped:</strong> Anthropic $65B funding round / $965B valuation (funding announcement, not practitioner-relevant); Simon Willison "$47B Anthropic run-rate revenue" post (May 29 — financial/business news, no action items); Codex CLI v0.134.0 MCP improvements (May 26, before window cutoff — see Coverage gaps); Codex CLI v0.135.0 diagnostics/Vim mode (May 28, confirmed in window but only adds debugging tools and Vim text objects — no prompt engineering or harness design impact); Windsurf Devin Local "Always Allow" MCP permissions (agent version 2026.5.26 — ship date of stable release unclear, possibly before window); Latent Space episode 201 (May 28 — background agent architecture discussion, no measurements or concrete primary-source findings in available summaries); arXiv ARGUS prompt injection paper (2605.03378, submitted May 5 — outside 7-day arXiv window); llm-anthropic 0.25.1 base_url parameter (minor tool release, useful but narrow scope — proxy/test-endpoint config only); 0 funding posts counted above, 1 leaderboard update (Opus 4.8 SWE-Bench Pro score absent methodology change for practitioners), 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> anthropic.com/news/claude-opus-4-8 (403 — wanted full official launch post; key API behavior details confirmed via official API docs and multiple consistent secondary reports); simonwillison.net/2026/May/28/claude-opus-4-8/ (403 — wanted exact quotes on system message placement rules; confirmed via search snippets); platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-8 (403 — wanted exact effort parameter values and cache threshold numbers; confirmed via multiple independent secondary sources); claude.com/blog/introducing-dynamic-workflows-in-claude-code (403 — wanted full launch post text; agent limits and behavior confirmed via MarkTechPost, pasqualepillitteri.it, and marktechpost.com); news.ycombinator.com front pages May 28–29 (403 — couldn't verify point counts for any posts; excluded HN items due to inability to confirm ≥200 threshold).</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://www.anthropic.com/news/claude-opus-4-8">anthropic.com/news/claude-opus-4-8</a> — 403 — wanted the full official launch post to confirm mid-conversation system message placement rules and exact cache threshold numbers.</li>
+  <li><a href="https://simonwillison.net/2026/May/28/claude-opus-4-8/">simonwillison.net — Claude Opus 4.8 post</a> — 403 — wanted exact practitioner-facing takeaways from Willison's analysis of the model release.</li>
+  <li><a href="https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-8">platform.claude.com — What's new in Opus 4.8</a> — 403 — wanted exact effort parameter enum values and minimum cache token threshold from official docs.</li>
+  <li><a href="https://claude.com/blog/introducing-dynamic-workflows-in-claude-code">claude.com — Dynamic Workflows launch post</a> — 403 — wanted the full post to verify agent concurrency limits and orchestration script behavior described in secondary reports.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-28">news.ycombinator.com front page May 28</a> — 403 — wanted to check for ≥200-point posts about AI tools in the window.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
