@@ -3,78 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-05-30T10:00:00Z">
-  <title>AI Tools Digest — 2026-05-30, 4 items</title>
+  <meta name="published" content="2026-05-31T10:00:00Z">
+  <title>AI Tools Digest — 2026-05-31, 1 item</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-05-30, 4 items</h1>
+<h1>AI Tools Digest — 2026-05-31, 1 item</h1>
 <nav><a href="archive/">Archive</a></nav>
-<p class="window-note">Window: 2026-05-29T11:07:49Z – 2026-05-30T10:00:00Z. All four items are Claude Code or Windsurf changelog entries from the past 24 hours. The two Claude Code v2.1.157 items shipped May 29 as part of the same release; v2.1.158 followed on May 30. The Windsurf MCP permission item had an unclear ship date in the previous window (noted there as "possibly before window"); it appears in current changelog coverage as new and is included here. Direct fetches to all primary sources (github.com, code.claude.com, windsurf.com, anthropic.com, simonwillison.net, arxiv.org) returned 403; findings confirmed via multiple consistent search snippets and search-aggregator summaries. HN front page inaccessible (403). arXiv 7-day window (May 23–30): no papers with submission dates in that range were found that met both inclusion bars.</p>
+<p class="window-note">Window: 2026-05-30T10:00:00Z – 2026-05-31T10:00:00Z. One qualifying item: Anthropic's engineering post on agent containment, surfaced by Simon Willison on May 30. All direct fetches returned 403; findings confirmed via multiple consistent search snippets. No new Claude Code, Cursor, Windsurf, or Codex releases confirmed after May 30T10:00. arXiv 7-day window (May 24–31): no qualifying papers found with submission dates in that range meeting both inclusion bars.</p>
 
-<h3>Claude Code now auto-loads plugins dropped into .claude/skills</h3>
+<h3>Anthropic data: sandbox beats classifier for agent safety</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.157, May 29, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — github.com/anthropics/claude-code</a></li>
-  <li><strong>TL;DR:</strong> Any plugin placed in a project's <code>.claude/skills/</code> directory is now detected and loaded automatically when Claude Code starts — no marketplace install step needed. A new <code>claude plugin init &lt;name&gt;</code> command scaffolds the required folder structure. Autocomplete for <code>/plugin</code> subcommands and installed plugin names also ships in this release.</li>
-  <li><strong>What to do:</strong> Move any local skill or plugin you've been manually registering into <code>.claude/skills/</code> — it will be picked up on next launch with no other configuration. Use <code>claude plugin init &lt;name&gt;</code> to start new plugins from the correct template rather than copying by hand.</li>
-  <li><strong>Why trust it:</strong> Documented in the official Claude Code v2.1.157 changelog entry, released May 29, 2026; deterministic tooling change with no benchmarks involved.</li>
-  <li><strong>Skeptic check:</strong> Auto-loading scans the entire <code>.claude/skills/</code> tree at startup; a malformed or untrusted plugin dropped there will be attempted — audit the directory before adding community-sourced plugins.</li>
-</ul>
-
-<h3>Claude Code dispatched subagent sessions now respect the agent field in settings.json</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.157, May 29, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — github.com/anthropics/claude-code</a></li>
-  <li><strong>TL;DR:</strong> When Claude Code dispatches a subagent session (e.g. a Plan, Explore, or Task subagent), it now reads the <code>agent</code> field from <code>settings.json</code> and routes that session to the named agent profile. You can override per launch with <code>--agent &lt;name&gt;</code>. Previously, the field was parsed but not consistently applied to dispatched sessions, so subagents silently used defaults regardless of what you had set.</li>
-  <li><strong>What to do:</strong> Add <code>"agent": "&lt;profile-name&gt;"</code> to your <code>.claude/settings.json</code> to pin which agent profile handles dispatched work; use <code>--agent</code> at the command line to override for individual sessions without touching the config file.</li>
-  <li><strong>Why trust it:</strong> Official v2.1.157 changelog; deterministic behavior change that can be verified by inspecting which system prompt the dispatched session receives.</li>
-  <li><strong>Skeptic check:</strong> Different agent profiles carry different tool access and system prompt composition — changing the routed agent for subagents affects what tools are available inside those sessions; test before applying to production harness configs.</li>
-</ul>
-
-<h3>Claude Code auto mode is now available on Bedrock, Vertex, and Foundry</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.158, May 30, 2026</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — github.com/anthropics/claude-code</a></li>
-  <li><strong>TL;DR:</strong> Auto mode — where Claude picks the most cost-effective model tier on a per-turn basis inside long agentic tasks — is now available for Opus 4.7 and Opus 4.8 on Amazon Bedrock, Google Vertex AI, and Microsoft Foundry. Opt in by setting <code>CLAUDE_CODE_ENABLE_AUTO_MODE=1</code> in your environment. Previously auto mode was only accessible on the direct Anthropic API.</li>
-  <li><strong>What to do:</strong> Set <code>CLAUDE_CODE_ENABLE_AUTO_MODE=1</code> in your enterprise deployment to try auto mode; it can reduce token spend on simple turns within long-running agentic tasks by routing those turns to a cheaper model tier automatically.</li>
-  <li><strong>Why trust it:</strong> Official v2.1.158 changelog entry, released May 30, 2026; the opt-in environment variable is the only required change.</li>
-  <li><strong>Skeptic check:</strong> Auto mode delegates model-tier selection to Claude, removing your ability to guarantee which model handles each turn — if your compliance posture or billing model requires a specific model per call, keep it off.</li>
-</ul>
-
-<h3>Windsurf MCP tool permission grants now survive session restarts</h3>
-<ul>
-  <li><strong>Source:</strong> Windsurf changelog — Devin Local agent v2026.5.26, ~May 29, 2026</li>
-  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog">Windsurf changelog — windsurf.com</a></li>
-  <li><strong>TL;DR:</strong> When Windsurf's Devin Local agent prompts for MCP tool permission, you now get two new server-level options alongside the existing per-tool prompt: "approve all tools on this server for the current session" or "approve permanently." The permanent grant survives session restarts. Previously all grants reset at session end, requiring re-confirmation on every new session for every MCP server.</li>
-  <li><strong>What to do:</strong> For MCP servers you own or fully trust (internal tools, personal servers), use the permanent grant option to stop being interrupted mid-task; for third-party or external MCP servers, use per-session grants to keep an audit trail of what each session accessed.</li>
-  <li><strong>Why trust it:</strong> Documented in Windsurf's public changelog as part of the Devin Local v2026.5.26 update; changelog page returned 403 so confirmed via search-aggregator summaries. Exact release date within the window is approximate.</li>
-  <li><strong>Skeptic check:</strong> Permanent grants survive MCP server code updates that might introduce new tools — review your permanent grants whenever you pull a new version of a server you've already granted permanently.</li>
+  <li><strong>Source:</strong> Anthropic — engineering blog, ~May 30, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/engineering/how-we-contain-claude">How we contain Claude across products — anthropic.com</a></li>
+  <li><strong>TL;DR:</strong> Anthropic's internal telemetry shows users approved ~93% of permission prompts — approval fatigue is real and prompts alone don't hold up as agents run longer. Adding a sandbox (filesystem + network isolation) cut those prompts by 84%. The auto mode classifier that gates command approval has a 0.4% false-positive rate on benign commands but still lets ~17% of risky actions through — so it is one defense layer inside a sandbox, not a replacement for one. Three CVEs were disclosed against Claude Code (mid-2025 through January 2026), all exploiting code that runs before user consent. A February 2026 internal red-team exercise showed an employee being phished into launching Claude Code with a malicious prompt.</li>
+  <li><strong>What to do:</strong> Add filesystem and network isolation as your primary containment layer before enabling auto mode or reducing permission prompts; treat the classifier as defense-in-depth inside the sandbox, not as your perimeter.</li>
+  <li><strong>Why trust it:</strong> Anthropic internal production telemetry; three named CVEs with specific date ranges; a controlled red-team exercise described with specifics (February 2026); named sandbox technologies in production across three products: gVisor for claude.ai, Seatbelt on macOS + Bubblewrap on Linux for Claude Code, Apple Virtualization framework / HCS for Cowork.</li>
+  <li><strong>Skeptic check:</strong> The 84% reduction in permission prompts from sandboxing likely reflects that most prompts covered routine low-risk file access; the remaining ~16% of higher-risk calls still require review — and the 17% classifier pass-through rate means some of those still slip through auto mode.</li>
 </ul>
 
 <div class="meta">
 
-<h2>Meta</h2>
-
-<h3>Prompt friction</h3>
-<ul>
-  <li>The arXiv 7-day window has now produced zero qualifying papers across several consecutive digests. Papers on relevant topics (context pruning, agent harness architecture, coding-agent configuration) consistently land 10–20 days before the window closes. The trailing-7-day cutoff is the right bar for freshness, but this topic cluster may warrant a separate monthly sweep to surface papers that passed the quality bar but missed the recency window.</li>
-</ul>
-
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Anthropic (Claude Code v2.1.157 and v2.1.158 changelogs, May 29–30, 2026, via releasebot.io and claudefa.st summaries); Windsurf changelog (Devin Local v2026.5.26, ~May 29, 2026, via search-aggregator summaries).</p>
+<p><strong>Sources used today:</strong> Anthropic engineering blog (anthropic.com/engineering); simonwillison.net (May 30 link post).</p>
 
-<p><strong>Skipped:</strong> Simon Willison — Anthropic $65B Series H revenue post (May 29, financial news, no practitioner action); Cursor updates (most recent confirmed entries are May 18–20, before window); Gemini CLI to Antigravity CLI transition (announced May 19, before window); OpenAI Codex computer use on Windows (May 29 — consumer ChatGPT feature, no harness or prompt engineering impact); MCP 2026-07-28 spec release candidate locked (May 21, before window); Hamel Husain blog restart announcement (May 22, before window, no new article); Latent Space — no episode confirmed within window; arXiv — no qualifying papers in May 23–30 range; 0 funding posts, 0 leaderboard-only updates, 0 hype takes.</p>
+<p><strong>Skipped:</strong> 2 partnership/funding announcements (Bristol Myers Squibb + Anthropic strategic deal; Anthropic $65B Series H valuation). 1 benchmark comparison post (Claude Opus 4.8 vs. GPT-5.5 leaderboard — no methodology change). Claude Opus 4.8 / dynamic workflows in Claude Code — released May 28, covered in the May 30 archive digest. Cursor v3.6 auto-review — released May 29, before the current window start of May 30T10:00. Codex vrust-v0.135.0 — released May 28, before window. Windsurf Devin Local v2026.5.26 — released May 26, before window. Anthropic managed agents self-hosted sandboxes + MCP tunnels — released May 19, before window. Nathan Lambert (Interconnects) — most recent post May 26, before window. Eugene Yan, Chip Huyen — no posts confirmed in window. Latent Space AINews — no issue confirmed within window. arXiv — no qualifying papers in May 24–31 range meeting both inclusion bars.</p>
 
-<p><strong>Coverage gaps:</strong> All primary source URLs returned 403. github.com/anthropics/claude-code/releases — 403 — wanted full release note text for v2.1.157 and v2.1.158; confirmed via releasebot.io and claudefa.st search-aggregator summaries. windsurf.com/changelog — 403 — wanted exact release date and full feature list for Devin Local v2026.5.26; confirmed via search summaries. anthropic.com/engineering — 403 — wanted to verify any new engineering blog posts from May 29–30; none surfaced in search results. news.ycombinator.com front page — 403 — unable to verify point counts for any AI tool discussions.</p>
-
-<p><strong>Inaccessible links:</strong></p>
+<p><strong>Coverage gaps:</strong></p>
 <ul>
-  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted full text of v2.1.157 and v2.1.158 release notes to verify all feature details.</li>
-  <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted the exact release date of Devin Local v2026.5.26 and full feature list.</li>
-  <li><a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check for any new engineering blog posts from May 29–30.</li>
-  <li><a href="https://news.ycombinator.com/front">news.ycombinator.com front page</a> — 403 — unable to verify point counts for AI tool discussions.</li>
+  <li><a href="https://www.anthropic.com/engineering/how-we-contain-claude">anthropic.com/engineering/how-we-contain-claude</a> — 403 — wanted full publication timestamp and complete technical details; confirmed findings via multiple consistent search snippets.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to verify whether any Claude Code release shipped after May 30T10:00.</li>
+  <li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">github.com/anthropics/claude-code CHANGELOG.md</a> — 403 — same as above.</li>
+  <li><a href="https://simonwillison.net/2026/May/30/how-we-contain-claude/">simonwillison.net/2026/May/30/how-we-contain-claude/</a> — 403 — wanted to confirm Simon's link-post timestamp to pin the item firmly within the window.</li>
+  <li><a href="https://news.ycombinator.com/front">news.ycombinator.com front page</a> — 403 — unable to filter for 200+ point threads from May 30–31.</li>
 </ul>
 
 </div>
