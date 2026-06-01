@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-05-31T10:00:00Z">
+  <title>AI Tools Digest — 2026-05-31, 1 item</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-05-31, 1 item</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-30T10:00:00Z – 2026-05-31T10:00:00Z. One qualifying item: Anthropic's engineering post on agent containment, surfaced by Simon Willison on May 30. All direct fetches returned 403; findings confirmed via multiple consistent search snippets. No new Claude Code, Cursor, Windsurf, or Codex releases confirmed after May 30T10:00. arXiv 7-day window (May 24–31): no qualifying papers found with submission dates in that range meeting both inclusion bars.</p>
+
+<h3>Anthropic data: sandbox beats classifier for agent safety</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — engineering blog, ~May 30, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/engineering/how-we-contain-claude">How we contain Claude across products — anthropic.com</a></li>
+  <li><strong>TL;DR:</strong> Anthropic's internal telemetry shows users approved ~93% of permission prompts — approval fatigue is real and prompts alone don't hold up as agents run longer. Adding a sandbox (filesystem + network isolation) cut those prompts by 84%. The auto mode classifier that gates command approval has a 0.4% false-positive rate on benign commands but still lets ~17% of risky actions through — so it is one defense layer inside a sandbox, not a replacement for one. Three CVEs were disclosed against Claude Code (mid-2025 through January 2026), all exploiting code that runs before user consent. A February 2026 internal red-team exercise showed an employee being phished into launching Claude Code with a malicious prompt.</li>
+  <li><strong>What to do:</strong> Add filesystem and network isolation as your primary containment layer before enabling auto mode or reducing permission prompts; treat the classifier as defense-in-depth inside the sandbox, not as your perimeter.</li>
+  <li><strong>Why trust it:</strong> Anthropic internal production telemetry; three named CVEs with specific date ranges; a controlled red-team exercise described with specifics (February 2026); named sandbox technologies in production across three products: gVisor for claude.ai, Seatbelt on macOS + Bubblewrap on Linux for Claude Code, Apple Virtualization framework / HCS for Cowork.</li>
+  <li><strong>Skeptic check:</strong> The 84% reduction in permission prompts from sandboxing likely reflects that most prompts covered routine low-risk file access; the remaining ~16% of higher-risk calls still require review — and the 17% classifier pass-through rate means some of those still slip through auto mode.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic engineering blog (anthropic.com/engineering); simonwillison.net (May 30 link post).</p>
+
+<p><strong>Skipped:</strong> 2 partnership/funding announcements (Bristol Myers Squibb + Anthropic strategic deal; Anthropic $65B Series H valuation). 1 benchmark comparison post (Claude Opus 4.8 vs. GPT-5.5 leaderboard — no methodology change). Claude Opus 4.8 / dynamic workflows in Claude Code — released May 28, covered in the May 30 archive digest. Cursor v3.6 auto-review — released May 29, before the current window start of May 30T10:00. Codex vrust-v0.135.0 — released May 28, before window. Windsurf Devin Local v2026.5.26 — released May 26, before window. Anthropic managed agents self-hosted sandboxes + MCP tunnels — released May 19, before window. Nathan Lambert (Interconnects) — most recent post May 26, before window. Eugene Yan, Chip Huyen — no posts confirmed in window. Latent Space AINews — no issue confirmed within window. arXiv — no qualifying papers in May 24–31 range meeting both inclusion bars.</p>
+
+<p><strong>Coverage gaps:</strong></p>
+<ul>
+  <li><a href="https://www.anthropic.com/engineering/how-we-contain-claude">anthropic.com/engineering/how-we-contain-claude</a> — 403 — wanted full publication timestamp and complete technical details; confirmed findings via multiple consistent search snippets.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to verify whether any Claude Code release shipped after May 30T10:00.</li>
+  <li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">github.com/anthropics/claude-code CHANGELOG.md</a> — 403 — same as above.</li>
+  <li><a href="https://simonwillison.net/2026/May/30/how-we-contain-claude/">simonwillison.net/2026/May/30/how-we-contain-claude/</a> — 403 — wanted to confirm Simon's link-post timestamp to pin the item firmly within the window.</li>
+  <li><a href="https://news.ycombinator.com/front">news.ycombinator.com front page</a> — 403 — unable to filter for 200+ point threads from May 30–31.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
