@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-01T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-01, 2 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-01, 2 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+<p class="window-note">Window: 2026-05-31T10:00:00Z – 2026-06-01T12:00:00Z. Two qualifying items: one breaking Claude Code change effective today, one arXiv paper revised within the 7-day window. No new Anthropic engineering blog posts, Cursor, Windsurf, Codex, or OpenAI releases confirmed in the 24-hour window. Claude Code v2.1.159 (May 31): infrastructure only, skipped. Note: GitHub Copilot's AI credits billing switch also takes effect today (announced May 14); it was likely covered in the May 14–15 digests. Two upcoming deadlines not covered here because announcements predate this window: Anthropic programmatic billing moves to a separate credit pool on June 15 (Pro = $20/month, Max 20x = $200/month, credits expire monthly) and Gemini CLI stops working for individual Google AI accounts on June 18 — migrate to <code>agy</code> before then. arXiv 7-day window (May 25 – June 1): one qualifying paper found.</p>
+
+<h3>Claude Code removes <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE</code> env var today</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog (v2.1.154, May 28, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://www.claudeupdates.dev/">Claude Code release notes — claudeupdates.dev</a></li>
+  <li><strong>TL;DR:</strong> The env var that pinned fast mode to Opus 4.6 is removed as of June 1. It stops working silently — no error, no warning — so any shell config, <code>.env</code> file, or CI pipeline that sets it is now a no-op.</li>
+  <li><strong>What to do:</strong> Search your shell configs, <code>.env</code> files, and CI pipelines for <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE</code> and remove it; to explicitly pin Opus 4.6 with fast mode in an interactive session, use <code>/model claude-opus-4-6</code> followed by <code>/fast on</code>.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog for v2.1.154 listed the flag as deprecated with an explicit June 1 removal date, confirmed by third-party aggregators (claudeupdates.dev, releasebot.io) citing the same version and date.</li>
+  <li><strong>Skeptic check:</strong> If you are not using this env var anywhere, no action needed.</li>
+</ul>
+
+<h3>Tuning the harness beats upgrading the model for rule-governed agent tasks</h3>
+<ul>
+  <li><strong>Source:</strong> Tianshi Xu, Huifeng Wen, Meng Li — arXiv 2605.22166, v1 submitted May 21 2026, v2 revised May 27 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2605.22166">Adapting the Interface, Not the Model: Runtime Harness Adaptation for Deterministic LLM Agents — arxiv.org</a></li>
+  <li><strong>TL;DR:</strong> When agents repeatedly fail on tasks with strict rules — enforced formats, fixed action sets, required sequences — the problem usually lives in how the harness packages observations, structures tool calls, formats error feedback, and cuts off trajectories, not in the model itself. Fixing those four harness layers, without touching model weights, reliably doubled or more than doubled task completion rates. A harness tuned on failures from one model also worked for 17 other models, which means the fixes capture structure in the task environment, not quirks of a specific model.</li>
+  <li><strong>What to do:</strong> Before concluding you need a larger model, log 20–30 failure traces and check four things in your harness: (1) are observations truncated or reformatted in a way that loses key state? (2) do tool call schemas match what the environment actually expects? (3) is error feedback descriptive enough for the model to correct course? (4) are trajectories cut off before the model has a chance to recover? Fix those first.</li>
+  <li><strong>Why trust it:</strong> Tested across 7 deterministic environments, 126 model-environment setting combinations, and 18 model backbones, with an average relative improvement of 88.5% on task completion rate; implementation open-sourced at <a href="https://github.com/Tianshi-Xu/Life-Harness">github.com/Tianshi-Xu/Life-Harness</a>.</li>
+  <li><strong>Skeptic check:</strong> All 7 test environments are deterministic and rule-governed (game-like and structured domains); results likely do not transfer directly to open-ended coding tasks or free-form instruction-following where the observation space is less constrained.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic Claude Code changelog (via claudeupdates.dev, releasebot.io/updates/anthropic/claude-code); arXiv 2605.22166 (Xu et al., confirmed via arxiv.org search snippets, huggingface.co/papers/2605.22166, and a secondary write-up at atalupadhyay.wordpress.com).</p>
+
+<p><strong>Skipped:</strong> 1 pricing-change item (GitHub Copilot AI credits billing, effective today, announced May 14 — likely covered in May 14–15 digests). 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> All direct Jina-prefixed fetches to simonwillison.net, code.claude.com, arxiv.org abstract pages, news.ycombinator.com, latent.space (Substack), and hamel.dev returned 403 or were blocked. arXiv paper findings confirmed through search snippets, the Hugging Face papers index, and secondary write-ups. HN front page (May 31) could not be fetched; no 200-point AI coding thread confirmed for that date.</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to confirm exact removal date for <code>CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE</code> directly from Anthropic's primary source.</li>
+  <li><a href="https://arxiv.org/abs/2605.22166">arxiv.org/abs/2605.22166</a> — 403 — wanted to compare v1 and v2 content to confirm whether the May 27 revision added meaningful new findings.</li>
+  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for posts published May 31 – June 1.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-05-31">news.ycombinator.com front page for May 31</a> — 403 — wanted to check for 200+ point AI coding threads.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
