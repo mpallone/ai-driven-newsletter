@@ -3,43 +3,60 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-02T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-02, 1 item</title>
+  <meta name="published" content="2026-06-03T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-03, 2 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-02, 1 item</h1>
+<h1>AI Tools Digest — 2026-06-03, 2 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-01T12:00:00Z – 2026-06-02T12:00:00Z. One qualifying item: Claude Code v2.1.160 security hardening of <code>acceptEdits</code> mode. No new Anthropic engineering blog posts, Cursor releases, Windsurf releases, or OpenAI/Gemini announcements confirmed in the window. Simon Willison's May 2026 newsletter (published June 1) is sponsor-only — skipped as paywalled. Anthropic filed for a US IPO on June 1 — business news, excluded. arXiv 7-day window (May 26 – June 2): no cs.AI/CL/LG/SE papers found that passed both the recency and practitioner-relevance bar. Upcoming deadline not previously covered in this digest: <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> retire on the Anthropic API on June 15 at 9 AM PT — calls to those versioned model IDs will return errors; Anthropic recommends migrating to Claude Sonnet 4.6 and Claude Opus 4.7 respectively (one-line model-ID update, no prompt rewrites needed).</p>
+<p class="window-note">Window: 2026-06-02T12:00:00Z – 2026-06-03T12:00:00Z. Two qualifying items: Anthropic's technical blog post on dynamic-workflow patterns (June 2 afternoon), and Claude Code v2.1.161 security and harness fixes (June 2). No new Cursor, Windsurf, or OpenAI releases confirmed in the window. Simon Willison's June 2 posts cover Microsoft Build model announcements and a MicroPython-WASM release — both are capability or tool-release announcements without evidence-based practitioner guidance, so excluded. arXiv 7-day window: no cs.AI/CL/LG/SE papers found that passed both the recency and practitioner-relevance bar. Reminder: the Anthropic June 15 billing split (announced May 14) moves Agent SDK, <code>claude -p</code>, and Claude Code GitHub Actions to a separate credit pool; the claim email goes out around June 8 — action required before June 15.</p>
 
-<h3>acceptEdits now guards shell and build-tool configs</h3>
+<h3>Dynamic workflows: three orchestration patterns Claude uses when you say "ultracode"</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.160 (June 2, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://www.claudeupdates.dev/">Claude Code release notes — claudeupdates.dev</a></li>
-  <li><strong>TL;DR:</strong> Claude Code's <code>acceptEdits</code> mode — which auto-approves all file writes, and which every dynamic-workflow sub-agent inherits — now stops and prompts before writing shell startup files (<code>.zshenv</code>, <code>.zlogin</code>, <code>.bash_login</code>, <code>~/.config/git/</code>) or build-tool config files (<code>.npmrc</code>, <code>.yarnrc*</code>, <code>bunfig.toml</code>, <code>.bazelrc</code>, <code>.pre-commit-config.yaml</code>, <code>.devcontainer/</code>). Those files can run code automatically the next time you open a shell or trigger a package-manager command, which makes silent writes to them a code-execution risk. The same release fixes a workflow friction point: viewing a file with <code>grep</code>, <code>egrep</code>, or <code>fgrep</code> now counts as reading it, so the Edit tool no longer rejects edits on files you've already grepped.</li>
-  <li><strong>What to do:</strong> If you use dynamic workflows or run Claude Code with <code>acceptEdits</code>, expect new prompts for writes to those config paths — audit each one before adding it to your tool allowlist. Remove any redundant <code>cat</code> or Read steps you added to scripts or skills before editing files you had already grepped.</li>
-  <li><strong>Why trust it:</strong> Official Anthropic release for v2.1.160; npm publish timestamp for <code>@anthropic-ai/claude-code</code> confirmed "last published 8 hours ago" as of June 2, 2026, corroborated by changelog trackers (claudeupdates.dev, claudelog.com) citing the same version, changes, and date. The shell-startup change also directly addresses a security concern Anthropic flagged in the Dynamic Workflows docs (May 28): sub-agents run in <code>acceptEdits</code> mode and file edits are automatically approved.</li>
-  <li><strong>Skeptic check:</strong> If you use only the default interactive mode — where every file write already requires one-time approval — the new shell-startup guard is redundant; the grep-read fix is the more universally useful change in this release.</li>
+  <li><strong>Source:</strong> Anthropic — claude.com blog (June 2, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code">A harness for every task: dynamic workflows in Claude Code</a></li>
+  <li><strong>TL;DR:</strong> When you include the keyword <code>ultracode</code> in a prompt (or run <code>/effort ultracode</code> for the whole session), Claude Code writes a JavaScript orchestration script on the fly, fans work out to parallel subagents, and synthesizes results — saving the script so you can inspect or rerun it. The June 2 blog documents three reusable patterns: a <em>classifier router</em> that assigns subtasks to specialist subagents based on type, a <em>validator chain</em> where one subagent checks another's output before it reaches you, and a <em>sequential decomposer</em> that breaks a large task into chunks with one agent per chunk. Within a workflow, Claude also selects which model each subagent uses and whether it gets its own isolated worktree — so you can mix fast cheap agents for drafts with a more capable agent for final review.</li>
+  <li><strong>What to do:</strong> Add <code>ultracode</code> to prompts for large codebase tasks (audits, migrations, cross-file refactors); after each run, open the saved orchestration script to understand what Claude actually did before you re-run it on a wider scope.</li>
+  <li><strong>Why trust it:</strong> Primary Anthropic blog post (June 2, 2026) describing an in-production feature; feature is in research preview backed by official docs at code.claude.com/docs/en/workflows. The May 28 launch post documented the feature exists; this June 2 post provides the implementation patterns.</li>
+  <li><strong>Skeptic check:</strong> Research preview, not GA; token consumption can be substantially higher than a single-agent session; only available on Max, Team, and Enterprise plans — Free and Pro users cannot use dynamic workflows.</li>
+</ul>
+
+<h3>v2.1.161 patches OAuth leak in custom gateways and MCP policy bypass in subagents</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.161 (June 2, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://www.claudeupdates.dev/update">Claude Code release notes — claudeupdates.dev</a></li>
+  <li><strong>TL;DR:</strong> Three fixes worth acting on: (1) custom API gateways were receiving the user's Anthropic OAuth credential instead of the gateway's own token, potentially exposing user credentials to the gateway operator — this was a regression; (2) subagents launched via the Agent tool were silently ignoring <code>--strict-mcp-config</code>, <code>--bare</code>, remote-mode restrictions, and enterprise managed MCP server allow/deny policies, meaning MCP tools you had blocked could be called by subagents without your knowledge; (3) <code>OTEL_RESOURCE_ATTRIBUTES</code> values are now forwarded as labels on metric datapoints, letting you slice usage and cost by team or repo in any OpenTelemetry backend. A fourth fix: a failed Bash call in a parallel batch no longer cancels the other calls in the same batch, so partial failures in parallel tool use are now isolated.</li>
+  <li><strong>What to do:</strong> Update to v2.1.161 now if you use a custom API gateway or if you have set MCP security policies (--strict-mcp-config or enterprise MCP allow/deny); add <code>OTEL_RESOURCE_ATTRIBUTES=team=yourteam,repo=yourrepo</code> to your environment to get per-team and per-repo cost breakdowns in your telemetry stack.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release v2.1.161 (June 2, 2026); version confirmed via npmjs.com/@anthropic-ai/claude-code timestamp and corroborated by claudeupdates.dev and releasebot.io citing the same changes. 22 total changes in the release; only the four above met the practitioner-relevance bar.</li>
+  <li><strong>Skeptic check:</strong> The OAuth credential leak only affected custom API gateway setups — if you connect directly to Anthropic (no gateway proxy), fix (1) does not apply to you. The MCP policy bypass affects anyone who assumes subagents inherit parent-session MCP restrictions; if you don't set MCP deny policies, fix (2) has no operational impact for you today.</li>
 </ul>
 
 <div class="meta">
 
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><a href="https://github.com/Piebald-AI/claude-code-system-prompts">Piebald-AI/claude-code-system-prompts</a> — tracks Claude Code's full system prompt, 27 built-in tool descriptions, subagent prompts (Plan, Explore, Task), and utility prompts for every version, with a CHANGELOG spanning 196 releases from v2.0.14 onward. Surfaced while searching for v2.1.161 system-prompt changes. Track record: content is derived directly from the published Claude Code npm package, so it's a reliable mirror of exactly what the model sees; no independent editorial layer. Worth promoting if you want early signal on system-prompt-level changes (e.g., new tool descriptions, harness instruction rewrites) before they appear in the official changelog.</li>
+</ul>
+
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Anthropic Claude Code changelog v2.1.160 (via npmjs.com/@anthropic-ai/claude-code version timestamps, claudeupdates.dev, claudelog.com); Anthropic model-deprecations page (platform.claude.com/docs/en/about-claude/model-deprecations).</p>
+<p><strong>Sources used today:</strong> Anthropic blog (claude.com/blog — "A harness for every task," June 2, 2026); Claude Code changelog v2.1.161 (claudeupdates.dev, releasebot.io, npmjs.com/@anthropic-ai/claude-code version metadata); Anthropic docs (code.claude.com/docs/en/workflows — via search snippets only).</p>
 
-<p><strong>Skipped:</strong> 1 IPO filing (Anthropic US IPO, June 1 — business/funding event, excluded per rules). 0 leaderboard updates. 0 hype takes.</p>
+<p><strong>Skipped:</strong> 1 capability rollout without methodology change (MAI-Code-1-Flash now in GitHub Copilot — model option update, no workflow change); 1 partnership expansion (Anthropic Project Glasswing to 150 new orgs — no practitioner workflow change); 1 business-news item (Anthropic valuation); 2 Simon Willison release posts (datasette-agent-micropython 0.1a0, micropython-wasm 0.1a1 — new tool releases without evidence-based guidance on using existing tools better). 0 leaderboard updates. 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> All direct Jina-prefixed fetches to github.com/anthropics/claude-code, code.claude.com, arxiv.org, news.ycombinator.com, simonwillison.net, releasebot.io, windsurf.com, cursor.com, and claudeupdates.dev returned 403 or were blocked. Release details confirmed through npmjs.com version metadata and multiple third-party changelog-tracking sources. HN front pages for June 1–2 could not be fetched; no 200-point AI coding thread confirmed for those dates.</p>
+<p><strong>Coverage gaps:</strong> All direct fetches — with and without Jina prefix — to anthropic.com, claude.com/blog, code.claude.com, github.com/anthropics/claude-code, cursor.com, windsurf.com, simonwillison.net, claudelog.com, claudeupdates.dev, releasebot.io, and news.ycombinator.com returned 403 or timed out. All item details sourced through web search snippets and secondary changelog-tracking sites. HN front pages for June 2–3 could not be fetched; no 200-point AI coding thread confirmed for those dates.</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to read v2.1.160 release notes directly from Anthropic.</li>
-  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to cross-check v2.1.160 change details against Anthropic's primary documentation.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/1/may-newsletter/">simonwillison.net May 2026 newsletter</a> — paywalled (sponsor-only) — wanted to check for new tool-use tips or agent patterns covered in the June 1 issue.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-06-01">news.ycombinator.com front page for June 1</a> — 403 — wanted to check for 200+ point AI coding threads.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-06-02">news.ycombinator.com front page for June 2</a> — 403 — wanted to check for 200+ point AI coding threads.</li>
+  <li><a href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code">claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code</a> — 403 — wanted to confirm exact publication date and read the full pattern descriptions directly.</li>
+  <li><a href="https://code.claude.com/docs/en/workflows">code.claude.com/docs/en/workflows</a> — 403 — wanted to cross-check the workflow pattern names and API shape against the official reference docs.</li>
+  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to read v2.1.161 release notes directly from Anthropic.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-06-02">news.ycombinator.com front page for June 2</a> — 403 — wanted to check for 200+ point AI coding threads in the window.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-06-03">news.ycombinator.com front page for June 3</a> — 403 — wanted to check for 200+ point AI coding threads in the window.</li>
 </ul>
 
 </div>
