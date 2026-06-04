@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-02T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-02, 1 item</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-02, 1 item</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-01T12:00:00Z – 2026-06-02T12:00:00Z. One qualifying item: Claude Code v2.1.160 security hardening of <code>acceptEdits</code> mode. No new Anthropic engineering blog posts, Cursor releases, Windsurf releases, or OpenAI/Gemini announcements confirmed in the window. Simon Willison's May 2026 newsletter (published June 1) is sponsor-only — skipped as paywalled. Anthropic filed for a US IPO on June 1 — business news, excluded. arXiv 7-day window (May 26 – June 2): no cs.AI/CL/LG/SE papers found that passed both the recency and practitioner-relevance bar. Upcoming deadline not previously covered in this digest: <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> retire on the Anthropic API on June 15 at 9 AM PT — calls to those versioned model IDs will return errors; Anthropic recommends migrating to Claude Sonnet 4.6 and Claude Opus 4.7 respectively (one-line model-ID update, no prompt rewrites needed).</p>
+
+<h3>acceptEdits now guards shell and build-tool configs</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.160 (June 2, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://www.claudeupdates.dev/">Claude Code release notes — claudeupdates.dev</a></li>
+  <li><strong>TL;DR:</strong> Claude Code's <code>acceptEdits</code> mode — which auto-approves all file writes, and which every dynamic-workflow sub-agent inherits — now stops and prompts before writing shell startup files (<code>.zshenv</code>, <code>.zlogin</code>, <code>.bash_login</code>, <code>~/.config/git/</code>) or build-tool config files (<code>.npmrc</code>, <code>.yarnrc*</code>, <code>bunfig.toml</code>, <code>.bazelrc</code>, <code>.pre-commit-config.yaml</code>, <code>.devcontainer/</code>). Those files can run code automatically the next time you open a shell or trigger a package-manager command, which makes silent writes to them a code-execution risk. The same release fixes a workflow friction point: viewing a file with <code>grep</code>, <code>egrep</code>, or <code>fgrep</code> now counts as reading it, so the Edit tool no longer rejects edits on files you've already grepped.</li>
+  <li><strong>What to do:</strong> If you use dynamic workflows or run Claude Code with <code>acceptEdits</code>, expect new prompts for writes to those config paths — audit each one before adding it to your tool allowlist. Remove any redundant <code>cat</code> or Read steps you added to scripts or skills before editing files you had already grepped.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic release for v2.1.160; npm publish timestamp for <code>@anthropic-ai/claude-code</code> confirmed "last published 8 hours ago" as of June 2, 2026, corroborated by changelog trackers (claudeupdates.dev, claudelog.com) citing the same version, changes, and date. The shell-startup change also directly addresses a security concern Anthropic flagged in the Dynamic Workflows docs (May 28): sub-agents run in <code>acceptEdits</code> mode and file edits are automatically approved.</li>
+  <li><strong>Skeptic check:</strong> If you use only the default interactive mode — where every file write already requires one-time approval — the new shell-startup guard is redundant; the grep-read fix is the more universally useful change in this release.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic Claude Code changelog v2.1.160 (via npmjs.com/@anthropic-ai/claude-code version timestamps, claudeupdates.dev, claudelog.com); Anthropic model-deprecations page (platform.claude.com/docs/en/about-claude/model-deprecations).</p>
+
+<p><strong>Skipped:</strong> 1 IPO filing (Anthropic US IPO, June 1 — business/funding event, excluded per rules). 0 leaderboard updates. 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> All direct Jina-prefixed fetches to github.com/anthropics/claude-code, code.claude.com, arxiv.org, news.ycombinator.com, simonwillison.net, releasebot.io, windsurf.com, cursor.com, and claudeupdates.dev returned 403 or were blocked. Release details confirmed through npmjs.com version metadata and multiple third-party changelog-tracking sources. HN front pages for June 1–2 could not be fetched; no 200-point AI coding thread confirmed for those dates.</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to read v2.1.160 release notes directly from Anthropic.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to cross-check v2.1.160 change details against Anthropic's primary documentation.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/1/may-newsletter/">simonwillison.net May 2026 newsletter</a> — paywalled (sponsor-only) — wanted to check for new tool-use tips or agent patterns covered in the June 1 issue.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-06-01">news.ycombinator.com front page for June 1</a> — 403 — wanted to check for 200+ point AI coding threads.</li>
+  <li><a href="https://news.ycombinator.com/front?day=2026-06-02">news.ycombinator.com front page for June 2</a> — 403 — wanted to check for 200+ point AI coding threads.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
