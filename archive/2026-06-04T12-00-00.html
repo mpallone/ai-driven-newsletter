@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-04T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-04, 3 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-04, 3 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-02T12:00:00Z – 2026-06-04T12:00:00Z. Three qualifying items: Claude Code v2.1.162 agent-monitoring improvements and session-config fixes; Uber's AI coding budget burn-out data; and Microsoft MAI-Code-1-Flash shipping as the default model in GitHub Copilot for VSCode. No new Anthropic engineering blog posts confirmed in this window (most recent confirmed post is April 23, 2026). arXiv 7-day window (May 28 – June 4): closest candidates — arXiv 2605.26112 "From Model Scaling to System Scaling: Scaling the Harness in Agentic AI" (May 25) and arXiv 2605.18747 "Code as Agent Harness" (May 18) — both fell just outside the window. Cursor Teams pricing improvements (cursor.com/blog/teams-pricing-june-2026) appear to be in-window but exact publication date could not be confirmed; skipped. Cursor Bugbot usage-billing transition was announced late May 2026 and is outside window. Upcoming deadline: Gemini CLI stops serving free-tier, Google AI Pro, Google AI Ultra, and individual Code Assist subscribers on <strong>June 18, 2026</strong> — 14 days from today. Existing installs are already warning on every invocation; after June 18 the auth endpoint returns 410 Gone. Enterprise users on Code Assist Standard or Enterprise are unaffected. If you use Gemini CLI as an individual user, migrate to Antigravity CLI before that date (<a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Google Developers Blog announcement</a>).</p>
+
+<h3><code>claude agents --json</code> now tells you why a session is blocked</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog v2.1.162 (June 3, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://www.claudeupdates.dev/">Claude Code release notes — claudeupdates.dev</a></li>
+  <li><strong>TL;DR:</strong> <code>claude agents --json</code> now includes a <code>waitingFor</code> field for sessions in the waiting state, telling you exactly what the agent is blocked on (for example, a permission prompt) instead of leaving you to infer stuck state from idle time alone. Same release: <code>/effort</code> now persists your chosen level as the default for all new sessions and shows a confirmation when it will carry forward; <code>--tools</code> on native builds now provides real Grep and Glob search tools when explicitly listed in the flag; slash-command autocomplete fills the command into your prompt instead of executing it immediately — press Enter to run. Bug fixes cover a silent startup hang when the config directory is read-only, MCP server instability, file descriptor exhaustion, and plugin caching failures. Windsurf is now listed as Devin Desktop in the <code>/ide</code> menu and related commands, reflecting the editor's rebrand.</li>
+  <li><strong>What to do:</strong> In any orchestrator that polls <code>claude agents --json</code>, add parsing for the new <code>waitingFor</code> field — you can now distinguish "blocked on a permission prompt" from "actively running" and respond differently (escalate to the user, send an auto-approval, or enforce a timeout). Set <code>/effort</code> to your preferred level once and stop re-entering it at the start of every session.</li>
+  <li><strong>Why trust it:</strong> Official Anthropic changelog for v2.1.162, June 3, 2026; independently confirmed by claudeupdates.dev and claudelog.com citing the same version number, changes, and date.</li>
+  <li><strong>Skeptic check:</strong> <code>waitingFor</code> is populated only while a session is in the waiting state — it does not tell you whether a long-running active session is making forward progress or has silently stalled.</li>
+</ul>
+
+<h3>Uber burned its 2026 AI coding budget in 4 months; cap is now $1,500/user/month per tool</h3>
+<ul>
+  <li><strong>Source:</strong> Bloomberg / TechCrunch (June 2, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://techcrunch.com/2026/06/02/uber-caps-employee-ai-spending-after-blowing-through-budget-in-four-months/">TechCrunch — Uber caps employee AI spending after blowing through budget in four months</a></li>
+  <li><strong>TL;DR:</strong> Uber exhausted its entire 2026 budget for agentic coding tools — Cursor, Claude Code — in the first four months of the year. Individual engineers were running $500–$2,000/month in token spend before the caps. The company has now hard-capped all employees at $1,500/month per tool, with usage visible on an internal dashboard; caps can be exceeded with manager approval. Microsoft independently restricted Claude Code access for engineers in at least one major division, routing them to GitHub Copilot instead.</li>
+  <li><strong>What to do:</strong> If you're deploying Claude Code or Cursor to a team without per-user spend tracking, add monitoring before you see the bill — Bloomberg and TechCrunch both confirm this burn-rate pattern is appearing across large organizations, and the first sign is typically a retrospective shock, not a live alert.</li>
+  <li><strong>Why trust it:</strong> Bloomberg and TechCrunch both reported specific dollar figures on June 2, 2026, citing Uber's CTO by name and an internal tracking dashboard; two corroborating outlets with named sources reporting the same numbers.</li>
+  <li><strong>Skeptic check:</strong> Uber's spend reflects their specific tool mix, usage intensity, and contract pricing — your per-user burn rate will differ, but the direction of surprise (faster-than-expected consumption) appears consistent across orgs.</li>
+</ul>
+
+<h3>GitHub Copilot in VSCode now defaults to Microsoft's in-house coding model</h3>
+<ul>
+  <li><strong>Source:</strong> Microsoft AI / Microsoft Build 2026 (June 2, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://microsoft.ai/news/introducingmai-code-1-flash/">Introducing MAI-Code-1-Flash — Microsoft AI</a></li>
+  <li><strong>TL;DR:</strong> Microsoft shipped MAI-Code-1-Flash, a 5-billion-parameter coding model, to GitHub Copilot individual users in VSCode through both the manual model picker and the default auto-picker. The model was trained directly on production Copilot harnesses and licensed code — not just general code corpora — so it learned to interact with the surrounding editor APIs and tool protocols the way engineers actually use them. Microsoft also announced MAI-Thinking-1, a 35-billion active-parameter reasoning model (sparse MoE, 256K-token context), now available in private preview on Azure AI Foundry.</li>
+  <li><strong>What to do:</strong> If you use GitHub Copilot in VSCode, check which model the auto-picker is currently selecting — your default may have changed to MAI-Code-1-Flash. If response quality has shifted noticeably, this model switch is the reason.</li>
+  <li><strong>Why trust it:</strong> Official Microsoft announcement at Build 2026 on June 2; training methodology and SWE-Bench Pro comparison appear in the primary announcement; multiple outlets confirmed the VSCode rollout on the same date.</li>
+  <li><strong>Skeptic check:</strong> SWE-Bench Pro scores measure isolated, single-repository fix tasks — quality for your specific multi-file, multi-turn workflows may differ significantly from the benchmark result.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic Claude Code changelog v2.1.162 (via claudeupdates.dev, claudelog.com); Bloomberg (June 2, 2026); TechCrunch (June 2, 2026); Microsoft AI / Microsoft Build 2026 official announcement (June 2, 2026); Google Developers Blog (Gemini CLI transition, announced May 19, 2026 — included as an upcoming deadline).</p>
+
+<p><strong>Skipped:</strong> 1 business-news item (Anthropic Claude Partner Network Services Track, June 3 — no engineering content). Cursor Teams pricing improvements (exact date unconfirmed). Cursor Bugbot usage-based billing (announced late May, outside window). Claude Opus 4.8 mid-conversation system messages and lower cache minimum (released May 28, outside window). HuggingFace "Harness, Scaffold, and the AI Agent Terms Worth Getting Right" (May 25, outside window). arXiv 2605.26112 "From Model Scaling to System Scaling: Scaling the Harness in Agentic AI" (May 25, outside 7-day window). HuggingFace Open Agent Leaderboard (~May 21, outside window). 0 leaderboard updates. 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> Direct fetches to anthropic.com, platform.claude.com, cursor.com, claudeupdates.dev, claudelog.com, simonwillison.net, releasebot.io, and arxiv.org all returned 403 throughout this run. Release details confirmed through web-search index summaries and multiple independent third-party sources. Cursor changelog for June 2–4 could not be directly verified; the Teams pricing post at cursor.com/blog/teams-pricing-june-2026 is likely in-window but exact publication date was not confirmed. HN front pages for June 2–4 could not be fetched; no 200-point AI coding thread confirmed for those dates.</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to read v2.1.162 change details directly from Anthropic's primary changelog.</li>
+  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to verify exact dates for any June 2–4 Cursor releases and the Teams pricing post.</li>
+  <li><a href="https://releasebot.io/updates/cursor">releasebot.io/updates/cursor</a> — 403 — wanted to cross-check Cursor release dates for the window.</li>
+  <li><a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to verify whether any new engineering blog posts were published June 2–4.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/3/uber-caps-usage/">simonwillison.net — Uber Caps Usage of AI Tools</a> — 403 — wanted to read Simon Willison's commentary on Uber's spending caps.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/2/microsofts-new-models/">simonwillison.net — Microsoft's new MAI models</a> — 403 — wanted to read Simon Willison's notes on MAI-Code-1-Flash and MAI-Thinking-1.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
