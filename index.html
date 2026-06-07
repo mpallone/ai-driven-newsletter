@@ -3,73 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-06T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-06, 4 items</title>
+  <meta name="published" content="2026-06-07T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-07, 4 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-06, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-07, 4 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-05T12:00:00Z – 2026-06-06T12:00:00Z. Code with Claude Tokyo ran June 5–6 in this window. No Tokyo-specific product capabilities beyond v2.1.166 and the Anthropic Institute report (both covered below) were independently verified. The Claude Code rate limit doubling (5-hour limits doubled for Pro/Max/Team) was announced May 6 at the SF event — outside this window and not re-covered. Upcoming deadline: June 15 credit-pool split for <code>claude -p</code> / Agent SDK usage — 9 days out (see yesterday's digest for action steps).</p>
+<p class="window-note">Window: 2026-06-06T12:00:00Z – 2026-06-07T12:00:00Z. Hard deadline in 8 days: June 15 — both the Agent SDK credit-pool split (covered June 5) AND the retirement of model IDs <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> (item 2 below). Security cluster outside this window but action-required today: Claude Code GitHub Actions prompt injection flaw — update <code>claude-code-action</code> to v1.0.94+ and audit workflows with <code>allowed_non_write_users: "*"</code>. See <a href="https://flatt.tech/research/posts/poisoning-claude-code-one-github-issue-to-break-the-supply-chain/">Flatt Security — Poisoning Claude Code</a> (~June 1) and <a href="https://www.microsoft.com/en-us/security/blog/2026/06/05/securing-ci-cd-in-agentic-world-claude-code-github-action-case/">Microsoft Security Blog — Securing CI/CD in an agentic world</a> (June 5).</p>
 
-<h3>Claude Code v2.1.166 adds a three-model fallback chain and a thinking kill switch</h3>
+<h3>MicroPython in a WASM sandbox is a working code-execution tool for LLM agents</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md v2.1.166</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG.md — GitHub</a></li>
-  <li><strong>TL;DR:</strong> Three settings worth knowing. First: <code>fallbackModel</code> now accepts a list of up to three model IDs tried in order when the primary model returns "not found" — so a primary outage no longer kills the session. Second: <code>MAX_THINKING_TOKENS=0</code> (and the related thinking toggles) actually disables extended thinking on models like Opus 4.8 that think by default, giving you a direct lever for cost in sessions where reasoning tokens aren't worth it. Third: glob patterns including <code>"*"</code> now work in deny rules, so you can default-deny all tool access and then explicitly allow only what an agent needs — the same allowlist model you'd apply to any security-sensitive system. A fourth change closes a privilege-escalation hole in multi-agent setups: relayed cross-session messages no longer carry the originating user's authority level.</li>
-  <li><strong>What to do:</strong> Add <code>fallbackModel: ["claude-sonnet-4-6", "claude-haiku-4-5"]</code> to your project config for any agent workflow that can't tolerate primary-model outages; set <code>MAX_THINKING_TOKENS=0</code> for sessions doing simple tasks or running at high volume where thinking spend doesn't pay off; and replace blanket tool permissions with <code>"*"</code> in deny rules plus explicit allows if you're running agents with access to sensitive operations.</li>
-  <li><strong>Why trust it:</strong> Entries sourced directly from <code>anthropics/claude-code</code> CHANGELOG.md on GitHub (public repo, official Anthropic source); npm shows v2.1.167 (bug-fix follow-up) published 8 hours ago, confirming v2.1.166 landed in this window.</li>
-  <li><strong>Skeptic check:</strong> The CHANGELOG describes intended behavior but not the exact config schema — test <code>fallbackModel</code> in a dev harness before relying on it in production workflows; the glob deny syntax may have edge cases on Windows paths (a bug fix for backslash paths in deny rules shipped in the same release).</li>
+  <li><strong>Source:</strong> Simon Willison — simonwillison.net, June 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">Running Python code in a sandbox with MicroPython and WASM — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Willison released <code>micropython-wasm</code>, a Python package that runs code inside a WASM-sandboxed MicroPython interpreter. Each conversation in his Datasette Agent plugin gets its own persistent interpreter — variables, imports, and functions defined in earlier tool calls remain available later in the same session. He ran adversarial prompt-injection tests against GPT-5.5 in the sandboxed environment and reports no escape so far.</li>
+  <li><strong>What to do:</strong> If your agent harness has a code-execution tool that runs full Python, prototype a MicroPython/WASM replacement for any path where sandbox escape would expose sensitive data or systems — per-session state persistence means the user-experience cost is low.</li>
+  <li><strong>Why trust it:</strong> Working code published on GitHub (<a href="https://github.com/datasette/datasette-agent-micropython">datasette/datasette-agent-micropython</a>), alpha release on PyPI; Willison reports direct adversarial testing against GPT-5.5 with no escape, with source and methodology described in the blog post.</li>
+  <li><strong>Skeptic check:</strong> MicroPython doesn't support the full CPython standard library — code paths that depend on libraries not ported to MicroPython will fail, and the sandbox hasn't been independently security-audited.</li>
 </ul>
 
-<h3>Anthropic says 80% of its production code is now Claude-authored, with 8x output per engineer</h3>
+<h3>Claude Sonnet 4 and Opus 4 model IDs stop working on June 15 — 8 days out</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic Institute — "When AI Builds Itself" (June 5, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://www.anthropic.com/institute/recursive-self-improvement">When AI Builds Itself — Anthropic Institute</a></li>
-  <li><strong>TL;DR:</strong> Anthropic's engineering teams now have more than 80% of merged production code authored by Claude — up from low single digits when Claude Code launched in research preview (February 2025). Over that period, engineering output per engineer grew 8x per quarter, and Claude's success rate on hard, underspecified tasks reached 76% in May 2026 (up roughly 50 percentage points in six months).</li>
-  <li><strong>What to do:</strong> Use the 80% and 8x figures as calibration for your own team's adoption targets — if you're at sub-50% AI-authored code, the gap is more likely a harness, workflow, or habit problem than a model capability ceiling; the 76% success rate on underspecified tasks suggests aggressive task delegation is viable, not just task-assistance.</li>
-  <li><strong>Why trust it:</strong> Primary data from Anthropic's own production engineering, published through its research arm with specific metrics (80%, 8x quarterly output growth, 76% task success); multiple independent outlets (Scientific American, Decrypt, winbuzzer) confirmed the same figures from the same source document.</li>
-  <li><strong>Skeptic check:</strong> Anthropic has a strong commercial incentive to publish favorable numbers about its own tool; the "8x output growth" denominator isn't defined (lines of code? PRs merged? story points?) and no external audit of these metrics has been published.</li>
+  <li><strong>Source:</strong> Anthropic — Model Deprecations documentation</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Model deprecations — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> API requests to <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> will return errors starting June 15, 2026. Recommended migrations: <code>claude-sonnet-4-6</code> and <code>claude-opus-4-8</code>; for complex agentic workloads, jump to <code>claude-opus-4-7</code> or <code>claude-opus-4-8</code> rather than the default <code>claude-opus-4-5</code>.</li>
+  <li><strong>What to do:</strong> Search your codebase for both model ID strings now, update them, run your eval suite, and deploy before June 15 — the code change is one line per call site but output regression checks need lead time.</li>
+  <li><strong>Why trust it:</strong> Sourced directly from the official Anthropic model deprecations documentation; the June 15 retirement date is confirmed across multiple Anthropic release note channels with a hard API error cutoff.</li>
+  <li><strong>Skeptic check:</strong> Output behavior on <code>claude-opus-4-8</code> may differ from <code>claude-opus-4-20250514</code> on tasks that rely on subtle response patterns — run evals before migrating production workloads, don't just swap strings.</li>
 </ul>
 
-<h3>Coding agents with skill injection match native multimodal models on audio/video tasks</h3>
+<h3>Cursor Context Explorer shows which part of your agent config is consuming the most tokens</h3>
 <ul>
-  <li><strong>Source:</strong> University of Maryland + MBZUAI — arXiv:2606.00579 (submitted May 30, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.00579">Sandboxed Coding Agents are Competitive Omni-modal Task Solvers — arXiv</a></li>
-  <li><strong>TL;DR:</strong> A coding agent with text-and-image access and a sandboxed code-execution tool matched or beat purpose-built multimodal models across multiple audio and video benchmarks — not by ingesting raw media streams, but by writing code to extract and process signals from transcripts, frames, and audio chunks. Injecting human-written skills (describing how to use the available tools for media tasks) and self-distilled skills (generated by running the agent on examples and saving what worked) substantially improved results on top of the baseline.</li>
-  <li><strong>What to do:</strong> Before reaching for a dedicated multimodal model for a media-processing task, try giving your existing coding agent a sandboxed execution environment and a short set of human-written skills that describe how to extract and process the relevant media signals — you may not need the specialized model.</li>
-  <li><strong>Why trust it:</strong> Benchmarked against multiple audio-video recognition tasks with comparisons to state-of-the-art native multimodal baselines; researchers from UMD and MBZUAI with no stated relationship to Anthropic or OpenAI.</li>
-  <li><strong>Skeptic check:</strong> "Text-and-image" means the agent sees image frames extracted from video — the paper doesn't show performance on audio-only inputs where frame extraction isn't available, or on tasks where the extraction itself is expensive or lossy.</li>
+  <li><strong>Source:</strong> Cursor — Official changelog, June 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">What's New in Cursor — Cursor Changelog</a></li>
+  <li><strong>TL;DR:</strong> Cursor now renders an agent's token usage as an interactive canvas, breaking it down across system prompt, tool definitions, rules, skills, and conversation history separately. A "Debug with Agent" button lets you ask Cursor to identify specific compression targets. Also in this release: multi-repo Automations (one agent run reasons across and commits to multiple repos, including running tests across all of them) and no-repo Automations triggered by external events like Slack, with five new Marketplace templates. Heads-up: Bugbot billing switches to usage-based pricing at next plan renewal after June 8.</li>
+  <li><strong>What to do:</strong> Run Context Explorer on your most expensive agent sessions to see where tokens actually go before optimizing — tool definitions and loaded skills are typically the highest-ROI compression targets and are often larger than expected.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog entry dated June 6, 2026; confirmed via Releasebot aggregator and Cursor Agents Window documentation.</li>
+  <li><strong>Skeptic check:</strong> Token counts in the explorer reflect the current session context, not your billed cost — if your system prompt is heavily prompt-cached, the displayed count overstates what you are actually charged.</li>
 </ul>
 
-<h3>Domain skills encoding tool patterns reliably improve coding agent task scores</h3>
+<h3>Windsurf (Devin Desktop) now lets you permanently approve all tools on an MCP server at once</h3>
 <ul>
-  <li><strong>Source:</strong> University of Notre Dame + Lawrence Livermore National Lab — arXiv:2606.05525 (submitted June 4, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.05525">SciVisAgentSkills: Design and Evaluation of Agent Skills — arXiv</a></li>
-  <li><strong>TL;DR:</strong> On a 108-task benchmark covering scientific visualization tools (ParaView, napari, VMD, TTK), pre-written agent skills that encoded environment assumptions, tool-usage patterns, and domain heuristics improved task scores for both Claude Code and Codex. Token-efficiency gains from skills varied depending on which harness ran them — meaning the same skill set helped differently depending on how the surrounding agent loop was configured.</li>
-  <li><strong>What to do:</strong> When writing skills for a new domain, encode not just what tools exist but how to use them correctly: expected environment state, common multi-step patterns, and tool-specific gotchas — these details are what close the gap between a skill that runs and a skill that consistently succeeds.</li>
-  <li><strong>Why trust it:</strong> 108-task benchmark with expert-designed tasks evaluated on two separate coding agents (Claude Code and Codex) by two independent research groups (Notre Dame and LLNL).</li>
-  <li><strong>Skeptic check:</strong> Scientific visualization is a narrow, highly specialized domain — whether the pattern holds for general-purpose skills in domains with less rigid tool contracts (like web APIs or file processing) is untested.</li>
+  <li><strong>Source:</strong> Windsurf / Devin Desktop — Official changelog, Devin Local 2026.5.26, June 6, 2026</li>
+  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog">Windsurf Changelog — Devin Docs</a></li>
+  <li><strong>TL;DR:</strong> When Devin Local prompts for an MCP tool permission, you now see two new server-level options: approve all tools on that server for the current session, or permanently across all sessions. Previously only individual tool-level approval was available. Always Allow grants now persist across restarts. Devin Local also gained editor context awareness — it sees which files you have open as part of its context without you adding them explicitly.</li>
+  <li><strong>What to do:</strong> Grant permanent server-level approval to trusted local MCP servers you use in every session (filesystem tools, local databases); keep per-session or per-tool approval for external, network-facing, or write-capable servers where you want to stay aware of what is being called.</li>
+  <li><strong>Why trust it:</strong> Official Windsurf/Devin Desktop changelog entry for Devin Local 2026.5.26, June 6, 2026; confirmed via Releasebot.</li>
+  <li><strong>Skeptic check:</strong> Permanent approval survives software updates — if an MCP server update adds new tools, those tools inherit the permanent grant automatically; audit granted permissions after any server update that changes tool schemas.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Anthropic <code>anthropics/claude-code</code> CHANGELOG.md (GitHub); Anthropic Institute — "When AI Builds Itself" (anthropic.com/institute/recursive-self-improvement); arXiv:2606.00579 (University of Maryland + MBZUAI); arXiv:2606.05525 (University of Notre Dame + LLNL); winbuzzer.com, Scientific American, Decrypt (corroborating Anthropic Institute report metrics).</p>
+<p><strong>Sources used today:</strong> Simon Willison (simonwillison.net, June 6); Anthropic Model Deprecations documentation (platform.claude.com); Cursor official changelog (cursor.com/changelog, June 6); Windsurf / Devin Desktop official changelog (windsurf.com/changelog, June 6); Releasebot aggregator (releasebot.io) corroborating changelog dates; Flatt Security and Microsoft Security Blog referenced in window note (primary sources June 1 and June 5 respectively, outside window).</p>
 
-<p><strong>Skipped:</strong> 1 safety/policy post (Anthropic AI pause proposal, June 5 — not practitioner-relevant); 1 documentation update (Claude Cowork product guide, June 5 — describes existing features, no net-new content); 1 quote post (Simon Willison on Ladybird rejecting AI PRs, June 5 — interesting signal, but doesn't change how I'd configure or prompt tools); Claude Code rate limit doubling (May 6, outside window). 0 leaderboard updates. 0 hype takes.</p>
+<p><strong>Skipped:</strong> Claude Code v2.1.168 (June 6, 23:41 UTC) — "bug fixes and reliability improvements" only, no actionable detail. OpenAI Codex Enterprise plugin sharing default-on (June 6) — too narrow (Enterprise workspaces only). OpenAI superapp pivot (June 7) — business strategy, no methodology change. Anthropic Partner Hub / Services Track (June 3, outside window). Project Glasswing expansion (June 2, outside window). Anthropic Opus 4.1 deprecation notice (June 5, outside window; August 5 retirement, will cover when closer). 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> Jina.ai proxy returned 403 on all direct fetches this run: simonwillison.net, latent.space, claude.com, code.claude.com, releasebot.io, venturebeat.com, arxiv.org abstract pages, HN front page. Code with Claude Tokyo keynote content could not be verified from primary sources — no Tokyo-specific announcements confirmed beyond search-index summaries. arXiv paper details for both 2606.00579 and 2606.05525 confirmed via search index summaries, not direct abstract page reads.</p>
+<p><strong>Coverage gaps:</strong> All direct WebFetch calls returned 403 Forbidden — all items sourced via WebSearch index and Releasebot aggregator. Latent Space, Hamel Husain (hamel.dev), Eugene Yan (eugeneyan.com), Chip Huyen (huyenchip.com), Nathan Lambert (interconnects.ai) — all returned 403 on direct fetch; no June 6–7 posts confirmed via search for any of these sources. HN front page for June 6 inaccessible (403); items in window note confirmed via search index. arXiv June 6–7 new submissions — no papers from this exact window met the practitioner test ("does this change how I'd configure a tool tomorrow?").</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to confirm v2.1.166 exact release date relative to the 12:00 UTC window boundary.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/5/andreas-kling/">simonwillison.net — A quote from Andreas Kling</a> — 403 — wanted to confirm full context of the Ladybird PR policy change.</li>
-  <li><a href="https://arxiv.org/abs/2606.00579">arxiv.org/abs/2606.00579</a> — 403 — wanted to read abstract directly; confirmed findings via search index.</li>
-  <li><a href="https://arxiv.org/abs/2606.05525">arxiv.org/abs/2606.05525</a> — 403 — wanted to read abstract directly; confirmed findings via search index.</li>
-  <li><a href="https://www.anthropic.com/institute/recursive-self-improvement">anthropic.com/institute/recursive-self-improvement</a> — could not fetch; metrics confirmed via multiple independent secondary sources.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">simonwillison.net — Running Python code in a sandbox</a> — 403 — wanted to confirm full sandbox implementation details; confirmed via search index summary and GitHub repo.</li>
+  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted exact feature text for Context Explorer; confirmed via Releasebot and search summaries.</li>
+  <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted exact MCP permission option names; confirmed via Releasebot.</li>
+  <li><a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">platform.claude.com — Model deprecations</a> — 403 — wanted to confirm exact retirement dates; confirmed via multiple consistent secondary sources.</li>
 </ul>
 
 </div>
