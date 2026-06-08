@@ -3,72 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-07T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-07, 4 items</title>
+  <meta name="published" content="2026-06-08T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-08, 2 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-07, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-08, 2 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-06T12:00:00Z – 2026-06-07T12:00:00Z. Hard deadline in 8 days: June 15 — both the Agent SDK credit-pool split (covered June 5) AND the retirement of model IDs <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> (item 2 below). Security cluster outside this window but action-required today: Claude Code GitHub Actions prompt injection flaw — update <code>claude-code-action</code> to v1.0.94+ and audit workflows with <code>allowed_non_write_users: "*"</code>. See <a href="https://flatt.tech/research/posts/poisoning-claude-code-one-github-issue-to-break-the-supply-chain/">Flatt Security — Poisoning Claude Code</a> (~June 1) and <a href="https://www.microsoft.com/en-us/security/blog/2026/06/05/securing-ci-cd-in-agentic-world-claude-code-github-action-case/">Microsoft Security Blog — Securing CI/CD in an agentic world</a> (June 5).</p>
+<p class="window-note">Window: 2026-06-07T12:00:00Z – 2026-06-08T12:00:00Z. Hard deadlines still in play: June 15 — model IDs <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> retire (covered June 7). June 18 — Gemini CLI stops working for Pro/Ultra/free users (item 2 below, 10 days out). Quiet 24-hour window otherwise.</p>
 
-<h3>MicroPython in a WASM sandbox is a working code-execution tool for LLM agents</h3>
+<h3>Exposing fewer tools at each agent step cuts token use 90% and near-eliminates wrong-tool calls</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison — simonwillison.net, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">Running Python code in a sandbox with MicroPython and WASM — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> Willison released <code>micropython-wasm</code>, a Python package that runs code inside a WASM-sandboxed MicroPython interpreter. Each conversation in his Datasette Agent plugin gets its own persistent interpreter — variables, imports, and functions defined in earlier tool calls remain available later in the same session. He ran adversarial prompt-injection tests against GPT-5.5 in the sandboxed environment and reports no escape so far.</li>
-  <li><strong>What to do:</strong> If your agent harness has a code-execution tool that runs full Python, prototype a MicroPython/WASM replacement for any path where sandbox escape would expose sensitive data or systems — per-session state persistence means the user-experience cost is low.</li>
-  <li><strong>Why trust it:</strong> Working code published on GitHub (<a href="https://github.com/datasette/datasette-agent-micropython">datasette/datasette-agent-micropython</a>), alpha release on PyPI; Willison reports direct adversarial testing against GPT-5.5 with no escape, with source and methodology described in the blog post.</li>
-  <li><strong>Skeptic check:</strong> MicroPython doesn't support the full CPython standard library — code paths that depend on libraries not ported to MicroPython will fail, and the sandbox hasn't been independently security-audited.</li>
+  <li><strong>Source:</strong> Rahul Suresh Babu and Laxmipriya Ganesh Iyer — arXiv:2606.06284, submitted June 4, 2026</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.06284">ToolChoiceConfusion: Causal Minimal Tool Filtering for Reliable LLM Agents — arXiv</a></li>
+  <li><strong>TL;DR:</strong> Giving an agent access to all available tools at every step reliably degrades performance: more choices create more wrong-tool calls and more tokens spent on tool descriptions the model doesn't need yet. The paper proposes Causal Minimal Tool Filtering (CMTF), which annotates each tool with a lightweight precondition-effect contract and exposes only the tools whose preconditions are met in the current task state. On multi-step tool-use tasks, this cuts average token usage from 24,569 to 2,405 per task and reduces wrong-tool calls from 1.25 to 0.01 per task.</li>
+  <li><strong>What to do:</strong> Add precondition-effect annotations to your tool definitions (what state must be true before this tool can run, and what changes after it does), then build a filtering layer in your harness that only injects tools whose preconditions the current task state satisfies — even a coarse manual version of this will outperform exposing everything.</li>
+  <li><strong>Why trust it:</strong> Measured on multi-step tool-use tasks comparing CMTF against four baselines: all-tools exposure, keyword retrieval, state-aware filtering without causal contracts, and causal-path ablations; metrics include task success, wrong-tool calls, premature actions, tool exposure count, and token cost. Full paper on arXiv, submitted June 4, 2026.</li>
+  <li><strong>Skeptic check:</strong> The benchmark is a controlled multi-step tool-use suite — real production harnesses often have messier state representations and tasks where step boundaries are ambiguous, which could narrow the gains. I couldn't access the full paper directly (403) so specific benchmark names and agent models tested are unverified.</li>
 </ul>
 
-<h3>Claude Sonnet 4 and Opus 4 model IDs stop working on June 15 — 8 days out</h3>
+<h3>Gemini CLI stops working June 18 — MCP config rename causes silent failures during migration</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Model Deprecations documentation</li>
-  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Model deprecations — Claude API Docs</a></li>
-  <li><strong>TL;DR:</strong> API requests to <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> will return errors starting June 15, 2026. Recommended migrations: <code>claude-sonnet-4-6</code> and <code>claude-opus-4-8</code>; for complex agentic workloads, jump to <code>claude-opus-4-7</code> or <code>claude-opus-4-8</code> rather than the default <code>claude-opus-4-5</code>.</li>
-  <li><strong>What to do:</strong> Search your codebase for both model ID strings now, update them, run your eval suite, and deploy before June 15 — the code change is one line per call site but output regression checks need lead time.</li>
-  <li><strong>Why trust it:</strong> Sourced directly from the official Anthropic model deprecations documentation; the June 15 retirement date is confirmed across multiple Anthropic release note channels with a hard API error cutoff.</li>
-  <li><strong>Skeptic check:</strong> Output behavior on <code>claude-opus-4-8</code> may differ from <code>claude-opus-4-20250514</code> on tasks that rely on subtle response patterns — run evals before migrating production workloads, don't just swap strings.</li>
-</ul>
-
-<h3>Cursor Context Explorer shows which part of your agent config is consuming the most tokens</h3>
-<ul>
-  <li><strong>Source:</strong> Cursor — Official changelog, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">What's New in Cursor — Cursor Changelog</a></li>
-  <li><strong>TL;DR:</strong> Cursor now renders an agent's token usage as an interactive canvas, breaking it down across system prompt, tool definitions, rules, skills, and conversation history separately. A "Debug with Agent" button lets you ask Cursor to identify specific compression targets. Also in this release: multi-repo Automations (one agent run reasons across and commits to multiple repos, including running tests across all of them) and no-repo Automations triggered by external events like Slack, with five new Marketplace templates. Heads-up: Bugbot billing switches to usage-based pricing at next plan renewal after June 8.</li>
-  <li><strong>What to do:</strong> Run Context Explorer on your most expensive agent sessions to see where tokens actually go before optimizing — tool definitions and loaded skills are typically the highest-ROI compression targets and are often larger than expected.</li>
-  <li><strong>Why trust it:</strong> Official Cursor changelog entry dated June 6, 2026; confirmed via Releasebot aggregator and Cursor Agents Window documentation.</li>
-  <li><strong>Skeptic check:</strong> Token counts in the explorer reflect the current session context, not your billed cost — if your system prompt is heavily prompt-cached, the displayed count overstates what you are actually charged.</li>
-</ul>
-
-<h3>Windsurf (Devin Desktop) now lets you permanently approve all tools on an MCP server at once</h3>
-<ul>
-  <li><strong>Source:</strong> Windsurf / Devin Desktop — Official changelog, Devin Local 2026.5.26, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog">Windsurf Changelog — Devin Docs</a></li>
-  <li><strong>TL;DR:</strong> When Devin Local prompts for an MCP tool permission, you now see two new server-level options: approve all tools on that server for the current session, or permanently across all sessions. Previously only individual tool-level approval was available. Always Allow grants now persist across restarts. Devin Local also gained editor context awareness — it sees which files you have open as part of its context without you adding them explicitly.</li>
-  <li><strong>What to do:</strong> Grant permanent server-level approval to trusted local MCP servers you use in every session (filesystem tools, local databases); keep per-session or per-tool approval for external, network-facing, or write-capable servers where you want to stay aware of what is being called.</li>
-  <li><strong>Why trust it:</strong> Official Windsurf/Devin Desktop changelog entry for Devin Local 2026.5.26, June 6, 2026; confirmed via Releasebot.</li>
-  <li><strong>Skeptic check:</strong> Permanent approval survives software updates — if an MCP server update adds new tools, those tools inherit the permanent grant automatically; audit granted permissions after any server update that changes tool schemas.</li>
+  <li><strong>Source:</strong> Google Developers Blog — <em>An important update: Transitioning Gemini CLI to Antigravity CLI</em>, published May 19, 2026; <a href="https://agentpedia.codes/blog/gemini-cli-to-antigravity-cli-migration">Agentpedia migration guide</a></li>
+  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Transitioning Gemini CLI to Antigravity CLI — Google Developers Blog</a></li>
+  <li><strong>TL;DR:</strong> On June 18, 2026, <code>gemini</code> CLI stops serving requests for Google AI Pro, Ultra, and free users — no grace period. The replacement is Antigravity CLI (command: <code>agy</code>). The migration itself takes under 10 minutes, but there is one trap: Gemini CLI stored MCP server config inline in <code>settings.json</code>, while Antigravity CLI uses a separate <code>mcp_config.json</code>. If you copy the block over without renaming the field <code>url</code> to <code>serverUrl</code> for remote servers, MCP connections fail silently with no error output. Enterprise Gemini Code Assist Standard/Enterprise licenses are exempt from the June 18 cutoff.</li>
+  <li><strong>What to do:</strong> Before June 18: install <code>agy</code>, move MCP server config out of <code>settings.json</code> into a new <code>mcp_config.json</code>, and rename every <code>url</code> field to <code>serverUrl</code> for remote MCP entries — then run a test tool call to confirm servers connect before the deadline.</li>
+  <li><strong>Why trust it:</strong> Primary source is the official Google Developers Blog post (May 19, 2026) announcing the June 18 cutoff; the silent-failure trap on the <code>url</code>→<code>serverUrl</code> rename is documented in multiple independent migration guides that reverse-engineered the behavior from the new config schema.</li>
+  <li><strong>Skeptic check:</strong> Google has extended deadlines before (Gemini Enterprise toggle slipped by one day to June 9); if you're close to the wire, check the official blog post for any last-minute extensions.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Simon Willison (simonwillison.net, June 6); Anthropic Model Deprecations documentation (platform.claude.com); Cursor official changelog (cursor.com/changelog, June 6); Windsurf / Devin Desktop official changelog (windsurf.com/changelog, June 6); Releasebot aggregator (releasebot.io) corroborating changelog dates; Flatt Security and Microsoft Security Blog referenced in window note (primary sources June 1 and June 5 respectively, outside window).</p>
+<p><strong>Sources used today:</strong> arXiv cs.AI (2606.06284, Babu and Iyer, June 4); Google Developers Blog (Gemini CLI transition, May 19); Agentpedia migration guide; multiple independent Gemini CLI migration guides (ChatForest, byteiota, aimadetools) corroborating the silent-failure detail.</p>
 
-<p><strong>Skipped:</strong> Claude Code v2.1.168 (June 6, 23:41 UTC) — "bug fixes and reliability improvements" only, no actionable detail. OpenAI Codex Enterprise plugin sharing default-on (June 6) — too narrow (Enterprise workspaces only). OpenAI superapp pivot (June 7) — business strategy, no methodology change. Anthropic Partner Hub / Services Track (June 3, outside window). Project Glasswing expansion (June 2, outside window). Anthropic Opus 4.1 deprecation notice (June 5, outside window; August 5 retirement, will cover when closer). 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
+<p><strong>Skipped:</strong> Claude Code v2.1.168 (June 6 23:41 UTC, outside window — already noted as skipped in June 7 digest). Gemini 3.5 Pro (not yet released; expected late June). Gemini Enterprise Gemini 3.5 Flash mandatory default (June 8–9) — admin policy change, does not affect agent design or prompt engineering. Windsurf/Devin Desktop ACP support (June 2, outside window, already covered June 6 digest). MCP 2026-07-28 RC (published May 21, outside window). OpenAI Codex Sites and computer use (June 2–3, outside window). 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> All direct WebFetch calls returned 403 Forbidden — all items sourced via WebSearch index and Releasebot aggregator. Latent Space, Hamel Husain (hamel.dev), Eugene Yan (eugeneyan.com), Chip Huyen (huyenchip.com), Nathan Lambert (interconnects.ai) — all returned 403 on direct fetch; no June 6–7 posts confirmed via search for any of these sources. HN front page for June 6 inaccessible (403); items in window note confirmed via search index. arXiv June 6–7 new submissions — no papers from this exact window met the practitioner test ("does this change how I'd configure a tool tomorrow?").</p>
+<p><strong>Coverage gaps:</strong> All direct WebFetch calls returned 403 Forbidden — all items sourced via WebSearch index. Latent Space, Hamel Husain (hamel.dev), Eugene Yan (eugeneyan.com), Chip Huyen (huyenchip.com), Nathan Lambert (interconnects.ai) — no June 7–8 posts confirmed via search for any of these sources. Simon Willison — no posts confirmed on June 7–8 (last confirmed post June 6). arXiv cs.AI new submissions for June 8 were not accessible via direct fetch; the ToolChoiceConfusion item is from June 4 (within 7-day arXiv window), not June 7–8 itself.</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">simonwillison.net — Running Python code in a sandbox</a> — 403 — wanted to confirm full sandbox implementation details; confirmed via search index summary and GitHub repo.</li>
-  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted exact feature text for Context Explorer; confirmed via Releasebot and search summaries.</li>
-  <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted exact MCP permission option names; confirmed via Releasebot.</li>
-  <li><a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">platform.claude.com — Model deprecations</a> — 403 — wanted to confirm exact retirement dates; confirmed via multiple consistent secondary sources.</li>
+  <li><a href="https://arxiv.org/abs/2606.06284">arxiv.org/abs/2606.06284</a> — 403 — wanted to verify specific benchmark names and which agent models were tested; performance numbers sourced from search index summaries of the paper.</li>
+  <li><a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">developers.googleblog.com — Transitioning Gemini CLI to Antigravity CLI</a> — 403 — wanted exact config field names from primary source; confirmed via independent migration guides.</li>
 </ul>
 
 </div>
