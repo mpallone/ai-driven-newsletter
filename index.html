@@ -3,72 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-07T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-07, 4 items</title>
+  <meta name="published" content="2026-06-09T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-09, 3 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-07, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-09, 3 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-06T12:00:00Z – 2026-06-07T12:00:00Z. Hard deadline in 8 days: June 15 — both the Agent SDK credit-pool split (covered June 5) AND the retirement of model IDs <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> (item 2 below). Security cluster outside this window but action-required today: Claude Code GitHub Actions prompt injection flaw — update <code>claude-code-action</code> to v1.0.94+ and audit workflows with <code>allowed_non_write_users: "*"</code>. See <a href="https://flatt.tech/research/posts/poisoning-claude-code-one-github-issue-to-break-the-supply-chain/">Flatt Security — Poisoning Claude Code</a> (~June 1) and <a href="https://www.microsoft.com/en-us/security/blog/2026/06/05/securing-ci-cd-in-agentic-world-claude-code-github-action-case/">Microsoft Security Blog — Securing CI/CD in an agentic world</a> (June 5).</p>
+<p class="window-note">Window: 2026-06-07T12:00:00Z – 2026-06-09T12:00:00Z. Dominated by WWDC 2026 (June 8): two Apple items below. Reminder: <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> retire June 15 — 6 days out. If you haven't migrated those model IDs yet, do it today.</p>
 
-<h3>MicroPython in a WASM sandbox is a working code-execution tool for LLM agents</h3>
+<h3>Apple Intelligence ships MCP support in iOS 27 and macOS 27</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison — simonwillison.net, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">Running Python code in a sandbox with MicroPython and WASM — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> Willison released <code>micropython-wasm</code>, a Python package that runs code inside a WASM-sandboxed MicroPython interpreter. Each conversation in his Datasette Agent plugin gets its own persistent interpreter — variables, imports, and functions defined in earlier tool calls remain available later in the same session. He ran adversarial prompt-injection tests against GPT-5.5 in the sandboxed environment and reports no escape so far.</li>
-  <li><strong>What to do:</strong> If your agent harness has a code-execution tool that runs full Python, prototype a MicroPython/WASM replacement for any path where sandbox escape would expose sensitive data or systems — per-session state persistence means the user-experience cost is low.</li>
-  <li><strong>Why trust it:</strong> Working code published on GitHub (<a href="https://github.com/datasette/datasette-agent-micropython">datasette/datasette-agent-micropython</a>), alpha release on PyPI; Willison reports direct adversarial testing against GPT-5.5 with no escape, with source and methodology described in the blog post.</li>
-  <li><strong>Skeptic check:</strong> MicroPython doesn't support the full CPython standard library — code paths that depend on libraries not ported to MicroPython will fail, and the sandbox hasn't been independently security-audited.</li>
+  <li><strong>Source:</strong> Apple WWDC 2026, June 8, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.apple.com/newsroom/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/">Apple unveils next-generation Apple Intelligence and Siri AI — Apple Newsroom</a></li>
+  <li><strong>TL;DR:</strong> Apple shipped iOS 27 and macOS 27 developer betas on June 8 with Siri — now running a Gemini-derived model — able to act as an MCP client, calling compliant MCP servers. Apple ran a dedicated WWDC session titled "MCP in Apple platforms." Any MCP server already accessible to other agents can now be reached by Apple Intelligence agents on iOS 27 / macOS 27 devices, subject to Apple's user permission model.</li>
+  <li><strong>What to do:</strong> Install the iOS 27 or macOS 27 developer beta and test whether your MCP server's tool descriptions are specific enough for Apple's routing to generate clear permission dialogs — Apple's model requires each tool to be user-approvable individually, so vague or overlapping tool names will produce confusing prompts or silent failures.</li>
+  <li><strong>Why trust it:</strong> Apple WWDC 2026 primary announcements (June 8); dedicated WWDC developer session "MCP in Apple platforms" confirmed in the session catalog; post-WWDC analysis by MindStudio (June 8–9) confirmed Apple Intelligence–MCP connectivity; developer betas shipped same day for independent testing.</li>
+  <li><strong>Skeptic check:</strong> At least one post-WWDC analysis noted the "biggest developer-side announcement was the LanguageModel protocol, not MCP" — the depth of Apple Intelligence's MCP integration may be shallower than "system-wide" headlines suggest; check the WWDC session recording and Apple developer documentation before building against Apple's MCP implementation.</li>
 </ul>
 
-<h3>Claude Sonnet 4 and Opus 4 model IDs stop working on June 15 — 8 days out</h3>
+<h3>iOS 27 apps can swap Claude, Gemini, or OpenAI with one dependency change</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Model Deprecations documentation</li>
-  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Model deprecations — Claude API Docs</a></li>
-  <li><strong>TL;DR:</strong> API requests to <code>claude-sonnet-4-20250514</code> and <code>claude-opus-4-20250514</code> will return errors starting June 15, 2026. Recommended migrations: <code>claude-sonnet-4-6</code> and <code>claude-opus-4-8</code>; for complex agentic workloads, jump to <code>claude-opus-4-7</code> or <code>claude-opus-4-8</code> rather than the default <code>claude-opus-4-5</code>.</li>
-  <li><strong>What to do:</strong> Search your codebase for both model ID strings now, update them, run your eval suite, and deploy before June 15 — the code change is one line per call site but output regression checks need lead time.</li>
-  <li><strong>Why trust it:</strong> Sourced directly from the official Anthropic model deprecations documentation; the June 15 retirement date is confirmed across multiple Anthropic release note channels with a hard API error cutoff.</li>
-  <li><strong>Skeptic check:</strong> Output behavior on <code>claude-opus-4-8</code> may differ from <code>claude-opus-4-20250514</code> on tasks that rely on subtle response patterns — run evals before migrating production workloads, don't just swap strings.</li>
+  <li><strong>Source:</strong> Apple WWDC 2026 / Anthropic Swift package release, June 8, 2026</li>
+  <li><strong>Link:</strong> <a href="https://www.techtimes.com/articles/318039/20260609/wwdc-2026-developer-tools-foundation-models-now-swaps-ai-providers-without-code-changes.htm">WWDC 2026 Developer Tools: Foundation Models now swaps AI providers without code changes — TechTimes</a></li>
+  <li><strong>TL;DR:</strong> Apple shipped a <code>LanguageModel</code> Swift protocol that Claude, Gemini, and OpenAI all implement. Session management, tool calling, streaming, and structured output handling are identical across providers; to swap which cloud model backs your app, change one Swift Package Manager dependency. Anthropic and Google both shipped their implementing packages on June 8 alongside the keynote.</li>
+  <li><strong>What to do:</strong> If you build iOS or macOS apps with AI features, adopt the <code>LanguageModel</code> protocol now instead of calling vendor-specific SDKs directly — one import, provider portability, no bespoke abstraction layer needed.</li>
+  <li><strong>Why trust it:</strong> Apple Newsroom primary source (June 8); Anthropic's Swift package implementing the protocol released same day; TechTimes article (June 9) confirmed SPM dependency-swap mechanics; Google Firebase Apple SDK confirmed it implements the same interface.</li>
+  <li><strong>Skeptic check:</strong> The protocol standardizes the inference call surface only; system prompt content, tool schema design, and output quality still vary by provider — changing the dependency is one line, but re-evaluating outputs on the new provider is a separate project.</li>
 </ul>
 
-<h3>Cursor Context Explorer shows which part of your agent config is consuming the most tokens</h3>
+<h3>Claude Code v2.1.169: /cd keeps prompt cache, --safe-mode strips all customizations</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor — Official changelog, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">What's New in Cursor — Cursor Changelog</a></li>
-  <li><strong>TL;DR:</strong> Cursor now renders an agent's token usage as an interactive canvas, breaking it down across system prompt, tool definitions, rules, skills, and conversation history separately. A "Debug with Agent" button lets you ask Cursor to identify specific compression targets. Also in this release: multi-repo Automations (one agent run reasons across and commits to multiple repos, including running tests across all of them) and no-repo Automations triggered by external events like Slack, with five new Marketplace templates. Heads-up: Bugbot billing switches to usage-based pricing at next plan renewal after June 8.</li>
-  <li><strong>What to do:</strong> Run Context Explorer on your most expensive agent sessions to see where tokens actually go before optimizing — tool definitions and loaded skills are typically the highest-ROI compression targets and are often larger than expected.</li>
-  <li><strong>Why trust it:</strong> Official Cursor changelog entry dated June 6, 2026; confirmed via Releasebot aggregator and Cursor Agents Window documentation.</li>
-  <li><strong>Skeptic check:</strong> Token counts in the explorer reflect the current session context, not your billed cost — if your system prompt is heavily prompt-cached, the displayed count overstates what you are actually charged.</li>
-</ul>
-
-<h3>Windsurf (Devin Desktop) now lets you permanently approve all tools on an MCP server at once</h3>
-<ul>
-  <li><strong>Source:</strong> Windsurf / Devin Desktop — Official changelog, Devin Local 2026.5.26, June 6, 2026</li>
-  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog">Windsurf Changelog — Devin Docs</a></li>
-  <li><strong>TL;DR:</strong> When Devin Local prompts for an MCP tool permission, you now see two new server-level options: approve all tools on that server for the current session, or permanently across all sessions. Previously only individual tool-level approval was available. Always Allow grants now persist across restarts. Devin Local also gained editor context awareness — it sees which files you have open as part of its context without you adding them explicitly.</li>
-  <li><strong>What to do:</strong> Grant permanent server-level approval to trusted local MCP servers you use in every session (filesystem tools, local databases); keep per-session or per-tool approval for external, network-facing, or write-capable servers where you want to stay aware of what is being called.</li>
-  <li><strong>Why trust it:</strong> Official Windsurf/Devin Desktop changelog entry for Devin Local 2026.5.26, June 6, 2026; confirmed via Releasebot.</li>
-  <li><strong>Skeptic check:</strong> Permanent approval survives software updates — if an MCP server update adds new tools, those tools inherit the permanent grant automatically; audit granted permissions after any server update that changes tool schemas.</li>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.169, June 8, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Two new ergonomics features: <code>/cd &lt;dir&gt;</code> changes the session's working directory without invalidating the cached system prompt and CLAUDE.md prefix — previously any directory change reset the prompt cache; and <code>--safe-mode</code> / <code>CLAUDE_CODE_SAFE_MODE=1</code> launches Claude Code with all hooks, MCP servers, skills, and other customizations disabled, making it easy to isolate whether unexpected behavior is coming from your setup or from baseline Claude. Also fixed in this release: <code>allowedMcpServers</code> / <code>deniedMcpServers</code> predicates in managed-settings files that use <code>${VAR}</code> variable interpolation were silently failing to match; they now resolve correctly.</li>
+  <li><strong>What to do:</strong> Use <code>/cd</code> instead of restarting Claude Code when moving between directories in one session — you keep your cache hit and save tokens on every subsequent turn; add <code>CLAUDE_CODE_SAFE_MODE=1 claude</code> as the first step in your debug runbook when a session behaves unexpectedly after a hooks or MCP change.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog for v2.1.169; release date June 8, 2026 confirmed by claudeupdates.dev and independently by the Piebald-AI claude-code-system-prompts snapshot repository, which updated its system-prompt record for this version on the same date.</li>
+  <li><strong>Skeptic check:</strong> <code>/cd</code> preserves the cache only when the new directory shares the same CLAUDE.md root hash as the session's origin — if the target directory has its own CLAUDE.md that differs, the cache is still invalidated; the command helps most within a monorepo with a single top-level CLAUDE.md.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Simon Willison (simonwillison.net, June 6); Anthropic Model Deprecations documentation (platform.claude.com); Cursor official changelog (cursor.com/changelog, June 6); Windsurf / Devin Desktop official changelog (windsurf.com/changelog, June 6); Releasebot aggregator (releasebot.io) corroborating changelog dates; Flatt Security and Microsoft Security Blog referenced in window note (primary sources June 1 and June 5 respectively, outside window).</p>
+<p><strong>Sources used today:</strong> Apple WWDC 2026 / Apple Newsroom (June 8); TechTimes (June 9); MindStudio WWDC analysis (June 8–9); Anthropic Claude Code changelog v2.1.169 (June 8); claudeupdates.dev; Piebald-AI claude-code-system-prompts snapshot (GitHub); Releasebot aggregator.</p>
 
-<p><strong>Skipped:</strong> Claude Code v2.1.168 (June 6, 23:41 UTC) — "bug fixes and reliability improvements" only, no actionable detail. OpenAI Codex Enterprise plugin sharing default-on (June 6) — too narrow (Enterprise workspaces only). OpenAI superapp pivot (June 7) — business strategy, no methodology change. Anthropic Partner Hub / Services Track (June 3, outside window). Project Glasswing expansion (June 2, outside window). Anthropic Opus 4.1 deprecation notice (June 5, outside window; August 5 retirement, will cover when closer). 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
+<p><strong>Skipped:</strong> OpenAI ChatGPT memory "dreaming" update (June 8) — consumer product feature, no developer tooling change. OpenAI "Built to benefit everyone" plan and Economic Research Exchange (June 8) — strategy/policy, no methodology change. Apple App Intents mandatory / SiriKit deprecated (June 8) — actionable only for teams actively maintaining iOS/macOS apps with existing SiriKit integrations. Apple Xcode 27 agentic coding dual-engine — derivative of the LanguageModel protocol item above. Cursor — no in-window entries (last entry June 6). Windsurf — no in-window entries. Simon Willison — no AI-relevant posts June 8–9. Latent Space, Hamel Husain, Eugene Yan, Chip Huyen, Nathan Lambert — no in-window posts confirmed. 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
 
-<p><strong>Coverage gaps:</strong> All direct WebFetch calls returned 403 Forbidden — all items sourced via WebSearch index and Releasebot aggregator. Latent Space, Hamel Husain (hamel.dev), Eugene Yan (eugeneyan.com), Chip Huyen (huyenchip.com), Nathan Lambert (interconnects.ai) — all returned 403 on direct fetch; no June 6–7 posts confirmed via search for any of these sources. HN front page for June 6 inaccessible (403); items in window note confirmed via search index. arXiv June 6–7 new submissions — no papers from this exact window met the practitioner test ("does this change how I'd configure a tool tomorrow?").</p>
+<p><strong>Coverage gaps:</strong> All direct WebFetch calls returned 403 Forbidden; all items sourced via WebSearch index and third-party summaries. Apple Newsroom primary sources for WWDC announcements (403). Claude Code changelog direct page (403). MindStudio WWDC analysis article (403). All practitioner-commentary blogs (simonwillison.net, hamel.dev, eugeneyan.com, huyenchip.com, interconnects.ai) returned 403 on direct fetch; no in-window posts confirmed for any of these sources. arXiv June 7–9 submissions — no papers met the practitioner test ("does this change how I'd configure a tool tomorrow?").</p>
 
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/">simonwillison.net — Running Python code in a sandbox</a> — 403 — wanted to confirm full sandbox implementation details; confirmed via search index summary and GitHub repo.</li>
-  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted exact feature text for Context Explorer; confirmed via Releasebot and search summaries.</li>
-  <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted exact MCP permission option names; confirmed via Releasebot.</li>
-  <li><a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">platform.claude.com — Model deprecations</a> — 403 — wanted to confirm exact retirement dates; confirmed via multiple consistent secondary sources.</li>
+  <li><a href="https://www.apple.com/newsroom/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/">apple.com/newsroom — Apple Intelligence and Siri AI WWDC 2026</a> — 403 — wanted exact wording of MCP support announcement; confirmed via WWDC session catalog and post-event analysis.</li>
+  <li><a href="https://www.apple.com/newsroom/2026/06/apple-aids-app-development-with-new-intelligence-frameworks-and-advanced-tools/">apple.com/newsroom — Foundation Models developer tools WWDC 2026</a> — 403 — wanted exact LanguageModel protocol API surface; confirmed via TechTimes (June 9) and search summaries of Apple developer documentation.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted full v2.1.169 change list beyond highlights; confirmed key features via claudeupdates.dev and Piebald-AI system-prompt snapshot.</li>
+  <li><a href="https://www.mindstudio.ai/blog/apple-wwdc-ai-strategy-siri-app-intents-mcp">mindstudio.ai — Apple WWDC AI strategy: Siri, App Intents, and MCP</a> — 403 — wanted detailed breakdown of Apple Intelligence MCP integration depth; confirmed via search index summary.</li>
 </ul>
 
 </div>
