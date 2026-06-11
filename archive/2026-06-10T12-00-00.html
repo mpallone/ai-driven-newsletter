@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-10T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-10, 6 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-10, 6 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-09T12:00:00Z – 2026-06-10T12:00:00Z. Dominated by the Claude Fable 5 / Mythos 5 launch (June 9). Four of the six items below are direct consequences of that release.</p>
+
+<h3>Fable 5 is on the API: refusals return HTTP 200, not errors</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude API Docs, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5">Introducing Claude Fable 5 and Claude Mythos 5 — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> <code>claude-fable-5</code> is generally available on the Claude API as of June 9, with a 1M-token context window, up to 128k output tokens per request, and $10/$50 per million input/output tokens. The biggest integration change: when Fable 5's safety classifiers decline a request, the API returns <code>stop_reason: "refusal"</code> with a normal HTTP 200 — not a 4xx error — along with which classifier triggered. Adaptive thinking is always on; raw chain-of-thought is never returned (set <code>thinking.display: "summarized"</code> to get readable thinking output). The <code>fallbacks</code> parameter lets the API automatically retry a refused request on Opus 4.8 instead.</li>
+  <li><strong>What to do:</strong> Add an explicit check for <code>stop_reason === "refusal"</code> in your response-handling code before you go to production with Fable 5 — your current error handler probably won't catch it; optionally add <code>fallbacks: ["claude-opus-4-8"]</code> to auto-reroute refused requests without client-side retry logic.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official API documentation published June 9, 2026, primary source; availability confirmed simultaneously on Amazon Bedrock, Vertex AI, Microsoft Foundry, and GitHub Copilot changelogs the same day.</li>
+  <li><strong>Skeptic check:</strong> Third-party benchmark numbers circulating on launch day vary significantly across evaluation setups; validate Fable 5 against your own workloads before migrating production traffic.</li>
+</ul>
+
+<h3>Fable 5 prompting: "show your reasoning" instructions now trigger a refusal</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Prompting Claude Fable 5, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5">Prompting Claude Fable 5 — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> Fable 5 has a <code>reasoning_extraction</code> refusal classifier: any instruction that tells the model to echo, transcribe, or explain its internal reasoning as output text triggers it, causing those requests to fall back to Opus 4.8. Separately, Fable 5 tends to overplan, over-elaborate, and take unrequested side actions at higher effort levels. The official guide ships a set of ready-to-paste system-prompt snippets for each failure mode: an anti-overplanning instruction, a progress-grounding instruction that tells the model to audit each status claim against an actual tool result, a boundary instruction to stop the model taking unrequested actions, and a checkpoint instruction for long autonomous runs. Effort levels (<code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code> / <code>max</code>) replace thinking-budget parameters; <code>high</code> is recommended as the default.</li>
+  <li><strong>What to do:</strong> Before migrating any existing skill or system prompt to Fable 5, grep for phrases like "show your work," "explain your reasoning," "think step by step," or "transcribe your thoughts" — those will trigger elevated refusal fallbacks; read the model's structured <code>thinking</code> blocks instead of asking it to reproduce reasoning in text.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official prompting guide for Fable 5, published June 9, 2026; the guide explicitly cites internal testing for the progress-grounding instruction ("nearly eliminated fabricated status reports even on tasks designed to elicit them").</li>
+  <li><strong>Skeptic check:</strong> Prompting recommendations are derived from Anthropic's internal test harnesses; your workload and tool schemas may produce different failure modes — run your own prompts before removing existing instructions.</li>
+</ul>
+
+<h3>Task budgets: tell the model how many tokens an agent loop can spend</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Task budgets, Claude API Docs, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/build-with-claude/task-budgets">Task budgets — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> The new <code>output_config.task_budget</code> parameter (opt-in via <code>anthropic-beta: task-budgets-2026-03-13</code>) lets you set a token budget for an entire agentic loop, not just one request. The model sees a running countdown injected server-side and self-regulates — finishing more quickly or summarizing findings as the budget depletes. It works on Fable 5, Mythos 5, Opus 4.8, and Opus 4.7. Minimum budget is 20,000 tokens; the budget counts what the model generates (thinking, tool calls, tool results, output), not what you resend in the payload. If your loop compacts context mid-run, pass the <code>remaining</code> field on the next request to carry the countdown forward.</li>
+  <li><strong>What to do:</strong> Run a representative sample of tasks without the budget to find your p99 token spend per task, set that as your initial budget, and combine it with a reasonable <code>max_tokens</code> as a hard per-request cap — task budgets are advisory (the model may overshoot slightly) while <code>max_tokens</code> is enforced.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official API documentation, primary source, published June 9, 2026; feature is live in beta on supported models today.</li>
+  <li><strong>Skeptic check:</strong> A budget set too small for the task may cause the model to refuse to start or scope down aggressively; size the budget from measured data, not a fixed default.</li>
+</ul>
+
+<h3>Fable 5 disables zero-data-retention for all Anthropic API customers</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Model-specific data retention, Claude API Docs, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5">Introducing Claude Fable 5 and Claude Mythos 5 — Claude API Docs</a></li>
+  <li><strong>TL;DR:</strong> Fable 5 and Mythos 5 require Anthropic to retain prompts and outputs for up to 30 days to run their safety classifiers. Existing zero-data-retention (ZDR) agreements do not apply to Fable 5 traffic — ZDR still works for Opus 4.8, Sonnet 4.6, and Haiku 4.5, but not for the new model class. Anthropic states the retained data is not used for training.</li>
+  <li><strong>What to do:</strong> If your organization has a ZDR agreement with Anthropic, confirm with your legal or compliance team before routing any traffic to <code>claude-fable-5</code>; if ZDR is a hard requirement, use Opus 4.8 as your primary model and configure <code>claude-fable-5</code> as an opt-in upgrade only for workloads where the 30-day retention is acceptable.</li>
+  <li><strong>Why trust it:</strong> Stated in Anthropic's official launch documentation; confirmed by multiple independent coverage sources (TechCrunch, VentureBeat, cybernews.com) citing the same Anthropic policy language.</li>
+  <li><strong>Skeptic check:</strong> Whether 30-day retention with no-training commitment satisfies GDPR, HIPAA, or SOC 2 requirements depends on your jurisdiction and the specifics of your existing agreement — get explicit written confirmation from your Anthropic account team, not just the documentation.</li>
+</ul>
+
+<h3>Copilot Fable 5 is off by default for Business and Enterprise plans</h3>
+<ul>
+  <li><strong>Source:</strong> GitHub Changelog, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://github.blog/changelog/2026-06-09-claude-fable-5-is-generally-available-for-github-copilot/">Claude Fable 5 is generally available for GitHub Copilot — GitHub Changelog</a></li>
+  <li><strong>TL;DR:</strong> Claude Fable 5 is available in GitHub Copilot for Pro+, Max, Business, and Enterprise plans starting June 9. For Business and Enterprise, an administrator must explicitly enable the Claude Fable 5 policy in organization Copilot settings — it ships disabled. The 30-day data retention requirement applies here too; all other Copilot-supported Claude models (Opus 4.8, Sonnet 4.5, Haiku 4.5) continue under ZDR. The free-trial period runs through June 22; usage-credit billing begins June 23.</li>
+  <li><strong>What to do:</strong> If you manage a Copilot Business or Enterprise org and want your team to have access to Fable 5, go to your Copilot settings page and enable the policy — otherwise your developers will not see it as an option regardless of their individual plan.</li>
+  <li><strong>Why trust it:</strong> GitHub's official Changelog entry, dated June 9, 2026, is the primary source.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Claude Code v2.1.170 fixes transcript saving in VS Code terminals</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, v2.1.170, June 9, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Sessions launched from VS Code's integrated terminal, or from any shell that inherited Claude Code environment variables, were not saving transcripts and did not appear in <code>--resume</code>. Fixed in v2.1.170.</li>
+  <li><strong>What to do:</strong> If you run Claude Code from VS Code's integrated terminal and use <code>--resume</code> to continue sessions, run <code>claude update</code> to get v2.1.170.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official Claude Code changelog, primary source.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Anthropic Claude API Docs — Introducing Claude Fable 5 and Claude Mythos 5 (June 9); Anthropic Claude API Docs — Prompting Claude Fable 5 (June 9); Anthropic Claude API Docs — Task budgets (June 9); GitHub Changelog — Claude Fable 5 for GitHub Copilot (June 9); Anthropic Claude Code changelog v2.1.170 (June 9); TechCrunch, VentureBeat, cybernews.com, CNBC (secondary corroboration of Fable 5 data-retention policy).</p>
+
+<p><strong>Skipped:</strong> 0 funding posts. 0 leaderboard updates. 0 hype takes. OpenAI workspace agents / memory update (June 8, outside window). Cursor updates (June 1–5, outside window). Windsurf 2.0 / Devin Desktop — no confirmed June 9–10 changelog entry. Claude Code v2.1.169 (June 8, outside window — covered in yesterday's digest). Anthropic "Effective context engineering for AI agents" engineering blog — published September 2025, outside window. Latent Space, Simon Willison, Eugene Yan, Chip Huyen, Hamel Husain, Nathan Lambert — no confirmed in-window posts.</p>
+
+<p><strong>Coverage gaps:</strong> Direct WebFetch to anthropic.com and r.jina.ai proxied versions both returned 403 Forbidden; Anthropic API docs pages fetched successfully via direct URL. GitHub Changelog page (403); content confirmed via search index and secondary sources. arXiv cs.CL/cs.AI/cs.LG/cs.SE June 3–10 — no papers met the practitioner test ("does this change how I'd configure a tool tomorrow?"); three papers about agent context management were found but lacked empirical evaluation on real tasks.</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://www.anthropic.com/news/claude-fable-5-mythos-5">anthropic.com/news/claude-fable-5-mythos-5</a> — 403 — wanted full announcement text; API docs page fetched successfully as a substitute.</li>
+  <li><a href="https://github.blog/changelog/2026-06-09-claude-fable-5-is-generally-available-for-github-copilot/">github.blog/changelog/2026-06-09</a> — 403 — wanted exact plan availability wording; confirmed via search index summary and secondary coverage.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
