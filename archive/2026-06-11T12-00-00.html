@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-11T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-11, 3 items</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-11, 3 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-10T12:00:00Z – 2026-06-11T12:00:00Z. Quieter day after the Fable 5 launch wave. Three tool-level updates: Cursor Bugbot's speed and cost improvements, a new agent-tool pattern for mid-run user questions, and Codex's MCP schema fix.</p>
+
+<h3>Cursor Bugbot PR reviews now take 90 seconds and cost 22% less</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor blog, June 10, 2026</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/blog/bugbot-updates-june-2026">Bugbot is now over 3x faster, 22% cheaper, and finds 10% more bugs — Cursor</a></li>
+  <li><strong>TL;DR:</strong> Bugbot's average review time dropped from ~5 minutes to ~90 seconds (90% of runs finish under 3 minutes), it finds 10% more bugs per run (0.62 vs. 0.56 per PR), and costs about 22% less ($1–$1.50/run depending on PR size). Two new features ship alongside: a <code>/review</code> command that runs Bugbot before you open a PR — it syncs with GitHub/GitLab and won't charge again if you open the same diff as a PR later — and a selective-review mode that limits reruns to only the diff since the last review instead of rereading the whole PR.</li>
+  <li><strong>What to do:</strong> Add <code>/review</code> to your pre-PR checklist; if Bugbot reruns are getting noisy on CI, enable selective-review mode so it only reads what changed since the last scan.</li>
+  <li><strong>Why trust it:</strong> Cursor's official blog post, June 10, 2026, with specific before/after metrics; gains attributed to harness improvements and progress training Composer 2.5, which now powers Bugbot.</li>
+  <li><strong>Skeptic check:</strong> "Bugs per run" is self-reported by Cursor using their own definition of a finding; your PR size, language, and what Bugbot counts as a bug will affect whether you see similar numbers.</li>
+</ul>
+
+<h3>Tools can now suspend an agent mid-run and ask the user a question</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison (simonwillison.net), June 10, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/10/datasette-agent/">Release: datasette-agent 0.2a0 — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> datasette-agent 0.2a0 introduces a <code>ToolContext</code> object: any tool that declares a <code>context</code> parameter receives it and can call <code>await context.ask_user(...)</code> with a yes/no, multiple-choice, or free-text question. The agent's turn suspends until the user answers; the question is persisted to a database and survives a server restart. When the user answers, the tool re-runs from the start with the stored answer replayed. The key constraint: call <code>ask_user()</code> before any side effects, since re-execution from the top will replay the ask. A built-in <code>save_query</code> tool demonstrates the pattern — it always shows the SQL and proposed name before writing anything.</li>
+  <li><strong>What to do:</strong> If you're building agent tools that gate destructive or irreversible actions behind human approval, study the ToolContext pattern — it puts the pause at the tool level rather than requiring the orchestration layer to know which tools need confirmation.</li>
+  <li><strong>Why trust it:</strong> Simon Willison's own release post for a library he wrote, including the exact API and behavioral spec; primary-source documentation with specific code examples.</li>
+  <li><strong>Skeptic check:</strong> datasette-agent is a personal project; the suspend/resume mechanism relies on datasette's specific persistence layer — porting this pattern to another agent host requires equivalent infrastructure.</li>
+</ul>
+
+<h3>Codex now preserves oneOf/allOf in MCP schemas and adds code-mode web search</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI — Codex changelog, June 10, 2026</li>
+  <li><strong>Link:</strong> <a href="https://developers.openai.com/codex/changelog">Codex changelog — OpenAI Developers</a></li>
+  <li><strong>TL;DR:</strong> Codex was silently stripping <code>oneOf</code> and <code>allOf</code> from MCP tool schemas when processing them. The June 10 update preserves these constructs and keeps more of the shallow structure when compacting large schemas. <code>$ref</code>/<code>$defs</code> structures in connector tool schemas are also preserved instead of being inlined away. Separately, code mode now supports standalone web search — agents in code mode no longer need to switch modes to perform a search.</li>
+  <li><strong>What to do:</strong> If you've been flattening MCP tool schemas to work around Codex stripping complex constructs, try switching to <code>oneOf</code>/<code>allOf</code> for input validation now that Codex preserves them; test your specific schemas before relying on them in production.</li>
+  <li><strong>Why trust it:</strong> OpenAI's official Codex changelog, June 10, 2026, citing specific PR numbers (#24118, #27084) for the schema fixes.</li>
+  <li><strong>Skeptic check:</strong> The schema structure reaching the model does not guarantee the model interprets complex schemas correctly — validate your specific tool definitions with real inputs before treating them as production-ready.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Cursor blog (bugbot-updates-june-2026); Simon Willison — simonwillison.net (datasette-agent 0.2a0); OpenAI Codex changelog (developers.openai.com/codex/changelog).</p>
+
+<p><strong>Skipped:</strong> 1 corporate announcement (OpenAI S-1 confidential filing, June 10 — not practitioner-relevant). Windsurf/Devin Desktop "always allow" MCP permission persistence — confirmed as June 2/6 release, outside window. Claude Code <code>--safe-mode</code> and <code>/cd</code> command — June 8 release, outside window. Claude June 15 billing split (Agent SDK onto usage credits) — announced June 2, outside window. Anthropic multi-agent harness engineering post — March 2026, outside window. arXiv paper "Trust Over Fear: Motivation Framing in System Prompts" (arXiv:2603.14373, March 2026) — highly relevant finding but outside the 7-day arXiv window. 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
+
+<p><strong>Coverage gaps:</strong> r.jina.ai proxy and direct fetch both returned 403 for all primary sources; all item details sourced from search index summaries. arxiv.org returned 403 on direct fetch; no June 10–11 arXiv papers confirmed meeting the practitioner bar. Hacker News front page (June 10–11) returned 403; no items with ≥200 points confirmed for this window via search. Latent Space, Interconnects (Nathan Lambert), Chip Huyen, Eugene Yan, Hamel Husain — no confirmed posts from June 10–11.</p>
+
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://cursor.com/blog/bugbot-updates-june-2026">cursor.com/blog/bugbot-updates-june-2026</a> — 403 — wanted exact metric wording and selective-review configuration details; confirmed via search index summaries and a secondary writeup.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/10/datasette-agent/">simonwillison.net/2026/Jun/10/datasette-agent/</a> — 403 — wanted exact code examples for ToolContext; API spec confirmed via search index summaries.</li>
+  <li><a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 — wanted exact schema fix wording; PR numbers and feature description confirmed via search index summaries.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to confirm any Claude Code releases on June 10–11; no entries confirmed in window via search.</li>
+</ul>
+
+</div>
+
+<nav><a href="archive/">Archive</a></nav>
+
+</body>
+</html>
