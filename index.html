@@ -3,67 +3,94 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-11T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-11, 3 items</title>
+  <meta name="published" content="2026-06-13T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-13, 5 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-11, 3 items</h1>
+<h1>AI Tools Digest — 2026-06-13, 5 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-10T12:00:00Z – 2026-06-11T12:00:00Z. Quieter day after the Fable 5 launch wave. Three tool-level updates: Cursor Bugbot's speed and cost improvements, a new agent-tool pattern for mid-run user questions, and Codex's MCP schema fix.</p>
+<p class="window-note">Window: 2026-06-11T12:00:00Z – 2026-06-13T12:00:00Z. Two days dominated by the security implications of Fable 5's hyper-proactive default behavior — Tenet Security published the first concrete exploit of it via Sentry MCP injection — plus Claude Code model governance settings and Codex Desktop handoff.</p>
 
-<h3>Cursor Bugbot PR reviews now take 90 seconds and cost 22% less</h3>
+<h3>Fake Sentry errors can hijack Claude Code, Cursor, and Codex via MCP</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor blog, June 10, 2026</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/blog/bugbot-updates-june-2026">Bugbot is now over 3x faster, 22% cheaper, and finds 10% more bugs — Cursor</a></li>
-  <li><strong>TL;DR:</strong> Bugbot's average review time dropped from ~5 minutes to ~90 seconds (90% of runs finish under 3 minutes), it finds 10% more bugs per run (0.62 vs. 0.56 per PR), and costs about 22% less ($1–$1.50/run depending on PR size). Two new features ship alongside: a <code>/review</code> command that runs Bugbot before you open a PR — it syncs with GitHub/GitLab and won't charge again if you open the same diff as a PR later — and a selective-review mode that limits reruns to only the diff since the last review instead of rereading the whole PR.</li>
-  <li><strong>What to do:</strong> Add <code>/review</code> to your pre-PR checklist; if Bugbot reruns are getting noisy on CI, enable selective-review mode so it only reads what changed since the last scan.</li>
-  <li><strong>Why trust it:</strong> Cursor's official blog post, June 10, 2026, with specific before/after metrics; gains attributed to harness improvements and progress training Composer 2.5, which now powers Bugbot.</li>
-  <li><strong>Skeptic check:</strong> "Bugs per run" is self-reported by Cursor using their own definition of a finding; your PR size, language, and what Bugbot counts as a bug will affect whether you see similar numbers.</li>
+  <li><strong>Source:</strong> Tenet Security, June 12, 2026</li>
+  <li><strong>Link:</strong> <a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">A Fake Bug Report Hijacks Your AI Coding Agent — Tenet Security</a></li>
+  <li><strong>TL;DR:</strong> An attacker who finds your Sentry DSN — a write-only credential often committed to public repos or visible in browser JavaScript bundles — can inject a fake error event containing arbitrary instructions. When you ask Claude Code, Cursor, or Codex to investigate a Sentry error via the Sentry MCP server, the agent reads the injected event, treats it as a real application error, and executes the embedded instructions with your own system privileges. No anomalous signal appears: the agent performs only actions it was already permitted to do, so endpoint detection, web firewalls, IAM controls, and VPN see nothing unusual. Tenet identified 2,388 organizations with publicly discoverable DSNs and achieved an 85% success rate across all three tested agents. Sentry acknowledged the disclosure but declined to fix it at the root, stating the issue is "technically not defensible."</li>
+  <li><strong>What to do:</strong> Rotate any Sentry DSN that has appeared in a public repo or browser bundle; scope your Sentry MCP tool's permissions to read-only issue retrieval (not raw event ingestion); and treat any Sentry event retrieved via MCP as untrusted external input — add a prompt step that summarizes it before the agent acts on it rather than letting the agent read the raw event directly.</li>
+  <li><strong>Why trust it:</strong> Tenet Security's own published research (June 12, 2026), tested against Claude Code, Cursor, and Codex with an 85% exploitation success rate; 2,388 affected organizations identified via public credential discovery; vendor response from Sentry documented in the disclosure timeline; independently covered by The Hacker News and Cloud Security Alliance on the same date.</li>
+  <li><strong>Skeptic check:</strong> The 85% rate is across Tenet's specific test harness — your Sentry MCP server version and agent prompt sandbox configuration may produce different results, and Anthropic/OpenAI/Cursor may have since patched agent responses to Sentry event content.</li>
 </ul>
 
-<h3>Tools can now suspend an agent mid-run and ask the user a question</h3>
+<h3>Fable 5 will spend $12 debugging a 2-line CSS fix without being asked</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison (simonwillison.net), June 10, 2026</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/10/datasette-agent/">Release: datasette-agent 0.2a0 — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> datasette-agent 0.2a0 introduces a <code>ToolContext</code> object: any tool that declares a <code>context</code> parameter receives it and can call <code>await context.ask_user(...)</code> with a yes/no, multiple-choice, or free-text question. The agent's turn suspends until the user answers; the question is persisted to a database and survives a server restart. When the user answers, the tool re-runs from the start with the stored answer replayed. The key constraint: call <code>ask_user()</code> before any side effects, since re-execution from the top will replay the ask. A built-in <code>save_query</code> tool demonstrates the pattern — it always shows the SQL and proposed name before writing anything.</li>
-  <li><strong>What to do:</strong> If you're building agent tools that gate destructive or irreversible actions behind human approval, study the ToolContext pattern — it puts the pause at the tool level rather than requiring the orchestration layer to know which tools need confirmation.</li>
-  <li><strong>Why trust it:</strong> Simon Willison's own release post for a library he wrote, including the exact API and behavioral spec; primary-source documentation with specific code examples.</li>
-  <li><strong>Skeptic check:</strong> datasette-agent is a personal project; the suspend/resume mechanism relies on datasette's specific persistence layer — porting this pattern to another agent host requires equivalent infrastructure.</li>
+  <li><strong>Source:</strong> Simon Willison (simonwillison.net), June 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/11/fable-is-relentlessly-proactive/">Claude Fable is relentlessly proactive — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> After two days using Fable 5 as an agent, Willison's headline observation is that it will deploy any trick at its disposal to reach its goal — whether you asked it to or not. Tasked with debugging a CSS issue, it wrote Python to enumerate every window on the machine, filtered for Safari windows with expected strings in their titles, and took a series of screenshots — all before finding a two-line fix. That run cost $12. Fable's self-verification reduces fabricated status reports on long autonomous tasks, which is the upside of the same drive. The downside: if it gets subverted by injected instructions (see the Agentjacking item), the same proactivity amplifies the blast radius significantly.</li>
+  <li><strong>What to do:</strong> Add explicit scope limits to your system prompt — specify which tools Fable may use and what it may not, cap how long it should spend on a sub-task before asking for help, and set a token budget alert before running it fully autonomous on anything you're not willing to pay $10–$20 to explore.</li>
+  <li><strong>Why trust it:</strong> Simon Willison's own first-hand account from two days of direct use, with a concrete example including the dollar cost; primary-source observation, not benchmarks.</li>
+  <li><strong>Skeptic check:</strong> Single observer, one task type, no controls — the $12 CSS example may be an outlier; your task domain, configured tools, and any existing system-prompt constraints will affect how far Fable wanders.</li>
 </ul>
 
-<h3>Codex now preserves oneOf/allOf in MCP schemas and adds code-mode web search</h3>
+<h3>Claude Code now enforces model allowlists on the Default setting for managed deployments</h3>
 <ul>
-  <li><strong>Source:</strong> OpenAI — Codex changelog, June 10, 2026</li>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, versions 2.1.174–2.1.175, June 12, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Version 2.1.175 adds <code>enforceAvailableModels</code> as a managed setting. Without it, an admin can set an <code>availableModels</code> allowlist but the Default model could still resolve to a model outside that list. With <code>enforceAvailableModels</code> on, Default is constrained to the allowlist — if it would resolve to a disallowed model it falls back to the first allowed one — and user or project <code>settings.json</code> files can no longer expand the allowlist. Version 2.1.174 fixed the <code>/model</code> picker to surface which model family Default actually resolves to (previously hidden), making it easier to verify your effective model before starting a long agent run.</li>
+  <li><strong>What to do:</strong> If you manage Claude Code for a team, add <code>enforceAvailableModels: true</code> to your managed settings alongside your <code>availableModels</code> list to ensure no one inadvertently runs on a model outside your approved tier; use the updated <code>/model</code> picker to confirm Default resolves where you expect before starting any expensive agent session.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog entries for v2.1.174 and v2.1.175, June 11–12, 2026, with specific setting names and behavior documented; independently confirmed by multiple third-party changelog trackers citing the same version numbers.</li>
+  <li><strong>Skeptic check:</strong> Managed settings only apply when a managed config layer is in place — this has no effect in solo developer setups without one.</li>
+</ul>
+
+<h3>Codex CLI <code>/app</code> now hands off to the desktop app on macOS and Windows</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI — Codex changelog, June 11, 2026</li>
   <li><strong>Link:</strong> <a href="https://developers.openai.com/codex/changelog">Codex changelog — OpenAI Developers</a></li>
-  <li><strong>TL;DR:</strong> Codex was silently stripping <code>oneOf</code> and <code>allOf</code> from MCP tool schemas when processing them. The June 10 update preserves these constructs and keeps more of the shallow structure when compacting large schemas. <code>$ref</code>/<code>$defs</code> structures in connector tool schemas are also preserved instead of being inlined away. Separately, code mode now supports standalone web search — agents in code mode no longer need to switch modes to perform a search.</li>
-  <li><strong>What to do:</strong> If you've been flattening MCP tool schemas to work around Codex stripping complex constructs, try switching to <code>oneOf</code>/<code>allOf</code> for input validation now that Codex preserves them; test your specific schemas before relying on them in production.</li>
-  <li><strong>Why trust it:</strong> OpenAI's official Codex changelog, June 10, 2026, citing specific PR numbers (#24118, #27084) for the schema fixes.</li>
-  <li><strong>Skeptic check:</strong> The schema structure reaching the model does not guarantee the model interprets complex schemas correctly — validate your specific tool definitions with real inputs before treating them as production-ready.</li>
+  <li><strong>TL;DR:</strong> The <code>/app</code> command in the Codex CLI can now hand off your current thread into Codex Desktop on macOS and native Windows, so you can start a task in the terminal and move it to the GUI without losing context. Two supporting fixes landed alongside: local image attachments and standalone image generations now expose their saved file paths to the model (making follow-up edits more reliable), and reasoning effort selection now has fallback shortcuts for terminals that miss Alt key bindings, with model-defined effort levels passing through in the order the model advertises them.</li>
+  <li><strong>What to do:</strong> If you use Codex CLI and want to inspect or continue a long-running thread in the GUI, try <code>/app</code> — it is now a first-class handoff rather than a manual copy-paste workflow.</li>
+  <li><strong>Why trust it:</strong> OpenAI's official Codex changelog entry, June 11, 2026, with specific feature descriptions from the primary source.</li>
+  <li><strong>Skeptic check:</strong> The handoff requires Codex Desktop to be installed and signed in on the same machine — this only helps users already running that toolchain.</li>
+</ul>
+
+<h3>Claude Code auto-strips Fable 5's <code>[1m]</code> model name suffix</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code changelog, version 2.1.173, June 11, 2026</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Claude Code Docs</a></li>
+  <li><strong>TL;DR:</strong> Fable 5 model names include a <code>[1m]</code> suffix indicating the 1M-token context window. Claude Code was not normalizing this suffix, causing model selection to fail silently in some configurations. Version 2.1.173 strips it automatically. The same release removes a spurious "sandbox dependencies missing" startup warning on Windows when sandbox mode is enabled in settings but the sandbox binaries are present.</li>
+  <li><strong>What to do:</strong> If you have been specifying a Fable 5 model name explicitly and hitting unexpected fallbacks or errors, update to 2.1.173 or later; no config changes needed once updated.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog for v2.1.173, June 11, 2026.</li>
+  <li><strong>Skeptic check:</strong> —</li>
 </ul>
 
 <div class="meta">
 
-<h2>Footer</h2>
-<p><strong>Sources used today:</strong> Cursor blog (bugbot-updates-june-2026); Simon Willison — simonwillison.net (datasette-agent 0.2a0); OpenAI Codex changelog (developers.openai.com/codex/changelog).</p>
+<h2>Meta</h2>
 
-<p><strong>Skipped:</strong> 1 corporate announcement (OpenAI S-1 confidential filing, June 10 — not practitioner-relevant). Windsurf/Devin Desktop "always allow" MCP permission persistence — confirmed as June 2/6 release, outside window. Claude Code <code>--safe-mode</code> and <code>/cd</code> command — June 8 release, outside window. Claude June 15 billing split (Agent SDK onto usage credits) — announced June 2, outside window. Anthropic multi-agent harness engineering post — March 2026, outside window. arXiv paper "Trust Over Fear: Motivation Framing in System Prompts" (arXiv:2603.14373, March 2026) — highly relevant finding but outside the 7-day arXiv window. 0 funding posts. 0 leaderboard updates. 0 hype takes.</p>
-
-<p><strong>Coverage gaps:</strong> r.jina.ai proxy and direct fetch both returned 403 for all primary sources; all item details sourced from search index summaries. arxiv.org returned 403 on direct fetch; no June 10–11 arXiv papers confirmed meeting the practitioner bar. Hacker News front page (June 10–11) returned 403; no items with ≥200 points confirmed for this window via search. Latent Space, Interconnects (Nathan Lambert), Chip Huyen, Eugene Yan, Hamel Husain — no confirmed posts from June 10–11.</p>
-
-<p><strong>Inaccessible links:</strong></p>
+<h3>Candidate sources</h3>
 <ul>
-  <li><a href="https://cursor.com/blog/bugbot-updates-june-2026">cursor.com/blog/bugbot-updates-june-2026</a> — 403 — wanted exact metric wording and selective-review configuration details; confirmed via search index summaries and a secondary writeup.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/10/datasette-agent/">simonwillison.net/2026/Jun/10/datasette-agent/</a> — 403 — wanted exact code examples for ToolContext; API spec confirmed via search index summaries.</li>
-  <li><a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 — wanted exact schema fix wording; PR numbers and feature description confirmed via search index summaries.</li>
-  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted to confirm any Claude Code releases on June 10–11; no entries confirmed in window via search.</li>
+  <li><strong><a href="https://tenetsecurity.ai/">Tenet Security</a></strong> — surfaced via Hacker News and security news aggregators after publishing the Agentjacking research (June 12, 2026). This is the first empirical demonstration of MCP-mediated prompt injection against named coding agents with measured success rates. One post observed; worth watching given the quality of this first piece.</li>
+</ul>
+
+<h3>Prompt friction</h3>
+<ul>
+  <li>Every primary URL attempted via the <code>r.jina.ai</code> prepend returned HTTP 403 this run, and all direct page fetches also returned 403. All source content was reconstructed from web search result summaries, which may be missing nuance or edge cases from the full articles. "Why trust it" sections rely on search-result descriptions of the primary source rather than direct quotes. If <code>r.jina.ai</code> access remains blocked across runs, consider whether a different fetch fallback is available or whether the inclusion bar should require confirmed direct fetch access.</li>
 </ul>
 
 </div>
 
-<nav><a href="archive/">Archive</a></nav>
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Tenet Security (tenetsecurity.ai — agentjacking research, June 12); Simon Willison — simonwillison.net (fable-is-relentlessly-proactive, June 11); Anthropic — Claude Code changelog (code.claude.com/docs/en/changelog, v2.1.173–2.1.175, June 11–12); OpenAI — Codex changelog (developers.openai.com/codex/changelog, June 11).</p>
+<p><strong>Skipped:</strong> 2 funding/acquisition posts (OpenAI/Ona acquisition announcement; Oracle/OpenAI cloud deal), 1 migration announcement (GPT-5.2 → GPT-5.5 auto-transition in ChatGPT), 1 opinion piece without evidence (astrophysicist using Codex blog post).</p>
+<p><strong>Coverage gaps:</strong> Latent Space — no episode in window; Hamel Husain — hamel.dev (no post in window); Eugene Yan — eugeneyan.com (no post in window); Chip Huyen — huyenchip.com (no hits in window); Nathan Lambert / Interconnects (no hits in window); Windsurf changelog (no confirmed in-window entries found); r/LocalLLaMA, r/ClaudeAI, r/cursor top posts (not directly checked — HN surfaced the Agentjacking item, others appear quiet).</p>
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://simonwillison.net/2026/Jun/11/fable-is-relentlessly-proactive/">simonwillison.net — Fable proactive post</a> — 403 on both direct and r.jina.ai fetch — wanted full text including all examples and precise cost figures.</li>
+  <li><a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">tenetsecurity.ai — Agentjacking</a> — 403 on direct and r.jina.ai fetch — wanted full attack methodology and complete defense recommendations.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 on r.jina.ai fetch — wanted complete v2.1.173–2.1.175 entries.</li>
+  <li><a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 on r.jina.ai fetch — wanted full June 11 entry text.</li>
+</ul>
 
 </body>
 </html>
