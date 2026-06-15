@@ -3,35 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-14T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-14, 2 items</title>
+  <meta name="published" content="2026-06-15T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-15, 4 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-14, 2 items</h1>
+<h1>AI Tools Digest — 2026-06-15, 4 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-13T12:00:00Z – 2026-06-14T12:00:00Z. One major incident and one deadline: Fable 5 and Mythos 5 are globally offline following a US export control directive, and the Anthropic Agent SDK billing split takes effect tomorrow — two steps required today to avoid broken automated workflows.</p>
+<p class="window-note">Window: 2026-06-14T12:00:00Z – 2026-06-15T12:00:00Z. Two breaking deadlines land today — the original Claude 4.0 API model IDs retired at 9AM PT, with a hidden second trap in the migration; and Gemini CLI goes dark June 18. One make-good from yesterday's flagged miss (Claude Code v2.1.176 hook fix), and a paper arguing that lean context retrieval beats full-history replay in agent memory.</p>
 
-<h3>Fable 5 and Mythos 5 are offline globally — switch to Opus 4.8 now</h3>
+<h3>Migrating off 20250514 model IDs has a hidden second step: remove temperature and top_p</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic (official statement, June 13, 2026); Simon Willison (simonwillison.net, June 13, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://www.anthropic.com/news/fable-mythos-access">Statement on the US government directive to suspend access to Fable 5 and Mythos 5 — Anthropic</a></li>
-  <li><strong>TL;DR:</strong> On June 12 at 5:21pm ET, Anthropic received a US government export control directive ordering them to stop providing Fable 5 and Mythos 5 to foreign nationals. Because Anthropic has no real-time way to verify user nationality at the request level, they disabled both models for every customer worldwide — including US users and Anthropic's own employees. The government's stated concern is a June 10 public jailbreak demo by "Pliny the Liberator," who claimed to extract functional instructions for cyber exploits from Fable 5. Anthropic says it reviewed the technique, found it narrow and comparable to known risks on other deployed models, and considers the directive a "misunderstanding" — but is complying. No restoration timeline has been given. Opus 4.8 and Sonnet 4.6 remain fully operational.</li>
-  <li><strong>What to do:</strong> Replace any explicit <code>claude-fable-5</code> or Mythos 5 model IDs in your configs with <code>claude-opus-4-8</code> for long-horizon agentic work or <code>claude-sonnet-4-6</code> for routine production traffic; if your Claude Code <code>availableModels</code> list includes only Fable 5 or Mythos 5, add <code>claude-opus-4-8</code> now or the Default picker will fail to resolve.</li>
-  <li><strong>Why trust it:</strong> Anthropic's official statement published June 13, 2026 (anthropic.com/news/fable-mythos-access); independently covered by Bloomberg, CNBC, Fortune, VentureBeat, Heise, and Al Jazeera on June 12–13, all citing the same directive and Anthropic's statement.</li>
-  <li><strong>Skeptic check:</strong> Anthropic disputes the severity of the underlying jailbreak, and access could be restored quickly if the government accepts their explanation — but there is currently no confirmed timeline, and no workaround exists for US or international users while the models are offline.</li>
+  <li><strong>Source:</strong> Anthropic API docs (model deprecations page and migration guide); Cursor community forum; Apiyi.com migration guide</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Model deprecations — Anthropic API docs</a></li>
+  <li><strong>TL;DR:</strong> As of today, June 15 at 9AM PT, every API call to <code>claude-sonnet-4-20250514</code> or <code>claude-opus-4-20250514</code> returns an error. But there is a second, less obvious breaking change: any request to Opus 4.7 or Opus 4.8 that sets <code>temperature</code>, <code>top_p</code>, or <code>top_k</code> to a non-default value also returns a 400 error. Swapping the model ID is not enough if your code passes these sampling parameters.</li>
+  <li><strong>What to do:</strong> Search your codebase for <code>20250514</code> and swap to <code>claude-sonnet-4-6</code> or <code>claude-opus-4-8</code>; then search for any code that sets <code>temperature</code>, <code>top_p</code>, or <code>top_k</code> and remove those parameters entirely from requests going to Opus 4.7 or newer — Anthropic's guidance is to steer model behavior through prompting, not sampling params. Do not replace with different values; remove the fields.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official API deprecation page and migration guide; the 400-on-sampling-params behavior confirmed independently by multiple Cursor community forum reports of Opus 4.7 failing on AWS Bedrock, and by Apiyi.com's detailed migration write-up.</li>
+  <li><strong>Skeptic check:</strong> The 400 only fires on non-default values — if your code sets <code>temperature=1.0</code> and that happens to be the actual default, it may not trigger; the safest path is to remove the parameters entirely rather than trying to identify the precise default.</li>
 </ul>
 
-<h3>Agent SDK billing split happens tomorrow — two steps required today</h3>
+<h3>Gemini CLI stops working June 18; Antigravity /usage needs a restart to reflect real usage</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic billing announcement (May 14, 2026); step-by-step breakdown by Codersera and ChatForest</li>
-  <li><strong>Link:</strong> <a href="https://chatforest.com/builders-log/anthropic-agent-sdk-billing-split-june-15-model-deprecations-builder-guide/">Anthropic Agent SDK Billing Split June 15 — ChatForest</a></li>
-  <li><strong>TL;DR:</strong> Starting June 15 (tomorrow), <code>claude -p</code>, Claude Code GitHub Actions, Agent SDK calls, and third-party agents (OpenClaw, Conductor, Zed, Jean, and others) stop drawing from your Claude subscription usage quota and instead pull from a separate monthly credit pool: $20 for Pro, $100 for Max 5x, $200 for Max 20x, billed at full API list rates with no rollover. The credit is opt-in — if you haven't claimed it, your balance is $0 on June 15 and every automated request fails immediately, with no queue and no fallback.</li>
-  <li><strong>What to do:</strong> Do both steps today: (1) Go to your Claude account settings and claim the Agent SDK credit — look for the Anthropic email sent around June 8 or the banner in account settings. (2) Enable the overflow billing toggle in the same settings panel so automated requests continue at API rates once the monthly credit is exhausted, rather than failing silently mid-run.</li>
-  <li><strong>Why trust it:</strong> Anthropic's official announcement (May 14, 2026); credit amounts and the two-step opt-in requirement confirmed independently by Codersera, Apiyi.com, ChatForest, ByteIota, and DigitalApplied, all citing the same account-settings mechanics.</li>
-  <li><strong>Skeptic check:</strong> The $20–$200 monthly credits sound substantial but are billed at full API list rates — a single long Claude Code automation session can burn through a $20 Pro credit in hours; model your expected token usage before assuming the credit covers your typical workload.</li>
+  <li><strong>Source:</strong> Google Developers Blog (primary); The New Stack; The Register; DEV Community hands-on review</li>
+  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Transitioning Gemini CLI to Antigravity CLI — Google Developers Blog</a></li>
+  <li><strong>TL;DR:</strong> In 3 days, Gemini CLI stops serving requests for Google AI Pro, Ultra, and free users. The replacement, Antigravity CLI, uses a weekly compute-based quota instead of a daily request cap, and ships with a known issue: the <code>/usage</code> command only updates after you quit and relaunch, so during a long agent run you cannot see how much quota you have left. Google has acknowledged the lag but has not fixed it yet. Enterprise Gemini Code Assist license holders keep the old CLI indefinitely.</li>
+  <li><strong>What to do:</strong> Install Antigravity CLI and complete the migration before June 18 if you're on a non-enterprise plan; don't rely on <code>/usage</code> mid-session — check the Google AI Studio dashboard or use the quota API endpoint instead; factor in that weekly caps and multi-day lockouts have been reported, so stress-test your quota headroom before running long agentic workflows.</li>
+  <li><strong>Why trust it:</strong> Google Developers Blog (authoritative shutdown date); The Register and The New Stack reported the migration with independent coverage; the <code>/usage</code> lag is confirmed by multiple user reports on the Google AI Developers Forum and a DEV Community hands-on review of Antigravity 2.0.</li>
+  <li><strong>Skeptic check:</strong> Google could fix the <code>/usage</code> lag before or after June 18 — check Antigravity's release notes before building workarounds around it.</li>
+</ul>
+
+<h3>Claude Code hook file-path patterns now work (v2.1.176, June 12 — flagged miss from prior run)</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog (code.claude.com/docs/en/changelog)</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Hook <code>if</code> conditions using file-path glob patterns — <code>Edit(src/**)</code>, <code>Read(~/.ssh/**)</code>, <code>Read(.env)</code> — were silently broken: the patterns never matched. v2.1.176 (June 12) fixes this. The same release also closed a model-restriction bypass: alias model picks could be redirected to blocked models via <code>ANTHROPIC_DEFAULT_*_MODEL</code> environment variables, ignoring the <code>availableModels</code> allowlist.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code> to get v2.1.176; retest any hook that uses file-path glob patterns in its <code>if</code> condition, as it will now fire where it wasn't before; review your hook allowlists to confirm the newly-working patterns don't open unintended access paths.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official Claude Code changelog. This release was flagged as a missed item in the previous digest's Prompt Friction section.</li>
+  <li><strong>Skeptic check:</strong> The duration of the file-path pattern bug is not documented in the changelog; hooks using non-path conditions (tool-name matches, negation) were unaffected.</li>
+</ul>
+
+<h3>Selective context retrieval scores 10 points higher than full history replay at 8x fewer tokens</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv:2606.09900 (Liuyin Wang, submitted June 5, 2026); code at <a href="https://github.com/ly-wang19/engram">github.com/ly-wang19/engram</a></li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.09900">Less Context, More Accuracy: A Bi-Temporal Memory Engine for LLM Agents — arXiv:2606.09900</a></li>
+  <li><strong>TL;DR:</strong> Replaying a growing conversation history into the prompt for every agent turn doesn't just get expensive — it actively hurts accuracy as the session lengthens because outdated or conflicting context confuses the model. Retrieving a targeted 9.6k-token slice (conflict-resolved facts plus relevant session chunks) scored 10 points higher on a 500-question memory benchmark than dumping the full 79k-token history.</li>
+  <li><strong>What to do:</strong> If your agent harness stuffs the full session history into context, replace it with a retrieval step: pull the most recent relevant chunks plus any resolved facts for the current task; the open-source Engram library (MIT license) is a working starting point that takes roughly an afternoon to integrate.</li>
+  <li><strong>Why trust it:</strong> 500-question LongMemEval_S benchmark; authors publish per-question raw logs and a fully reproducible eval harness in the repo; code is open-source and auditable. Note: paper submitted June 5, just outside the strict 7-day arXiv window; it may have been covered in an earlier digest.</li>
+  <li><strong>Skeptic check:</strong> Benchmark uses synthetic personal-assistant Q&amp;A; gains may be smaller for coding-agent sessions where the full file content and tool outputs are all directly task-relevant, not just a source of distractor facts.</li>
 </ul>
 
 <div class="meta">
@@ -40,22 +60,21 @@
 
 <h3>Prompt friction</h3>
 <ul>
-  <li>All <code>r.jina.ai</code> prepend fetches and direct page fetches continued to return HTTP 403 this run. Primary-source content was reconstructed from web search result summaries. The Fable 5 shutdown is confirmed across six major outlets and Anthropic's own statement URL, so coverage confidence is high despite inaccessible direct fetches. The billing change relies on secondary summaries; the primary Anthropic announcement page was not directly fetchable.</li>
-  <li>Claude Code v2.1.176 (June 12, 2026) — which fixed <code>availableModels</code> enforcement against <code>ANTHROPIC_DEFAULT_*_MODEL</code> environment variable overrides and tightened <code>/fast</code> model-allowlist checking — was released just before this window opened and was not covered in the previous digest. It slipped between runs. This is a recurring issue when a release lands between two digest publication times.</li>
+  <li>The arXiv 7-day window (June 8–15) did not surface any qualifying papers — the most relevant papers (arXiv:2606.09900, arXiv:2606.03618) were submitted June 5 and June 3 respectively, just outside the window. The Engram paper was included despite being 10 days old because it has clear practitioner value and likely slipped between prior digest windows; the token-arbitrage paper was excluded as too niche (non-English prompts only) to include on an exception basis. Consider whether the 7-day arXiv rule is too tight for a daily digest cadence — a 10- or 14-day window might avoid this recurring edge case.</li>
 </ul>
 
 </div>
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Anthropic (anthropic.com/news/fable-mythos-access — official June 15 shutdown statement); Simon Willison (simonwillison.net, June 13 post); Bloomberg, CNBC, Fortune, VentureBeat, Heise, Al Jazeera (June 12–13 coverage of the directive); Anthropic billing announcement (May 14, 2026); Codersera, ChatForest, Apiyi.com, ByteIota, DigitalApplied (June 15 billing split guides).</p>
-<p><strong>Skipped:</strong> 1 model release outside window (Kimi K2.7-Code, June 12 — just before window); 1 practitioner essay outside window (Addy Osmani "Loop Engineering," June 8); 1 tool release outside window (Cursor 3.6 Auto-review, May 29, updated June 12); 0 funding posts; 0 leaderboard-only items.</p>
-<p><strong>Coverage gaps:</strong> Latent Space — no in-window episode; Hamel Husain — hamel.dev (no in-window post); Eugene Yan — eugeneyan.com (no in-window post); Chip Huyen — huyenchip.com (no in-window hits); Nathan Lambert / Interconnects (no in-window hits); Windsurf/Devin Desktop changelog (no confirmed in-window entries); r/LocalLLaMA, r/ClaudeAI, r/cursor, r/ClaudeCode (not checked directly — no high-signal items surfaced via search); arXiv cs.CL/cs.AI (no in-window papers meeting the empirical usage-change test found).</p>
+<p><strong>Sources used today:</strong> Anthropic API docs (platform.claude.com — model deprecations, migration guide); Cursor community forum (Bedrock Opus 4.7 400 errors); Apiyi.com migration guide; Google Developers Blog (Antigravity transition); The Register; The New Stack; DEV Community (Antigravity 2.0 review); Anthropic Claude Code changelog (code.claude.com); arXiv:2606.09900 (Wang, June 5 2026).</p>
+<p><strong>Skipped:</strong> 3 partnership announcements (Anthropic TCS/DXC, Claude Corps fellowship, Anthropic S-1 IPO filing); 1 paper excluded as opinion without clear empirical measurement (arXiv:2606.13175 "The End of Code Review"); 1 paper excluded as too narrow for this audience (arXiv:2606.03618, non-English prompt token reduction); Claude Code v2.1.172 nested sub-agents (June 10, outside window, not flagged as a prior miss); Cursor Bugbot 90-second reviews (June 10, outside window).</p>
+<p><strong>Coverage gaps:</strong> Simon Willison — no posts found for June 14–15 (most recent June 13); Latent Space — no in-window episode (most recent June 3); Hamel Husain — no June 2026 posts found; Eugene Yan — not checked; Chip Huyen — not checked; Nathan Lambert / Interconnects — not checked; r/LocalLLaMA, r/ClaudeAI, r/cursor, r/ClaudeCode, r/vibecoding — not directly checked; Windsurf/Devin changelog (no in-window entries confirmed); OpenAI blog — no in-window items found.</p>
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://www.anthropic.com/news/fable-mythos-access">anthropic.com/news/fable-mythos-access</a> — 403 on r.jina.ai and direct fetch — wanted full statement text including precise compliance scope and any restoration conditions.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/13/us-government-directive-to-suspend-access/">simonwillison.net — June 13 government directive post</a> — 403 on r.jina.ai fetch — wanted full commentary and any developer guidance Simon included.</li>
-  <li><a href="https://venturebeat.com/technology/anthropic-blocks-all-public-access-to-claude-fable-5-mythos-5-following-us-government-order-what-enterprises-should-do">VentureBeat — what enterprises should do</a> — 403 on r.jina.ai fetch — wanted specific enterprise fallback guidance.</li>
-  <li><a href="https://codersera.com/blog/anthropic-june-2026-billing-change-claude-code/">codersera.com — June 15 billing change guide</a> — 403 on r.jina.ai fetch — wanted confirmed step-by-step opt-in instructions with exact UI paths.</li>
+  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 on both r.jina.ai prepend and direct fetch — wanted June 14–15 posts if any.</li>
+  <li><a href="https://arxiv.org/abs/2606.09900">arxiv.org/abs/2606.09900</a> — 403 on r.jina.ai prepend and direct fetch — wanted exact submission date and full abstract to verify the 9.6k vs 79k token figures.</li>
+  <li><a href="https://arxiv.org/abs/2606.03618">arxiv.org/abs/2606.03618</a> — 403 on direct fetch — wanted exact submission date and full methodology to assess inclusion.</li>
+  <li><a href="https://releasebot.io/updates/anthropic/claude-code">releasebot.io/updates/anthropic/claude-code</a> — 403 on r.jina.ai prepend — wanted to confirm whether any Claude Code releases landed June 14–15 specifically.</li>
 </ul>
 
 </body>
