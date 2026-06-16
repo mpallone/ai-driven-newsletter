@@ -3,79 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-15T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-15, 4 items</title>
+  <meta name="published" content="2026-06-16T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-16, 3 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-15, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-16, 3 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-14T12:00:00Z – 2026-06-15T12:00:00Z. Two breaking deadlines land today — the original Claude 4.0 API model IDs retired at 9AM PT, with a hidden second trap in the migration; and Gemini CLI goes dark June 18. One make-good from yesterday's flagged miss (Claude Code v2.1.176 hook fix), and a paper arguing that lean context retrieval beats full-history replay in agent memory.</p>
+<p class="window-note">Window: 2026-06-15T12:00:00Z – 2026-06-16T12:00:00Z. One major security story dominates: the "agentjacking" attack via Sentry MCP broke widely on June 15 and requires an immediate configuration change. Claude Code shipped two permission-hardening features the same day. The billing change that separates Agent SDK usage from subscriptions also went live June 15 with a required one-time opt-in.</p>
 
-<h3>Migrating off 20250514 model IDs has a hidden second step: remove temperature and top_p</h3>
+<h3>Sentry MCP lets any attacker run code inside your AI coding agent</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic API docs (model deprecations page and migration guide); Cursor community forum; Apiyi.com migration guide</li>
-  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/model-deprecations">Model deprecations — Anthropic API docs</a></li>
-  <li><strong>TL;DR:</strong> As of today, June 15 at 9AM PT, every API call to <code>claude-sonnet-4-20250514</code> or <code>claude-opus-4-20250514</code> returns an error. But there is a second, less obvious breaking change: any request to Opus 4.7 or Opus 4.8 that sets <code>temperature</code>, <code>top_p</code>, or <code>top_k</code> to a non-default value also returns a 400 error. Swapping the model ID is not enough if your code passes these sampling parameters.</li>
-  <li><strong>What to do:</strong> Search your codebase for <code>20250514</code> and swap to <code>claude-sonnet-4-6</code> or <code>claude-opus-4-8</code>; then search for any code that sets <code>temperature</code>, <code>top_p</code>, or <code>top_k</code> and remove those parameters entirely from requests going to Opus 4.7 or newer — Anthropic's guidance is to steer model behavior through prompting, not sampling params. Do not replace with different values; remove the fields.</li>
-  <li><strong>Why trust it:</strong> Anthropic's official API deprecation page and migration guide; the 400-on-sampling-params behavior confirmed independently by multiple Cursor community forum reports of Opus 4.7 failing on AWS Bedrock, and by Apiyi.com's detailed migration write-up.</li>
-  <li><strong>Skeptic check:</strong> The 400 only fires on non-default values — if your code sets <code>temperature=1.0</code> and that happens to be the actual default, it may not trigger; the safest path is to remove the parameters entirely rather than trying to identify the precise default.</li>
+  <li><strong>Source:</strong> Tenet Security (primary research); Cloud Security Alliance research note; The Hacker News; The Next Web</li>
+  <li><strong>Link:</strong> <a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">A Fake Bug Report Hijacks Your AI Coding Agent — Tenet Security</a></li>
+  <li><strong>TL;DR:</strong> A Sentry DSN is a write-only public key baked into most front-end builds; any attacker who finds one can POST a fake error event containing arbitrary shell commands. When you ask your coding agent to fix open Sentry issues via the Sentry MCP server, it fetches those events as trusted data and cannot distinguish the injected entry from a real error. In testing, Claude Code, Cursor, and Codex all executed attacker-controlled <code>npx</code> commands and silently exfiltrated AWS keys, GitHub tokens, Sentry auth tokens, and git credentials to attacker infrastructure — with the developer's own system privileges.</li>
+  <li><strong>What to do:</strong> Remove the Sentry MCP server from your coding agent configuration today; more broadly, audit every MCP connection that pulls from a source accepting anonymous writes (public GitHub issues, public Slack channels, ticketing systems without write authentication) — each is a potential injection point with the same attack shape.</li>
+  <li><strong>Why trust it:</strong> Tenet Security scanned 2,388 organizations with exposed Sentry DSNs and ran controlled testing across more than 100 of them, observing an 85% success rate; all three major coding agents failed independently. Tenet disclosed to Sentry on June 3; Sentry added a one-string content filter for the specific tested payload and declined root-cause remediation, calling the attack class "technically not defensible" at the platform level.</li>
+  <li><strong>Skeptic check:</strong> Sentry's content filter blocks only the exact tested payload string; any attacker using a different command, encoding, or markdown structure bypasses it — the filter is not a meaningful defense against the attack class.</li>
 </ul>
 
-<h3>Gemini CLI stops working June 18; Antigravity /usage needs a restart to reflect real usage</h3>
+<h3>Claude Code now blocks specific models or shell patterns in permission rules</h3>
 <ul>
-  <li><strong>Source:</strong> Google Developers Blog (primary); The New Stack; The Register; DEV Community hands-on review</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Transitioning Gemini CLI to Antigravity CLI — Google Developers Blog</a></li>
-  <li><strong>TL;DR:</strong> In 3 days, Gemini CLI stops serving requests for Google AI Pro, Ultra, and free users. The replacement, Antigravity CLI, uses a weekly compute-based quota instead of a daily request cap, and ships with a known issue: the <code>/usage</code> command only updates after you quit and relaunch, so during a long agent run you cannot see how much quota you have left. Google has acknowledged the lag but has not fixed it yet. Enterprise Gemini Code Assist license holders keep the old CLI indefinitely.</li>
-  <li><strong>What to do:</strong> Install Antigravity CLI and complete the migration before June 18 if you're on a non-enterprise plan; don't rely on <code>/usage</code> mid-session — check the Google AI Studio dashboard or use the quota API endpoint instead; factor in that weekly caps and multi-day lockouts have been reported, so stress-test your quota headroom before running long agentic workflows.</li>
-  <li><strong>Why trust it:</strong> Google Developers Blog (authoritative shutdown date); The Register and The New Stack reported the migration with independent coverage; the <code>/usage</code> lag is confirmed by multiple user reports on the Google AI Developers Forum and a DEV Community hands-on review of Antigravity 2.0.</li>
-  <li><strong>Skeptic check:</strong> Google could fix the <code>/usage</code> lag before or after June 18 — check Antigravity's release notes before building workarounds around it.</li>
-</ul>
-
-<h3>Claude Code hook file-path patterns now work (v2.1.176, June 12 — flagged miss from prior run)</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic Claude Code changelog (code.claude.com/docs/en/changelog)</li>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog</li>
   <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
-  <li><strong>TL;DR:</strong> Hook <code>if</code> conditions using file-path glob patterns — <code>Edit(src/**)</code>, <code>Read(~/.ssh/**)</code>, <code>Read(.env)</code> — were silently broken: the patterns never matched. v2.1.176 (June 12) fixes this. The same release also closed a model-restriction bypass: alias model picks could be redirected to blocked models via <code>ANTHROPIC_DEFAULT_*_MODEL</code> environment variables, ignoring the <code>availableModels</code> allowlist.</li>
-  <li><strong>What to do:</strong> Run <code>claude update</code> to get v2.1.176; retest any hook that uses file-path glob patterns in its <code>if</code> condition, as it will now fire where it wasn't before; review your hook allowlists to confirm the newly-working patterns don't open unintended access paths.</li>
-  <li><strong>Why trust it:</strong> Anthropic's official Claude Code changelog. This release was flagged as a missed item in the previous digest's Prompt Friction section.</li>
-  <li><strong>Skeptic check:</strong> The duration of the file-path pattern bug is not documented in the changelog; hooks using non-path conditions (tool-name matches, negation) were unaffected.</li>
+  <li><strong>TL;DR:</strong> Two permission-hardening changes shipped June 15. First, permission rules now accept a <code>Tool(param:value)</code> syntax that matches on a tool's actual input parameters, with <code>*</code> as a wildcard — for example, write <code>Agent(model:opus)</code> to block Opus subagents from spawning, or <code>Bash(command:rm*)</code> to deny shell calls where the command starts with <code>rm</code>. Second, auto mode now runs the classifier on subagent spawns <em>before</em> the subagent launches, closing a gap where a subagent could be spawned, request a blocked action, and the block would fire only after the fact.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code> to get the June 15 release; review your existing allow/deny rules and convert tool-name-only entries to <code>Tool(param:value)</code> form wherever you need finer-grained control — restrict which models subagents may use, and add deny rules for destructive shell patterns you didn't previously have a way to match.</li>
+  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog; confirmed by multiple third-party changelog trackers (claudefa.st, claudeupdates.dev). Feature details are also visible in the Piebald-AI system-prompt tracker for the corresponding release.</li>
+  <li><strong>Skeptic check:</strong> Wildcard matching semantics (anchoring, case-sensitivity, multi-token matching) are not fully documented; test new <code>Tool(param:value)</code> rules explicitly before treating them as a security boundary.</li>
 </ul>
 
-<h3>Selective context retrieval scores 10 points higher than full history replay at 8x fewer tokens</h3>
+<h3>Agent SDK usage now billed from a separate monthly credit — opt-in required</h3>
 <ul>
-  <li><strong>Source:</strong> arXiv:2606.09900 (Liuyin Wang, submitted June 5, 2026); code at <a href="https://github.com/ly-wang19/engram">github.com/ly-wang19/engram</a></li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.09900">Less Context, More Accuracy: A Bi-Temporal Memory Engine for LLM Agents — arXiv:2606.09900</a></li>
-  <li><strong>TL;DR:</strong> Replaying a growing conversation history into the prompt for every agent turn doesn't just get expensive — it actively hurts accuracy as the session lengthens because outdated or conflicting context confuses the model. Retrieving a targeted 9.6k-token slice (conflict-resolved facts plus relevant session chunks) scored 10 points higher on a 500-question memory benchmark than dumping the full 79k-token history.</li>
-  <li><strong>What to do:</strong> If your agent harness stuffs the full session history into context, replace it with a retrieval step: pull the most recent relevant chunks plus any resolved facts for the current task; the open-source Engram library (MIT license) is a working starting point that takes roughly an afternoon to integrate.</li>
-  <li><strong>Why trust it:</strong> 500-question LongMemEval_S benchmark; authors publish per-question raw logs and a fully reproducible eval harness in the repo; code is open-source and auditable. Note: paper submitted June 5, just outside the strict 7-day arXiv window; it may have been covered in an earlier digest.</li>
-  <li><strong>Skeptic check:</strong> Benchmark uses synthetic personal-assistant Q&amp;A; gains may be smaller for coding-agent sessions where the full file content and tool outputs are all directly task-relevant, not just a source of distractor facts.</li>
+  <li><strong>Source:</strong> Anthropic Help Center</li>
+  <li><strong>Link:</strong> <a href="https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan">Using the Claude Agent SDK with your Claude plan — Anthropic Help Center</a></li>
+  <li><strong>TL;DR:</strong> As of June 15, Agent SDK calls, <code>claude -p</code> headless runs, Claude Code GitHub Actions, and third-party apps authenticating via your subscription no longer draw from your plan's interactive usage pool. They now consume a separate monthly dollar credit ($20 for Pro, $100 for Max 5x, $200 for Max 20x) billed at standard API rates, per user, with no rollover. Once that credit is exhausted, requests stop unless you have usage credits enabled as overflow. A one-time opt-in is required to claim the initial credit.</li>
+  <li><strong>What to do:</strong> Log into your Claude account and claim the credit if you haven't; enable usage credits as overflow protection if you run long or high-volume agentic workflows; note that credits are per-user and do not pool across a team, so every team member running automated pipelines needs their own opt-in.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official Help Center article and developer platform announcement; the change was announced May 14 and took effect June 15 as scheduled with no documented postponement.</li>
+  <li><strong>Skeptic check:</strong> The exact definition of what counts as "Agent SDK usage" versus "interactive Claude Code" is in the Help Center article; verify your specific workflow is classified correctly before assuming it falls under the new credit pool.</li>
 </ul>
 
 <div class="meta">
 
-<h2>Meta</h2>
-
-<h3>Prompt friction</h3>
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Tenet Security (primary agentjacking research); Cloud Security Alliance (CSA research note); The Hacker News; The Next Web; Anthropic Claude Code changelog (code.claude.com); Anthropic Help Center (support.claude.com).</p>
+<p><strong>Skipped:</strong> 1 gossip/opinion link post (Simon Willison's June 15 link to Axios piece on internal Anthropic dynamics — no evidence or actionable finding); arXiv:2606.08878 PerspectiveGap (submitted June 7, outside 7-day window); arXiv:2606.08867 Nubank customer support eval (submitted June 7, outside 7-day window); arXiv:2606.11869 "Agents All the Way Down" (submitted June 10, within window but no empirical measurements — methodology survey); Cursor releases (auto-review May 29, SDK updates June 4 — outside window); Claude Managed Agents dreaming/orchestration (May 6 — outside window); Claude Platform on AWS (May 2026 — outside window).</p>
+<p><strong>Coverage gaps:</strong> Simon Willison — no June 15–16 posts (last substantive post June 13); Latent Space — no in-window episode (last June 3); Hamel Husain, Eugene Yan, Chip Huyen — no June 15–16 posts found; Windsurf — last changelog entry June 11 (outside window); OpenAI — no in-window items found; r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — not directly checked.</p>
+<p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li>The arXiv 7-day window (June 8–15) did not surface any qualifying papers — the most relevant papers (arXiv:2606.09900, arXiv:2606.03618) were submitted June 5 and June 3 respectively, just outside the window. The Engram paper was included despite being 10 days old because it has clear practitioner value and likely slipped between prior digest windows; the token-arbitrage paper was excluded as too niche (non-English prompts only) to include on an exception basis. Consider whether the 7-day arXiv rule is too tight for a daily digest cadence — a 10- or 14-day window might avoid this recurring edge case.</li>
+  <li><a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">tenetsecurity.ai/blog/agentjacking…</a> — 403 on r.jina.ai — wanted full technical details including exact payload format and complete list of tested agent configurations; used secondary coverage instead.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 on r.jina.ai — wanted exact version numbers and the complete feature list for June 15–16; used search consensus across claudefa.st and claudeupdates.dev.</li>
+  <li><a href="https://thehackernews.com/2026/06/agentjacking-attack-tricks-ai-coding.html">The Hacker News — agentjacking article</a> — 403 — wanted publication date confirmation and Hacker News point score to gauge community resonance.</li>
+  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for any June 15–16 posts beyond the one found via search.</li>
 </ul>
 
 </div>
-
-<h2>Footer</h2>
-<p><strong>Sources used today:</strong> Anthropic API docs (platform.claude.com — model deprecations, migration guide); Cursor community forum (Bedrock Opus 4.7 400 errors); Apiyi.com migration guide; Google Developers Blog (Antigravity transition); The Register; The New Stack; DEV Community (Antigravity 2.0 review); Anthropic Claude Code changelog (code.claude.com); arXiv:2606.09900 (Wang, June 5 2026).</p>
-<p><strong>Skipped:</strong> 3 partnership announcements (Anthropic TCS/DXC, Claude Corps fellowship, Anthropic S-1 IPO filing); 1 paper excluded as opinion without clear empirical measurement (arXiv:2606.13175 "The End of Code Review"); 1 paper excluded as too narrow for this audience (arXiv:2606.03618, non-English prompt token reduction); Claude Code v2.1.172 nested sub-agents (June 10, outside window, not flagged as a prior miss); Cursor Bugbot 90-second reviews (June 10, outside window).</p>
-<p><strong>Coverage gaps:</strong> Simon Willison — no posts found for June 14–15 (most recent June 13); Latent Space — no in-window episode (most recent June 3); Hamel Husain — no June 2026 posts found; Eugene Yan — not checked; Chip Huyen — not checked; Nathan Lambert / Interconnects — not checked; r/LocalLLaMA, r/ClaudeAI, r/cursor, r/ClaudeCode, r/vibecoding — not directly checked; Windsurf/Devin changelog (no in-window entries confirmed); OpenAI blog — no in-window items found.</p>
-<p><strong>Inaccessible links:</strong></p>
-<ul>
-  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 on both r.jina.ai prepend and direct fetch — wanted June 14–15 posts if any.</li>
-  <li><a href="https://arxiv.org/abs/2606.09900">arxiv.org/abs/2606.09900</a> — 403 on r.jina.ai prepend and direct fetch — wanted exact submission date and full abstract to verify the 9.6k vs 79k token figures.</li>
-  <li><a href="https://arxiv.org/abs/2606.03618">arxiv.org/abs/2606.03618</a> — 403 on direct fetch — wanted exact submission date and full methodology to assess inclusion.</li>
-  <li><a href="https://releasebot.io/updates/anthropic/claude-code">releasebot.io/updates/anthropic/claude-code</a> — 403 on r.jina.ai prepend — wanted to confirm whether any Claude Code releases landed June 14–15 specifically.</li>
-</ul>
 
 </body>
 </html>
