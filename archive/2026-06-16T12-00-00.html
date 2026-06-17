@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-16T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-16, 3 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-16, 3 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-15T12:00:00Z – 2026-06-16T12:00:00Z. One major security story dominates: the "agentjacking" attack via Sentry MCP broke widely on June 15 and requires an immediate configuration change. Claude Code shipped two permission-hardening features the same day. The billing change that separates Agent SDK usage from subscriptions also went live June 15 with a required one-time opt-in.</p>
+
+<h3>Sentry MCP lets any attacker run code inside your AI coding agent</h3>
+<ul>
+  <li><strong>Source:</strong> Tenet Security (primary research); Cloud Security Alliance research note; The Hacker News; The Next Web</li>
+  <li><strong>Link:</strong> <a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">A Fake Bug Report Hijacks Your AI Coding Agent — Tenet Security</a></li>
+  <li><strong>TL;DR:</strong> A Sentry DSN is a write-only public key baked into most front-end builds; any attacker who finds one can POST a fake error event containing arbitrary shell commands. When you ask your coding agent to fix open Sentry issues via the Sentry MCP server, it fetches those events as trusted data and cannot distinguish the injected entry from a real error. In testing, Claude Code, Cursor, and Codex all executed attacker-controlled <code>npx</code> commands and silently exfiltrated AWS keys, GitHub tokens, Sentry auth tokens, and git credentials to attacker infrastructure — with the developer's own system privileges.</li>
+  <li><strong>What to do:</strong> Remove the Sentry MCP server from your coding agent configuration today; more broadly, audit every MCP connection that pulls from a source accepting anonymous writes (public GitHub issues, public Slack channels, ticketing systems without write authentication) — each is a potential injection point with the same attack shape.</li>
+  <li><strong>Why trust it:</strong> Tenet Security scanned 2,388 organizations with exposed Sentry DSNs and ran controlled testing across more than 100 of them, observing an 85% success rate; all three major coding agents failed independently. Tenet disclosed to Sentry on June 3; Sentry added a one-string content filter for the specific tested payload and declined root-cause remediation, calling the attack class "technically not defensible" at the platform level.</li>
+  <li><strong>Skeptic check:</strong> Sentry's content filter blocks only the exact tested payload string; any attacker using a different command, encoding, or markdown structure bypasses it — the filter is not a meaningful defense against the attack class.</li>
+</ul>
+
+<h3>Claude Code now blocks specific models or shell patterns in permission rules</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Two permission-hardening changes shipped June 15. First, permission rules now accept a <code>Tool(param:value)</code> syntax that matches on a tool's actual input parameters, with <code>*</code> as a wildcard — for example, write <code>Agent(model:opus)</code> to block Opus subagents from spawning, or <code>Bash(command:rm*)</code> to deny shell calls where the command starts with <code>rm</code>. Second, auto mode now runs the classifier on subagent spawns <em>before</em> the subagent launches, closing a gap where a subagent could be spawned, request a blocked action, and the block would fire only after the fact.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code> to get the June 15 release; review your existing allow/deny rules and convert tool-name-only entries to <code>Tool(param:value)</code> form wherever you need finer-grained control — restrict which models subagents may use, and add deny rules for destructive shell patterns you didn't previously have a way to match.</li>
+  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog; confirmed by multiple third-party changelog trackers (claudefa.st, claudeupdates.dev). Feature details are also visible in the Piebald-AI system-prompt tracker for the corresponding release.</li>
+  <li><strong>Skeptic check:</strong> Wildcard matching semantics (anchoring, case-sensitivity, multi-token matching) are not fully documented; test new <code>Tool(param:value)</code> rules explicitly before treating them as a security boundary.</li>
+</ul>
+
+<h3>Agent SDK usage now billed from a separate monthly credit — opt-in required</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Help Center</li>
+  <li><strong>Link:</strong> <a href="https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan">Using the Claude Agent SDK with your Claude plan — Anthropic Help Center</a></li>
+  <li><strong>TL;DR:</strong> As of June 15, Agent SDK calls, <code>claude -p</code> headless runs, Claude Code GitHub Actions, and third-party apps authenticating via your subscription no longer draw from your plan's interactive usage pool. They now consume a separate monthly dollar credit ($20 for Pro, $100 for Max 5x, $200 for Max 20x) billed at standard API rates, per user, with no rollover. Once that credit is exhausted, requests stop unless you have usage credits enabled as overflow. A one-time opt-in is required to claim the initial credit.</li>
+  <li><strong>What to do:</strong> Log into your Claude account and claim the credit if you haven't; enable usage credits as overflow protection if you run long or high-volume agentic workflows; note that credits are per-user and do not pool across a team, so every team member running automated pipelines needs their own opt-in.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official Help Center article and developer platform announcement; the change was announced May 14 and took effect June 15 as scheduled with no documented postponement.</li>
+  <li><strong>Skeptic check:</strong> The exact definition of what counts as "Agent SDK usage" versus "interactive Claude Code" is in the Help Center article; verify your specific workflow is classified correctly before assuming it falls under the new credit pool.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> Tenet Security (primary agentjacking research); Cloud Security Alliance (CSA research note); The Hacker News; The Next Web; Anthropic Claude Code changelog (code.claude.com); Anthropic Help Center (support.claude.com).</p>
+<p><strong>Skipped:</strong> 1 gossip/opinion link post (Simon Willison's June 15 link to Axios piece on internal Anthropic dynamics — no evidence or actionable finding); arXiv:2606.08878 PerspectiveGap (submitted June 7, outside 7-day window); arXiv:2606.08867 Nubank customer support eval (submitted June 7, outside 7-day window); arXiv:2606.11869 "Agents All the Way Down" (submitted June 10, within window but no empirical measurements — methodology survey); Cursor releases (auto-review May 29, SDK updates June 4 — outside window); Claude Managed Agents dreaming/orchestration (May 6 — outside window); Claude Platform on AWS (May 2026 — outside window).</p>
+<p><strong>Coverage gaps:</strong> Simon Willison — no June 15–16 posts (last substantive post June 13); Latent Space — no in-window episode (last June 3); Hamel Husain, Eugene Yan, Chip Huyen — no June 15–16 posts found; Windsurf — last changelog entry June 11 (outside window); OpenAI — no in-window items found; r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — not directly checked.</p>
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://tenetsecurity.ai/blog/agentjacking-coding-agents-with-fake-sentry-errors/">tenetsecurity.ai/blog/agentjacking…</a> — 403 on r.jina.ai — wanted full technical details including exact payload format and complete list of tested agent configurations; used secondary coverage instead.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 on r.jina.ai — wanted exact version numbers and the complete feature list for June 15–16; used search consensus across claudefa.st and claudeupdates.dev.</li>
+  <li><a href="https://thehackernews.com/2026/06/agentjacking-attack-tricks-ai-coding.html">The Hacker News — agentjacking article</a> — 403 — wanted publication date confirmation and Hacker News point score to gauge community resonance.</li>
+  <li><a href="https://simonwillison.net/">simonwillison.net</a> — 403 — wanted to check for any June 15–16 posts beyond the one found via search.</li>
+</ul>
+
+</div>
+
+</body>
+</html>
