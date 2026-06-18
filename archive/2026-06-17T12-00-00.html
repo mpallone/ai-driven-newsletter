@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-06-17T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-17, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-06-17, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-16T12:00:00Z – 2026-06-17T12:00:00Z. The dominant story is a confirmed supply chain attack against the @mastra AI framework ecosystem — if you installed any @mastra/* package after June 16 07:05 UTC, treat the machine as compromised. Alongside that: Anthropic published the first large-scale measurement of how expertise affects Claude Code outcomes, and v2.1.179 landed with several fixes relevant to agentic sessions.</p>
+
+<h3>@mastra npm packages backdoored — rotate credentials now</h3>
+<ul>
+  <li><strong>Source:</strong> StepSecurity (primary research); Socket.dev; SafeDep; The Hacker News; Microsoft Threat Intelligence</li>
+  <li><strong>Link:</strong> <a href="https://www.stepsecurity.io/blog/mastra-npm-packages-compromised-using-easy-day-js">Mastra npm Supply Chain Attack: 140+ Packages Backdoored via easy-day-js Typosquat — StepSecurity</a></li>
+  <li><strong>TL;DR:</strong> On June 17 at 01:12–02:36 UTC, an attacker republished 141 packages in the <code>@mastra</code> npm scope — including <code>@mastra/core</code>, <code>mastra</code>, and <code>create-mastra</code> — after hijacking a contributor account. Each package gained a single new dependency: <code>easy-day-js</code>, a typosquat of the popular <code>dayjs</code> library whose <code>latest</code> tag carries an obfuscated <code>postinstall</code> hook that downloads and runs a credential-stealing remote access trojan, then deletes itself. The stealer harvests environment variables (cloud keys, LLM API keys, GitHub tokens) and cryptocurrency wallets. The attacker seeded the ground on June 16 by publishing a clean <code>easy-day-js@1.11.21</code>, then flipped the malicious <code>1.11.22</code> to <code>latest</code> minutes before the scope-wide republish. Combined weekly downloads across the affected packages exceed 1.1 million.</li>
+  <li><strong>What to do:</strong> If you ran <code>npm install</code> on any <code>@mastra/*</code> package after June 16 07:05 UTC, treat that machine as compromised: rotate cloud credentials, LLM API keys, GitHub tokens, and any cryptocurrency wallet keys it could reach, then check the host for dropper artifacts. Going forward, run <code>npm install --ignore-scripts</code> to block <code>postinstall</code> hooks; pin transitive dependencies with a lockfile and review <code>npm audit</code> for injected packages.</li>
+  <li><strong>Why trust it:</strong> StepSecurity, Socket.dev, SafeDep, and Microsoft Threat Intelligence independently documented the attack with specific npm account names (<code>ehindero</code>), package version numbers, and UTC timestamps. 141 affected packages identified across four sources.</li>
+  <li><strong>Skeptic check:</strong> Only users who resolved the <code>^1.11.21</code> caret range to <code>1.11.22</code> — i.e., ran <code>npm install</code> after the malicious tag was set at 01:12 UTC on June 17 — are affected; installs locked to an earlier version or completed before that timestamp are clean.</li>
+</ul>
+
+<h3>Domain expertise, not coding skill, determines Claude Code success rate</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Economic Research</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/research/claude-code-expertise">Agentic coding and persistent returns to expertise — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Anthropic measured success across ~400,000 Claude Code sessions (October 2025 through April 2026) and found novices succeeded 15% of the time, intermediate users 28%, and advanced/expert users 33%. Non-engineers working on coding tasks succeeded at nearly the same rate as software engineers at the same expertise level — meaning what predicts outcomes is your depth of domain knowledge, not your coding background. The more domain expertise you bring to a session, the more work Claude does per instruction.</li>
+  <li><strong>What to do:</strong> Front-load your domain knowledge into every session: write thorough <code>CLAUDE.md</code> files, architecture briefs, and problem context before you start, so Claude can operate with the grounding you would otherwise supply piecemeal. Treating Claude as a pair-programmer who has already read your docs gets more work done per instruction than treating it as a code-writing tool you prompt reactively.</li>
+  <li><strong>Why trust it:</strong> Anthropic ran this on privacy-preserved data from ~400,000 Claude Code sessions; success was measured by verifiable outcomes (passing tests, committed work) rather than self-report. Published June 16, 2026 by Anthropic's economic research team.</li>
+  <li><strong>Skeptic check:</strong> The study is first-party Anthropic research on their own product; expertise classification methodology and success criteria are not independently audited. The causal direction — whether expertise drives success or expert users simply attempt easier tasks — is not fully resolved.</li>
+</ul>
+
+<h3>Claude Code 2.1.179 stops partial responses vanishing on mid-stream drops</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog</li>
+  <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> Version 2.1.179 (June 16) fixes the most disruptive failure mode for long agentic sessions: when a connection drops mid-stream, the partial response is now preserved instead of being replaced by a raw error and discarded. It also fixes mouse-wheel scrolling in WSL2 under Windows Terminal and VS Code (a regression from 2.1.172), a Linux sandbox bug where a <code>denyRead</code>/<code>allowRead</code> glob over a large directory tree inflated the Bash tool description so much the session became unusable, and a bug preventing <code>Ctrl+O</code> from opening a subagent's transcript.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code> to reach 2.1.179; if you are on Linux with a broad sandbox glob over a large directory tree and your Bash tool calls have been silently hanging, this release fixes that.</li>
+  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog.</li>
+  <li><strong>Skeptic check:</strong> —</li>
+</ul>
+
+<h3>Cloudflare MCP server can't edit WAF rules; direct API fallback required</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison (simonwillison.net, June 16, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/16/captcha-on-at-least-one-ampersand/">TIL: Cloudflare CAPTCHA on at least one ampersand — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> When Simon Willison asked Claude Code to fix a Cloudflare WAF misconfiguration using the Cloudflare MCP server, the server's tool set didn't cover rule-editing operations. Claude fell back to calling the Cloudflare REST API directly to complete the task. The MCP server exposes some Cloudflare operations but not all; the gap only becomes visible when you hit it mid-workflow.</li>
+  <li><strong>What to do:</strong> Before building a multi-step agentic workflow around any vendor MCP server, cross-reference the server's tool list against the vendor's REST API docs for your specific operations — MCP servers often cover the most common actions, not the full API surface.</li>
+  <li><strong>Why trust it:</strong> Single first-hand observation by Simon Willison; no broader testing or reproducibility data.</li>
+  <li><strong>Skeptic check:</strong> The Cloudflare MCP server's tool set may have expanded since this post; verify against the current tool list before assuming the gap still applies.</li>
+</ul>
+
+<div class="meta">
+
+<h2>Footer</h2>
+<p><strong>Sources used today:</strong> StepSecurity; Socket.dev; SafeDep; The Hacker News; Microsoft Threat Intelligence; Anthropic Economic Research (anthropic.com/research/claude-code-expertise); Anthropic Claude Code changelog (code.claude.com); Simon Willison (simonwillison.net).</p>
+<p><strong>Skipped:</strong> 0 funding posts, 0 leaderboard updates, 0 hype takes. Mid-conversation system messages (Anthropic API, May 28) and cache diagnostics (May 13) — outside window. Reward hacking benchmark arXiv 2605.02964 (submitted May 2026) — outside window. Anthropic export-control suspension of Claude Fable 5 and Claude Mythos 5 — access/policy issue, no practitioner workflow change. Cursor Bugbot improvements (June 10) — outside window.</p>
+<p><strong>Coverage gaps:</strong> Most direct WebFetch calls returned 403 (simonwillison.net, anthropic.com, stepsecurity.io, socket.dev, safedep.io, arxiv.org, thenewstack.io, mend.io, releasebot.io, cursor.com). The Jina.ai proxy also returned 403 for all tested URLs. Only code.claude.com/docs/en/changelog and platform.claude.com/docs/en/release-notes were successfully fetched in full. Latent Space, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts found. Windsurf — no in-window changelog entries. OpenAI — no in-window practitioner-relevant items found. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 16–17 surfaced.</p>
+<p><strong>Inaccessible links:</strong></p>
+<ul>
+  <li><a href="https://www.stepsecurity.io/blog/mastra-npm-packages-compromised-using-easy-day-js">stepsecurity.io — Mastra attack writeup</a> — 403 — wanted full technical artifact list and dropper deletion mechanism to verify cleanup steps; used search result summaries from four independent sources instead.</li>
+  <li><a href="https://www.anthropic.com/research/claude-code-expertise">anthropic.com/research/claude-code-expertise</a> — 403 — wanted full methodology and expertise classification definitions; success-rate numbers (15%/28%/33%) came from search result summaries.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/16/captcha-on-at-least-one-ampersand/">simonwillison.net — Cloudflare CAPTCHA TIL</a> — 403 — wanted exact MCP tool names that were missing to give a more specific description of the capability gap.</li>
+</ul>
+
+</div>
+
+</body>
+</html>
