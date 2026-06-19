@@ -3,75 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-18T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-18, 4 items</title>
+  <meta name="published" content="2026-06-19T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-19, 4 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-18, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-19, 4 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-17T12:00:00Z – 2026-06-18T12:00:00Z. Gemini CLI shuts off today for non-enterprise users; Cursor 3.7 lands isolated cloud VM subagents; OpenAI publishes a method for catching model regressions by replaying real production conversations; Claude Code 2.1.180 fixes the model picker.</p>
+<p class="window-note">Window: 2026-06-18T12:00:00Z – 2026-06-19T12:00:00Z. Cursor 3.8 ships <code>/automate</code> with GitHub/Slack triggers and computer use; Anthropic pushes zero-touch MCP connector access to Team/Enterprise users via Okta; Claude Code 2.1.183 blocks destructive git and IaC commands it didn't create; Google DeepMind publishes a 15-control framework for keeping agents safe in internal systems.</p>
 
-<h3>Gemini CLI dies today; Antigravity CLI breaks existing automation</h3>
+<h3>Cursor 3.8 adds /automate, GitHub/Slack triggers, and computer use to automations</h3>
 <ul>
-  <li><strong>Source:</strong> Google Developers Blog (primary); GitHub gemini-cli Discussion #27274; The Register</li>
-  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">Transitioning Gemini CLI to Antigravity CLI — official GitHub Discussion</a></li>
-  <li><strong>TL;DR:</strong> As of today (June 18), Gemini CLI stops serving requests for Google AI Pro, Ultra, and free-tier users. The replacement is Antigravity CLI — a closed-source Go binary invoked as <code>agy</code>. It is not a drop-in rename: the environment variable changes from <code>GEMINI_API_KEY</code> to <code>AV_API_KEY</code>, the default model is now <code>gemini-3-pro</code>, <code>--stream</code> emits SSE by default, the agent state directory moved to <code>~/.antigravity/</code>, and exit codes are non-zero on tool-use failures. The compute-based quota system that replaced Gemini CLI's 1,000-request daily limit has been hitting a weekly ceiling around 2,000 lines of generated code in early testing. Google collected 100,000+ GitHub stars and 6,000+ community pull requests on the open-source Gemini CLI, then replaced it with a proprietary product — enterprise accounts on Gemini Code Assist Standard and Enterprise are explicitly exempt from the shutdown.</li>
-  <li><strong>What to do:</strong> If any script, Makefile, or CI pipeline calls <code>gemini</code>, it will fail with an auth or command-not-found error today. Migrate now: rename the command to <code>agy</code>, swap the env var to <code>AV_API_KEY</code>, and test for exit-code differences. If you want an open-source alternative, Claude Code (<code>claude</code>) or Aider cover the terminal-workflow use case.</li>
-  <li><strong>Why trust it:</strong> Google's official blog post and GitHub Discussion #27274 confirm the June 18 date and the four breaking changes; The Register independently verified the timeline and the open-source-to-closed-source transition; migration guides from multiple independent developers confirm the quota ceiling observations.</li>
-  <li><strong>Skeptic check:</strong> Enterprise customers on Gemini Code Assist Standard or Enterprise licenses retain access to Gemini CLI and are unaffected by today's shutdown.</li>
+  <li><strong>Source:</strong> Cursor changelog (June 18, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/06-18-26">Cursor changelog — Improvements to Cursor Automations</a></li>
+  <li><strong>TL;DR:</strong> The new <code>/automate</code> slash command turns a plain-English description into a fully configured automation — triggers, instructions, and tools set up for you, without hand-editing a config. New GitHub event triggers (issue comment, PR review comment, PR review submitted, review thread updated) join the existing push/PR triggers. A new Slack emoji-reaction trigger fires an automation directly from any Slack message. Computer use is now available inside automations, enabling agents to interact with GUIs as part of automated workflows.</li>
+  <li><strong>What to do:</strong> Use <code>/automate</code> in your current session instead of manually building automation configs — describe what you want and Cursor configures it. Wire up the new GitHub PR review triggers if you want code-review comments to kick off agent work automatically.</li>
+  <li><strong>Why trust it:</strong> Cursor official changelog, June 18 2026, at cursor.com/changelog/06-18-26; consistent with Cursor's previously-announced Automations platform.</li>
+  <li><strong>Skeptic check:</strong> Computer use in automations may require a Teams or Business plan; Standard seats should verify access before building workflows that depend on it.</li>
 </ul>
 
-<h3>Cursor 3.7 ships /in-cloud to run the next task in an isolated cloud VM</h3>
+<h3>Claude's Team and Enterprise plans now push MCP connector access to users automatically</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor changelog (June 17, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog — cursor.com</a></li>
-  <li><strong>TL;DR:</strong> The new <code>/in-cloud</code> command spins up a cloud subagent in its own VM on its own branch. The subagent clones your repo, sets up its dev environment in under 10 minutes using a reusable snapshot, runs the task, and pushes — while your local session stays clean and responsive. A companion <code>/babysit</code> command hands a PR to a cloud agent to iterate until it is merge-ready, without tying up your local session.</li>
-  <li><strong>What to do:</strong> Use <code>/in-cloud</code> when you have a long-running or risky task — fixing a broken CI suite, exploring an unfamiliar codebase, or running parallel work — to isolate it from your local session; use <code>/babysit</code> to hand off a PR and let the agent iterate remotely while you move on.</li>
-  <li><strong>Why trust it:</strong> Cursor official changelog, June 17 2026; consistent with their previously-announced self-hosted cloud agents architecture.</li>
-  <li><strong>Skeptic check:</strong> Cloud agent usage counts against the Teams quota; Standard seats that rely heavily on <code>/in-cloud</code> may exhaust the usage pool faster than with local sessions.</li>
+  <li><strong>Source:</strong> Anthropic blog + MCP Protocol blog (June 18, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/enterprise-managed-auth">Enterprise-Managed Authorization — Anthropic blog</a></li>
+  <li><strong>TL;DR:</strong> Admins can now authorize MCP connectors once through their identity provider (Okta first), and users get zero-touch access on first login — no more asking every developer to individually authorize each connector. The underlying mechanism is XAA (Cross App Access), an OAuth 2.0 extension that is now a formal part of the MCP spec. Asana, Atlassian, Canva, Figma, Granola, Linear, and Supabase support it at launch; Slack is coming soon. In beta for Team and Enterprise plans.</li>
+  <li><strong>What to do:</strong> If your org runs Claude on Team or Enterprise, connect your Okta account and push MCP connector access org-wide now — this eliminates the per-developer authorization friction that has blocked MCP adoption at scale.</li>
+  <li><strong>Why trust it:</strong> Anthropic primary blog post (June 18 2026); confirmed by the MCP Protocol official blog post at blog.modelcontextprotocol.io and an Okta press release naming Okta as the first identity provider.</li>
+  <li><strong>Skeptic check:</strong> Only Okta is supported at launch; orgs on other identity providers (Entra ID, Google Workspace, etc.) must wait for additional IDP support before this is usable.</li>
 </ul>
 
-<h3>Replaying real user conversations before release catches regressions synthetic evals miss</h3>
+<h3>Claude Code 2.1.183 blocks destructive git and IaC commands it didn't create</h3>
 <ul>
-  <li><strong>Source:</strong> OpenAI research (June 17, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://openai.com/index/deployment-simulation/">Predicting model behavior before release by simulating deployment — OpenAI</a></li>
-  <li><strong>TL;DR:</strong> OpenAI strips the model's response from real production conversations and regenerates it with the candidate model, then scans for new or increased misbehaviors using automated classifiers. Tested across GPT-5 Thinking through GPT-5.4 on 1.3 million de-identified conversations, it produced a median 1.5× multiplicative error on behavior rates — accurate enough to flag regressions before deployment. Because the contexts are real rather than synthetic, the method also detects when a model behaves better specifically because it can tell it is being evaluated, an effect that poisons synthetic benchmark results.</li>
-  <li><strong>What to do:</strong> When building a pre-deployment eval pipeline, seed it with real production conversations rather than hand-crafted synthetic prompts; the realistic context surfaces regressions that synthetic evals miss — models behave differently in real-world conversational contexts than in test harness scenarios.</li>
-  <li><strong>Why trust it:</strong> OpenAI first-party research, 1.3 million de-identified conversations across four sequential model versions (GPT-5 Thinking → GPT-5.4), published June 17 2026; validated against known historical misbehavior events.</li>
-  <li><strong>Skeptic check:</strong> The method requires a corpus of real production conversations — teams without meaningful deployed traffic cannot directly replicate it. Tail estimation errors can reach ~10× in outlier cases, so the signal is directional, not a precise rate prediction.</li>
-</ul>
-
-<h3>Claude Code 2.1.180 now shows which model Default is actually using</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic Claude Code changelog (June 17, 2026)</li>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog (June 19, 2026)</li>
   <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
-  <li><strong>TL;DR:</strong> The <code>/model</code> picker previously hid the model that Default resolves to; 2.1.180 now shows it as its own row: Opus for Max, Team Premium, Enterprise, and pay-as-you-go API accounts; Sonnet for Pro and Team plans. A new <code>wheelScrollAccelerationEnabled</code> setting lets you disable mouse-wheel scroll acceleration in fullscreen mode. Also fixed: a banner that incorrectly told enterprise accounts they were consuming usage credits with Fable 5.</li>
-  <li><strong>What to do:</strong> Run <code>claude update</code> to get 2.1.180; open the <code>/model</code> picker to confirm which model your Default sessions are running against — the answer may differ from what you assumed.</li>
-  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>TL;DR:</strong> In auto mode, Claude Code now refuses to run <code>git reset --hard</code>, <code>git checkout -- .</code>, <code>git clean -fd</code>, or <code>git stash drop</code> unless you explicitly asked it to discard local work. <code>git commit --amend</code> is blocked if the commit being amended wasn't made by the agent in this session. <code>terraform destroy</code>, <code>pulumi destroy</code>, and <code>cdk destroy</code> are blocked unless you specifically named that stack for destruction. Also in this release: a warning when your configured model is deprecated or has been silently auto-upgraded; an <code>attribution.sessionUrl</code> setting to stop Claude Code from appending a <code>claude.ai</code> session URL to commit messages and PR descriptions; and <code>/config --help</code> to list all valid shorthand keys.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code>; set <code>attribution.sessionUrl</code> to <code>false</code> in your project config for clean git history. Check agent frontmatter files for deprecated model names — you'll now get a visible warning on stderr rather than silent substitution.</li>
+  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog, June 19 2026; directly addresses GitHub issues #34327 (agent running <code>git reset --hard</code> on session startup and destroying uncommitted work) and #17190.</li>
+  <li><strong>Skeptic check:</strong> The guards trigger on commands the agent issues on its own; if you explicitly ask it to reset or destroy, it will still comply — so protection only applies to uninstructed destructive actions.</li>
+</ul>
+
+<h3>Google DeepMind publishes a 15-control layered framework for safe agent deployment</h3>
+<ul>
+  <li><strong>Source:</strong> Google DeepMind blog + AI Control Roadmap PDF (June 18, 2026)</li>
+  <li><strong>Link:</strong> <a href="https://deepmind.google/blog/securing-the-future-of-ai-agents/">Securing internal systems against increasingly capable AI — Google DeepMind</a></li>
+  <li><strong>TL;DR:</strong> Google DeepMind published its internal AI Control Roadmap — the framework they actually use to deploy AI agents inside Google. The threat model has three buckets: loss of control (rogue internal deployments), sabotage of safety research, and direct harm (data deletion or theft). The response is 15 controls layered across two tiers: detection (ranging from chain-of-thought log review up to scrutiny of models whose reasoning is opaque) and response (ranging from async human review down to real-time blocking). The key architectural pattern is a trusted supervisor agent that continuously monitors the primary agent's reasoning and actions with override capability — described as a driving instructor with dual controls.</li>
+  <li><strong>What to do:</strong> When designing agent harnesses that touch sensitive internal systems, add two explicit tiers to your safety architecture: what you will monitor (agent reasoning traces, action logs) and what triggers intervention (threshold for human review vs. real-time block). The dual-control pattern — a supervisor agent that can halt the primary agent — is implementable today in any multi-agent setup.</li>
+  <li><strong>Why trust it:</strong> Primary source blog post by Rohin Shah at Google DeepMind (June 18 2026), with an accompanying public PDF; independently covered by Axios on the same date.</li>
+  <li><strong>Skeptic check:</strong> The roadmap describes Google's threat model for large-scale internal deployments; many of the 15 controls assume dedicated supervisory models and real-time action interceptors that most smaller teams won't have.</li>
 </ul>
 
 <div class="meta">
 
-<h2>Meta</h2>
-
-<h3>Candidate sources</h3>
-<ul>
-  <li><strong><a href="https://github.com/Piebald-AI/claude-code-system-prompts">Piebald-AI/claude-code-system-prompts</a></strong> — Tracks the full set of Claude Code system prompts (currently 515 prompts across the main, Plan, Explore, Task, and utility agent roles) updated within minutes of each Claude Code release, with a diff-based CHANGELOG across 213 versions. Surfaced when searching for Claude Code 2.1.180/2.1.181 system prompt changes. Track record: active since at least v2.0.14; frequently cited in Claude Code community discussions. Worth promoting to the primary seed list for tracking prompt-level changes between Claude Code releases.</li>
-</ul>
-
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Google Developers Blog; GitHub gemini-cli Discussion #27274; The Register; Cursor changelog (cursor.com); OpenAI research blog; Anthropic Claude Code changelog (code.claude.com).</p>
-<p><strong>Skipped:</strong> 2 leaderboard updates (GPT-5.6 benchmarks, Boba coding leaderboard — no methodology change). Cursor "What we've learned building cloud agents" blog (cursor.com/blog/cloud-agent-lessons) — published ~2 weeks ago, outside window. arXiv 2606.10209 "Less Context, Better Agents" — submitted June 8, outside the 7-day arXiv window. arXiv 2606.17838 "Environment-Grounded Automated Prompt Optimization" — game-agent benchmark, fails practitioner relevance test for production agent harnesses. Anthropic export-control suspension of Fable 5 — already covered June 9, no change. Windsurf — no June 17–18 changelog entries confirmed. OpenAI LifeSciBench and Better ChatGPT Memory — outside practitioner scope (research capability, not workflow change).</p>
-<p><strong>Coverage gaps:</strong> All WebFetch and Jina.ai proxy calls returned 403 (Google Developers Blog, cursor.com/changelog, openai.com, simonwillison.net, arxiv.org, releasebot.io). All item details sourced from search result summaries and secondary coverage. Latent Space, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts found via search. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 17–18 surfaced.</p>
+<p><strong>Sources used today:</strong> Cursor changelog (cursor.com); Anthropic blog (claude.com); MCP Protocol blog (blog.modelcontextprotocol.io); Anthropic Claude Code changelog (code.claude.com); Google DeepMind blog (deepmind.google); Okta newsroom.</p>
+<p><strong>Skipped:</strong> Simon Willison "Datasette Apps" (June 18) — no direct change to agent harness or prompting practice; Nathan Lambert "State of the blog mid-2026" (June 17) — no actionable findings; Codex Record &amp; Replay — could not confirm release date falls after June 18 noon; arXiv 2606.10106 (submitted June 8) and 2606.12344 (submitted June 10) — outside 7-day arXiv window; arXiv 2606.15283 (June 13) — literature review only, no empirical workflow measurements; arXiv 2606.16988 (June 15) — insufficient primary-source detail after fetch failures; HN "Ask HN: What is your AI dev tech stack?" — could not confirm ≥200 points; Hugging Face "Harness, Scaffold" glossary — published May 25, outside window; Latent Space, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts found.</p>
+<p><strong>Coverage gaps:</strong> All WebFetch and Jina.ai proxy calls returned 403 across every source (cursor.com, deepmind.google, code.claude.com, claude.com, arxiv.org, releasebot.io). All item details sourced from search result summaries and secondary coverage. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 18–19 surfaced in search.</p>
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Google Developers Blog — Gemini CLI transition</a> — 403 — wanted first-party text of the breaking changes list and exact enterprise carve-out language; used GitHub Discussion #27274 and secondary coverage instead.</li>
-  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted exact feature description for /in-cloud and /babysit; used search result summaries.</li>
-  <li><a href="https://openai.com/index/deployment-simulation/">openai.com — deployment simulation paper</a> — 403 — wanted full methodology section and classifier details; used search summaries and secondary coverage.</li>
+  <li><a href="https://cursor.com/changelog/06-18-26">cursor.com/changelog/06-18-26</a> — 403 — wanted exact feature descriptions for <code>/automate</code> and computer use availability; used search summaries.</li>
+  <li><a href="https://claude.com/blog/enterprise-managed-auth">claude.com/blog/enterprise-managed-auth</a> — 403 — wanted exact XAA flow description and admin configuration steps; used search summaries and Okta press release.</li>
+  <li><a href="https://deepmind.google/blog/securing-the-future-of-ai-agents/">deepmind.google/blog/securing-the-future-of-ai-agents/</a> — 403 — wanted full enumeration of all 15 controls; used search summaries and Axios coverage.</li>
+  <li><a href="https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/securing-the-future-of-ai-agents/gdm-ai-control-roadmap.pdf">GDM AI Control Roadmap PDF</a> — 403 — wanted detailed control descriptions from the source document.</li>
 </ul>
 
 </div>
