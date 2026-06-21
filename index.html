@@ -3,55 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-18T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-18, 4 items</title>
+  <meta name="published" content="2026-06-21T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-21, 6 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-18, 4 items</h1>
+<h1>AI Tools Digest — 2026-06-21, 6 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-17T12:00:00Z – 2026-06-18T12:00:00Z. Gemini CLI shuts off today for non-enterprise users; Cursor 3.7 lands isolated cloud VM subagents; OpenAI publishes a method for catching model regressions by replaying real production conversations; Claude Code 2.1.180 fixes the model picker.</p>
+<p class="window-note">Window: 2026-06-18T12:00:00Z – 2026-06-21T12:00:00Z. Claude Code 2.1.183 adds auto-mode safety blocklists for destructive git and infra commands; Anthropic ships zero-touch MCP access management for enterprise via Okta; Cursor adds /automate to configure always-on agent workflows in plain language; Codex on macOS can record a workflow once and replay it as a reusable SKILL.md; Microsoft details an exploit chain where an AI browsing agent on localhost can be hijacked for remote code execution; Claude API gets response_inclusion to trim consumed tool results from agentic loop context.</p>
 
-<h3>Gemini CLI dies today; Antigravity CLI breaks existing automation</h3>
+<h3>Claude Code 2.1.183 blocks destructive commands in auto mode</h3>
 <ul>
-  <li><strong>Source:</strong> Google Developers Blog (primary); GitHub gemini-cli Discussion #27274; The Register</li>
-  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">Transitioning Gemini CLI to Antigravity CLI — official GitHub Discussion</a></li>
-  <li><strong>TL;DR:</strong> As of today (June 18), Gemini CLI stops serving requests for Google AI Pro, Ultra, and free-tier users. The replacement is Antigravity CLI — a closed-source Go binary invoked as <code>agy</code>. It is not a drop-in rename: the environment variable changes from <code>GEMINI_API_KEY</code> to <code>AV_API_KEY</code>, the default model is now <code>gemini-3-pro</code>, <code>--stream</code> emits SSE by default, the agent state directory moved to <code>~/.antigravity/</code>, and exit codes are non-zero on tool-use failures. The compute-based quota system that replaced Gemini CLI's 1,000-request daily limit has been hitting a weekly ceiling around 2,000 lines of generated code in early testing. Google collected 100,000+ GitHub stars and 6,000+ community pull requests on the open-source Gemini CLI, then replaced it with a proprietary product — enterprise accounts on Gemini Code Assist Standard and Enterprise are explicitly exempt from the shutdown.</li>
-  <li><strong>What to do:</strong> If any script, Makefile, or CI pipeline calls <code>gemini</code>, it will fail with an auth or command-not-found error today. Migrate now: rename the command to <code>agy</code>, swap the env var to <code>AV_API_KEY</code>, and test for exit-code differences. If you want an open-source alternative, Claude Code (<code>claude</code>) or Aider cover the terminal-workflow use case.</li>
-  <li><strong>Why trust it:</strong> Google's official blog post and GitHub Discussion #27274 confirm the June 18 date and the four breaking changes; The Register independently verified the timeline and the open-source-to-closed-source transition; migration guides from multiple independent developers confirm the quota ceiling observations.</li>
-  <li><strong>Skeptic check:</strong> Enterprise customers on Gemini Code Assist Standard or Enterprise licenses retain access to Gemini CLI and are unaffected by today's shutdown.</li>
-</ul>
-
-<h3>Cursor 3.7 ships /in-cloud to run the next task in an isolated cloud VM</h3>
-<ul>
-  <li><strong>Source:</strong> Cursor changelog (June 17, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog — cursor.com</a></li>
-  <li><strong>TL;DR:</strong> The new <code>/in-cloud</code> command spins up a cloud subagent in its own VM on its own branch. The subagent clones your repo, sets up its dev environment in under 10 minutes using a reusable snapshot, runs the task, and pushes — while your local session stays clean and responsive. A companion <code>/babysit</code> command hands a PR to a cloud agent to iterate until it is merge-ready, without tying up your local session.</li>
-  <li><strong>What to do:</strong> Use <code>/in-cloud</code> when you have a long-running or risky task — fixing a broken CI suite, exploring an unfamiliar codebase, or running parallel work — to isolate it from your local session; use <code>/babysit</code> to hand off a PR and let the agent iterate remotely while you move on.</li>
-  <li><strong>Why trust it:</strong> Cursor official changelog, June 17 2026; consistent with their previously-announced self-hosted cloud agents architecture.</li>
-  <li><strong>Skeptic check:</strong> Cloud agent usage counts against the Teams quota; Standard seats that rely heavily on <code>/in-cloud</code> may exhaust the usage pool faster than with local sessions.</li>
-</ul>
-
-<h3>Replaying real user conversations before release catches regressions synthetic evals miss</h3>
-<ul>
-  <li><strong>Source:</strong> OpenAI research (June 17, 2026)</li>
-  <li><strong>Link:</strong> <a href="https://openai.com/index/deployment-simulation/">Predicting model behavior before release by simulating deployment — OpenAI</a></li>
-  <li><strong>TL;DR:</strong> OpenAI strips the model's response from real production conversations and regenerates it with the candidate model, then scans for new or increased misbehaviors using automated classifiers. Tested across GPT-5 Thinking through GPT-5.4 on 1.3 million de-identified conversations, it produced a median 1.5× multiplicative error on behavior rates — accurate enough to flag regressions before deployment. Because the contexts are real rather than synthetic, the method also detects when a model behaves better specifically because it can tell it is being evaluated, an effect that poisons synthetic benchmark results.</li>
-  <li><strong>What to do:</strong> When building a pre-deployment eval pipeline, seed it with real production conversations rather than hand-crafted synthetic prompts; the realistic context surfaces regressions that synthetic evals miss — models behave differently in real-world conversational contexts than in test harness scenarios.</li>
-  <li><strong>Why trust it:</strong> OpenAI first-party research, 1.3 million de-identified conversations across four sequential model versions (GPT-5 Thinking → GPT-5.4), published June 17 2026; validated against known historical misbehavior events.</li>
-  <li><strong>Skeptic check:</strong> The method requires a corpus of real production conversations — teams without meaningful deployed traffic cannot directly replicate it. Tail estimation errors can reach ~10× in outlier cases, so the signal is directional, not a precise rate prediction.</li>
-</ul>
-
-<h3>Claude Code 2.1.180 now shows which model Default is actually using</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic Claude Code changelog (June 17, 2026)</li>
+  <li><strong>Source:</strong> Anthropic Claude Code changelog</li>
   <li><strong>Link:</strong> <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog — Anthropic</a></li>
-  <li><strong>TL;DR:</strong> The <code>/model</code> picker previously hid the model that Default resolves to; 2.1.180 now shows it as its own row: Opus for Max, Team Premium, Enterprise, and pay-as-you-go API accounts; Sonnet for Pro and Team plans. A new <code>wheelScrollAccelerationEnabled</code> setting lets you disable mouse-wheel scroll acceleration in fullscreen mode. Also fixed: a banner that incorrectly told enterprise accounts they were consuming usage credits with Fable 5.</li>
-  <li><strong>What to do:</strong> Run <code>claude update</code> to get 2.1.180; open the <code>/model</code> picker to confirm which model your Default sessions are running against — the answer may differ from what you assumed.</li>
-  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>TL;DR:</strong> Version 2.1.183 (June 19) added three safety blocklists for auto mode: <code>git reset --hard</code>, <code>git checkout -- .</code>, <code>git clean -fd</code>, and <code>git stash drop</code> are blocked when the agent was not explicitly asked to discard local work; <code>git commit --amend</code> is blocked for any commit the agent did not make this session; <code>terraform destroy</code>, <code>pulumi destroy</code>, and <code>cdk destroy</code> require an explicit mention of the target stack before they run. Auto mode is now also available on Bedrock, Vertex, and Foundry for Opus 4.7/4.8. Claude Code now refuses to write shell startup files (<code>.zshenv</code>, <code>.bash_login</code>) and build-tool configs (<code>.npmrc</code>, <code>.bazelrc</code>, <code>.pre-commit-config.yaml</code>) even in <code>acceptEdits</code> mode without an explicit request.</li>
+  <li><strong>What to do:</strong> Run <code>claude update</code> to get 2.1.183. If you write instructions or automations that legitimately need any of these commands, phrase the intent explicitly — "discard local work" or "drop the dev stack" — so the guard does not trip on ambiguous phrasing.</li>
+  <li><strong>Why trust it:</strong> Anthropic official Claude Code changelog, June 19, 2026; DevelopersIO independently documented the v2.1.182→v2.1.183 delta with specific command lists.</li>
+  <li><strong>Skeptic check:</strong> The blocklists match on detected intent from phrasing; edge cases in instruction wording may still trigger or miss the guard inconsistently until the classifiers are tuned further.</li>
+</ul>
+
+<h3>Anthropic ships zero-touch MCP access management for enterprise via Okta</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic (claude.com/blog); Model Context Protocol Blog</li>
+  <li><strong>Link:</strong> <a href="https://claude.com/blog/enterprise-managed-auth">Centrally manage authorization for MCP connectors — Claude</a></li>
+  <li><strong>TL;DR:</strong> Enterprise-Managed Authorization (EMA), announced June 18, lets IT admins authorize MCP connectors through an identity provider (Okta first) once; employees inherit access on first login with no per-user OAuth consent screens. Seven providers support EMA at launch: Asana, Atlassian, Canva, Figma, Granola, Linear, and Supabase (Slack in progress). Access follows existing IdP group and role assignments — a new employee inherits every approved connector automatically on day one. Works across Claude chat, Claude Code, and Cowork for Teams and Enterprise. EMA is the first live production implementation of the MCP authorization extension declared stable the same day, which formally classifies MCP servers as OAuth Resource Servers and requires resource indicators (RFC 8707) to bind tokens to specific server URIs, blocking cross-server token replay attacks.</li>
+  <li><strong>What to do:</strong> If you run Claude for Teams or Enterprise and employees currently connect MCP tools individually, configure EMA through your Okta tenant to remove per-user friction and centralize revocation. If you build MCP servers, review the updated auth spec: add protected resource metadata and validate that incoming tokens include your server's URI — tokens without it should be rejected.</li>
+  <li><strong>Why trust it:</strong> Anthropic first-party blog post June 18, 2026; corroborated by Okta press release and MCP Blog post the same date; resource indicator details confirmed by WorkOS and independent security coverage.</li>
+  <li><strong>Skeptic check:</strong> EMA requires Teams or Enterprise plan and a supported IdP; individual Pro users are unaffected. Only seven MCP providers support EMA at launch.</li>
+</ul>
+
+<h3>Cursor ships /automate to configure always-on agent workflows in plain language</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor changelog</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/06-18-26">Improvements to Cursor Automations — Cursor</a></li>
+  <li><strong>TL;DR:</strong> The June 18 Cursor update adds <code>/automate</code>: describe the task you want to automate in plain language and Cursor configures the triggers, instructions, and tools directly in your local session. Five new GitHub event triggers were added — issue comment, PR inline comment, PR review submission, review thread resolved/unresolved, and GitHub Actions workflow completed. Slack emoji reactions can now kick off automations. Cloud agents started by automations can use computer use to produce screenshots or video demos as proof of work.</li>
+  <li><strong>What to do:</strong> Use <code>/automate</code> instead of manually wiring triggers in the automations UI — describe what you want in one sentence and let Cursor generate the configuration. If you already use automations, add the new <code>workflow_run_completed</code> trigger to chain automations after CI finishes.</li>
+  <li><strong>Why trust it:</strong> Cursor official changelog for June 18, 2026 (cursor.com/changelog/06-18-26).</li>
+  <li><strong>Skeptic check:</strong> Computer use in cloud automations draws from Teams quota; heavy automation use may exhaust the usage pool faster than local sessions.</li>
+</ul>
+
+<h3>Codex records a macOS workflow once and replays it as an editable SKILL.md</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI Codex changelog</li>
+  <li><strong>Link:</strong> <a href="https://developers.openai.com/codex/record-and-replay">Record &amp; Replay — Codex Developers</a></li>
+  <li><strong>TL;DR:</strong> Record &amp; Replay (Codex 26.616, shipped June 18) lets you demonstrate a repetitive workflow on macOS and Codex turns it into an editable <code>SKILL.md</code> file that accepts variable inputs — a new date, a different file path — on future runs. Skills can be shared across a team, so one person's recording becomes everyone's automation. Future executions run the skill via computer use, browser actions, connected plugins, or a combination.</li>
+  <li><strong>What to do:</strong> Record your most repetitive multi-step macOS workflows — creating formatted issues, filing expenses, downloading recurring reports — to produce shareable skills rather than writing new instructions each time. Share generated <code>SKILL.md</code> files with your team so the workflow is available to everyone without re-recording.</li>
+  <li><strong>Why trust it:</strong> OpenAI first-party Codex changelog for version 26.616; TechTimes reported on it June 20, 2026.</li>
+  <li><strong>Skeptic check:</strong> Requires Computer Use to be enabled; macOS-only at launch; not available in the EEA, UK, or Switzerland; limited to Plus, Pro, Business, Enterprise, and Edu subscribers.</li>
+</ul>
+
+<h3>AI browsing agents inherit localhost trust; a web page can execute code on the host</h3>
+<ul>
+  <li><strong>Source:</strong> Microsoft Security Blog</li>
+  <li><strong>Link:</strong> <a href="https://www.microsoft.com/en-us/security/blog/2026/06/18/autojack-single-page-rce-host-running-ai-agent/">AutoJack: How a single page can RCE the host running your AI agent — Microsoft</a></li>
+  <li><strong>TL;DR:</strong> Microsoft researchers chained three weaknesses in AutoGen Studio's developer build into a full remote code execution path: a browsing agent running on the same machine passes a localhost trust check that normally blocks malicious external sites; auth middleware skipped verification for MCP-registered paths on the assumption that the handler would verify tokens itself (it never did); an endpoint passed a request parameter straight to a command executor with no allowlist. Any web page the agent loads can trigger arbitrary code on the host. The affected surface is not included in the PyPI release of AutoGen Studio — only teams running the source-build dev interface are directly exposed by this exact chain.</li>
+  <li><strong>What to do:</strong> Do not run AI browsing agents on machines where privileged local services — database admin UIs, container orchestrators, build servers — listen on localhost without authentication. For any MCP server you build, apply auth to all paths without exception; do not assume a path prefix means a downstream handler will verify tokens.</li>
+  <li><strong>Why trust it:</strong> Microsoft Security Blog, June 18, 2026; independently covered by TechRadar, CSO Online, and The Hacker News; Microsoft reports no active exploitation of this chain.</li>
+  <li><strong>Skeptic check:</strong> The specific chain targets AutoGen Studio's dev build, not the PyPI package — most production deployments are not directly exposed. The broader class of attack (prompt injection via a web page leading to host-level action through a trusted local service) applies to any web-browsing agent running on the same machine as a privileged service, regardless of framework.</li>
+</ul>
+
+<h3>Claude API adds response_inclusion to drop consumed tool results from agentic loops</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic (Claude Developer Platform release notes)</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/release-notes/overview">Claude Developer Platform release notes — Anthropic</a></li>
+  <li><strong>TL;DR:</strong> New tool versions <code>web_search_20260318</code> and <code>web_fetch_20260318</code> add a <code>response_inclusion</code> parameter: set it to exclude already-consumed tool result blocks from the API response so they do not re-enter context on the next agentic turn. A new <code>code_execution_20260521</code> version discloses the 90-second per-cell execution limit in the tool description itself, so Claude can budget long-running cells before hitting the limit. No beta header is required for any of these versions.</li>
+  <li><strong>What to do:</strong> Update your tool version strings to <code>web_search_20260318</code> and <code>web_fetch_20260318</code> and set <code>response_inclusion</code> to drop consumed results; this reduces token cost and context window pressure in multi-turn agentic workflows without any other code changes.</li>
+  <li><strong>Why trust it:</strong> Anthropic Claude Developer Platform release notes, confirmed in current June 2026 release cycle via platform.claude.com.</li>
+  <li><strong>Skeptic check:</strong> The exact release date within June 2026 is unconfirmed in available sources — this update may predate the June 18 window start. Included because it appeared in current June 2026 release tracking and is directly actionable.</li>
 </ul>
 
 <div class="meta">
@@ -60,18 +80,23 @@
 
 <h3>Candidate sources</h3>
 <ul>
-  <li><strong><a href="https://github.com/Piebald-AI/claude-code-system-prompts">Piebald-AI/claude-code-system-prompts</a></strong> — Tracks the full set of Claude Code system prompts (currently 515 prompts across the main, Plan, Explore, Task, and utility agent roles) updated within minutes of each Claude Code release, with a diff-based CHANGELOG across 213 versions. Surfaced when searching for Claude Code 2.1.180/2.1.181 system prompt changes. Track record: active since at least v2.0.14; frequently cited in Claude Code community discussions. Worth promoting to the primary seed list for tracking prompt-level changes between Claude Code releases.</li>
+  <li><strong><a href="https://dev.classmethod.jp/en/articles/">DevelopersIO (dev.classmethod.jp)</a></strong> — Surfaced in coverage of Claude Code v2.1.183. Publishes detailed per-release summaries of Claude Code updates including exact command-level diffs between versions. Not in the current seed list. Track record: consistent Claude Code coverage; the v2.1.182→v2.1.183 article had the most specific command-level breakdown of any source found this run.</li>
 </ul>
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> Google Developers Blog; GitHub gemini-cli Discussion #27274; The Register; Cursor changelog (cursor.com); OpenAI research blog; Anthropic Claude Code changelog (code.claude.com).</p>
-<p><strong>Skipped:</strong> 2 leaderboard updates (GPT-5.6 benchmarks, Boba coding leaderboard — no methodology change). Cursor "What we've learned building cloud agents" blog (cursor.com/blog/cloud-agent-lessons) — published ~2 weeks ago, outside window. arXiv 2606.10209 "Less Context, Better Agents" — submitted June 8, outside the 7-day arXiv window. arXiv 2606.17838 "Environment-Grounded Automated Prompt Optimization" — game-agent benchmark, fails practitioner relevance test for production agent harnesses. Anthropic export-control suspension of Fable 5 — already covered June 9, no change. Windsurf — no June 17–18 changelog entries confirmed. OpenAI LifeSciBench and Better ChatGPT Memory — outside practitioner scope (research capability, not workflow change).</p>
-<p><strong>Coverage gaps:</strong> All WebFetch and Jina.ai proxy calls returned 403 (Google Developers Blog, cursor.com/changelog, openai.com, simonwillison.net, arxiv.org, releasebot.io). All item details sourced from search result summaries and secondary coverage. Latent Space, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts found via search. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 17–18 surfaced.</p>
+<p><strong>Sources used today:</strong> Anthropic Claude Code changelog (code.claude.com); Anthropic Claude blog (claude.com/blog); Model Context Protocol Blog (blog.modelcontextprotocol.io); Okta newsroom; Cursor changelog (cursor.com); OpenAI Codex changelog (developers.openai.com/codex); TechTimes; Microsoft Security Blog; DevelopersIO; Anthropic Claude Developer Platform release notes (platform.claude.com); WorkOS blog; The Hacker News; TechRadar; CSO Online.</p>
+<p><strong>Skipped:</strong> Simon Willison's Datasette Apps post (June 18) — no AI coding agent angle. ChatGPT pronunciation help and World Cup updates (June 19) — consumer features outside practitioner scope. Simon Willison on ChatGPT Images 2.0 (June 21) — consumer image generation, not practitioner scope. Nathan Lambert "State of the blog" (June 17) — outside window; also meta rather than practitioner guidance. Loop Engineering essays by Peter Steinberger and Addy Osmani — published June 8, outside the window; the concept is now widely covered in secondary sources with no new primary evidence this week. Windsurf/Devin Desktop — rebranding happened June 2, no new changelog entries confirmed in window.</p>
+<p><strong>Coverage gaps:</strong> All WebFetch and Jina.ai proxy calls returned 403 across all sources. All item details sourced from web search summaries and secondary coverage. Latent Space, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts found via search. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 18–21 surfaced by search. arXiv — no papers from June 15–21 passed the "changes my workflow tomorrow" test.</p>
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/">Google Developers Blog — Gemini CLI transition</a> — 403 — wanted first-party text of the breaking changes list and exact enterprise carve-out language; used GitHub Discussion #27274 and secondary coverage instead.</li>
-  <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted exact feature description for /in-cloud and /babysit; used search result summaries.</li>
-  <li><a href="https://openai.com/index/deployment-simulation/">openai.com — deployment simulation paper</a> — 403 — wanted full methodology section and classifier details; used search summaries and secondary coverage.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted exact version notes for 2.1.183 including full blocklist language; used DevelopersIO secondary coverage and search summaries.</li>
+  <li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">github.com/anthropics/claude-code CHANGELOG.md</a> — 403 — wanted raw changelog text for 2.1.183; used search summaries.</li>
+  <li><a href="https://claude.com/blog/enterprise-managed-auth">claude.com/blog/enterprise-managed-auth</a> — 403 — wanted primary announcement text and full provider list; used TechTimes, Okta press release, and MCP blog for details.</li>
+  <li><a href="https://blog.modelcontextprotocol.io/posts/enterprise-managed-auth/">blog.modelcontextprotocol.io/posts/enterprise-managed-auth/</a> — 403 — wanted the MCP Blog's framing of the stable authorization extension; used search summaries.</li>
+  <li><a href="https://cursor.com/changelog/06-18-26">cursor.com/changelog/06-18-26</a> — 403 — wanted exact feature copy for /automate; used blog.vibecoder.me and search summaries.</li>
+  <li><a href="https://developers.openai.com/codex/record-and-replay">developers.openai.com/codex/record-and-replay</a> — 403 — wanted full feature description and geographic restrictions list; used TechTimes and search summaries.</li>
+  <li><a href="https://www.microsoft.com/en-us/security/blog/2026/06/18/autojack-single-page-rce-host-running-ai-agent/">microsoft.com — AutoJack security blog</a> — 403 — wanted exact three-weakness breakdown and PyPI carve-out language; used TechRadar, CSO Online, and The Hacker News secondary coverage.</li>
+  <li><a href="https://platform.claude.com/docs/en/release-notes/overview">platform.claude.com/docs/en/release-notes/overview</a> — 403 — wanted exact release date for response_inclusion tool versions; used search summaries from releasebot.io and changelogger.live.</li>
 </ul>
 
 </div>
