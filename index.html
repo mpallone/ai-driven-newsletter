@@ -3,60 +3,101 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-23T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-23, 3 items</title>
+  <meta name="published" content="2026-06-27T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-27, 7 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-23, 3 items</h1>
+<h1>AI Tools Digest — 2026-06-27, 7 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-22T12:00:00Z – 2026-06-23T12:00:00Z. GitHub Copilot for JetBrains ships Claude as an agent provider in public preview; Simon Willison covers an ICML 2026 paper showing "destyling" tool-output injections cuts attack success from 61% to 10%; Willison also demos a complete model-to-ONNX port run as a parallel Claude Code side-project with the full transcript published.</p>
+<p class="window-note">Window: 2026-06-23T12:00:00Z – 2026-06-27T12:00:00Z. Claude Code ships two releases fixing a silent hook-matching bug that affected every harness using hyphenated MCP server names, adds OpenTelemetry logging of assistant responses, and improves background-agent parallelism. Simon Willison demonstrates converting MDN's browser compat data to a CORS-open SQLite database using a Claude Code-generated pipeline. Anthropic launches Claude Tag, a persistent shared Slack agent with ambient monitoring mode.</p>
 
-<h3>Destyling tool-output injections drops prompt injection success from 61% to 10%</h3>
+<h3>Hooks for hyphenated agent names were silently mismatching until v2.1.195</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison's Weblog; <em>Prompt Injection as Role Confusion</em> (Ye, Cui, Hadfield-Menell — ICML 2026, arxiv 2603.12277)</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/22/prompt-injection-as-role-confusion/">Simon Willison's writeup — Jun 22, 2026</a>; <a href="https://arxiv.org/abs/2603.12277">arxiv.org/abs/2603.12277 — full paper</a></li>
-  <li><strong>TL;DR:</strong> Language models infer who is speaking from the writing style of text, not from the role tag wrapping it. Injected content inside tool outputs can therefore "feel" like a system prompt if it is written in the same authoritative register. A new attack called CoT Forgery exploits this by planting fabricated chain-of-thought reasoning inside user messages or tool outputs; it achieves roughly 61% success at exfiltrating agent state across multiple tested models. The fix: rewrite ("destyle") injected-looking content into a neutral, non-authoritative format before it reaches the model. That alone drops attack success to roughly 10%.</li>
-  <li><strong>What to do:</strong> Add a normalization pass to your tool output processing that strips command-tone language, first-person authority phrasing, and chain-of-thought formatting before the content enters the context window — anything that could make untrusted text sound like it came from the system prompt.</li>
-  <li><strong>Why trust it:</strong> ICML 2026 accepted paper; attack success rates measured on multiple open- and closed-weight models using both StrongREJECT and agent-exfiltration benchmarks, with near-zero baseline rates for the comparison condition.</li>
-  <li><strong>Skeptic check:</strong> Destyling is a post-hoc filter, not a structural fix — a targeted attacker who knows the filter's heuristics can craft injections that deliberately avoid the stylistic markers it looks for.</li>
+  <li><strong>Source:</strong> Anthropic — Claude Code release notes</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.195">Claude Code v2.1.195 release notes — GitHub, June 26, 2026</a></li>
+  <li><strong>TL;DR:</strong> If you had hooks or auto-mode deny rules referencing hyphenated names — <code>code-reviewer</code>, <code>mcp__brave-search</code>, any <code>mcp__server-name__tool</code> — they were doing substring matching, not exact matching. So a rule for <code>mcp__brave-search</code> would match <code>mcp__brave-search__web_search</code> and <em>also</em> any other tool whose name happened to contain that substring. Fixed in v2.1.195 to exact-match only. To intentionally match all tools from a hyphenated MCP server going forward, use the pattern <code>mcp__brave-search__.*</code>.</li>
+  <li><strong>What to do:</strong> Audit every hook matcher and auto-mode deny pattern in your <code>.claude/settings.json</code> that contains a hyphen — test that they still fire after upgrading, and update any that relied on the old substring behavior by appending <code>__.*</code> where you want wildcard matching.</li>
+  <li><strong>Why trust it:</strong> First-party Claude Code release notes, June 26, 2026; exact-match vs. substring behavior is verifiable by adding a test hook against a hyphenated MCP server name.</li>
+  <li><strong>Skeptic check:</strong> The fix only affects new evaluations; existing sessions started before upgrading will not retroactively reapply rules.</li>
 </ul>
 
-<h3>GitHub Copilot for JetBrains adds Claude agent provider, org agents, and CLI steering</h3>
+<h3>Claude Code now logs assistant response text to OpenTelemetry</h3>
 <ul>
-  <li><strong>Source:</strong> GitHub Changelog</li>
-  <li><strong>Link:</strong> <a href="https://github.blog/changelog/2026-06-22-new-features-and-claude-as-agent-provider-preview-in-jetbrains-ides/">New features and Claude as agent provider preview in JetBrains IDEs — GitHub Changelog, Jun 22, 2026</a></li>
-  <li><strong>TL;DR:</strong> The June 22 Copilot for JetBrains update ships six things at once: (1) Claude as a selectable agent provider in public preview — install Claude Code CLI, point the plugin at it under Settings &gt; Tools &gt; GitHub Copilot &gt; Chat, then pick "Claude" in the agent picker; the Claude agent currently runs in bypass permissions mode, auto-approving all file edits and tool calls. (2) Org- and enterprise-level custom agents from GitHub now appear in the JetBrains agent picker. (3) Copilot CLI sessions support message queuing and mid-session steering — you can send follow-up instructions while the agent is still running. (4) A new agent debug logs summary view. (5) A <code>/models</code> slash command plus a context-window size picker in the model selector. (6) A per-turn AI credits indicator.</li>
-  <li><strong>What to do:</strong> Install the Claude Code CLI locally, configure its path in JetBrains Copilot settings, and try Claude as your agent provider; treat bypass permissions mode as fully autonomous and review all changed files after each session — there is currently no per-call confirm dialog in this flow.</li>
-  <li><strong>Why trust it:</strong> GitHub first-party changelog entry, dated June 22, 2026; no secondary corroboration required.</li>
-  <li><strong>Skeptic check:</strong> Bypass mode means the agent can write and run anything without pausing — this is a meaningful security difference from the default Claude Code CLI experience, where you can set permission levels per tool category.</li>
+  <li><strong>Source:</strong> Anthropic — Claude Code release notes</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.193">Claude Code v2.1.193 release notes — GitHub, June 25, 2026</a></li>
+  <li><strong>TL;DR:</strong> A new <code>claude_code.assistant_response</code> OpenTelemetry log event now emits what the model said during a session. Disabled by default to avoid accidentally leaking sensitive context; set <code>OTEL_LOG_ASSISTANT_RESPONSES=1</code> to turn it on. Combined with the existing tool-call events, this gives you full trace coverage of a Claude Code session in your OTel collector.</li>
+  <li><strong>What to do:</strong> Add <code>OTEL_LOG_ASSISTANT_RESPONSES=1</code> to your monitoring environment variables if you already have an OTel pipeline for Claude Code — you can now correlate assistant reasoning text with tool calls and outcomes in the same trace.</li>
+  <li><strong>Why trust it:</strong> First-party Claude Code release notes, June 25, 2026; behavior is verifiable by enabling the flag and inspecting OTel output.</li>
+  <li><strong>Skeptic check:</strong> Enabling this will pipe full model responses — including any sensitive content from your prompts — to your OTel backend; verify your collector's data handling before turning it on in production.</li>
 </ul>
 
-<h3>Claude Code subagent mined an example project and ported a 0.2B model to the browser — zero human code review</h3>
+<h3>Background agents no longer stop the main session when launched</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code release notes</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.193">Claude Code v2.1.193 release notes — GitHub, June 25, 2026</a></li>
+  <li><strong>TL;DR:</strong> When Claude Code launched a background agent, an injected instruction told the main agent to "end your response" — which caused it to stop working on other concurrent tasks. That instruction is removed in v2.1.193. The fix also stops pinned background agents from asking "Continue from where you left off?" after every auto-update, and fixes a bug where backgrounding a main turn spawned a phantom "general-purpose (resumed)" subagent.</li>
+  <li><strong>What to do:</strong> If you have harnesses that rely on the main agent pausing after spawning a background agent, verify your control flow still works as expected after upgrading — the main agent will now continue rather than stop.</li>
+  <li><strong>Why trust it:</strong> First-party Claude Code release notes, June 25, 2026; reproducible by starting a background agent and observing main-session behavior before and after upgrade.</li>
+  <li><strong>Skeptic check:</strong> Harnesses that depend on the old pause-after-launch behavior will need to add an explicit stop or wait mechanism.</li>
+</ul>
+
+<h3>New setting routes all shell commands through auto-mode classifier</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code release notes</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.193">Claude Code v2.1.193 release notes — GitHub, June 25, 2026</a></li>
+  <li><strong>TL;DR:</strong> By default, auto-mode only sends shell commands that look like arbitrary code execution through the classifier. Setting <code>autoMode.classifyAllShell: true</code> in your Claude Code config sends every Bash and PowerShell command through it, giving you finer-grained allow/deny control in automated pipelines. The same release also adds denial reasons to the transcript and to the <code>/permissions</code> panel so you can see exactly why a command was blocked.</li>
+  <li><strong>What to do:</strong> If you run Claude Code in auto-mode pipelines and want tighter shell controls, add <code>"autoMode": {"classifyAllShell": true}</code> to your <code>.claude/settings.json</code>, then check the denial log under <code>/permissions</code> to tune your allow list.</li>
+  <li><strong>Why trust it:</strong> First-party Claude Code release notes, June 25, 2026; behavior is testable by running a benign command and checking whether it appears in the classifier log.</li>
+  <li><strong>Skeptic check:</strong> Running all commands through the classifier adds latency; measure the impact on pipeline throughput before enabling in time-sensitive automation.</li>
+</ul>
+
+<h3>/rewind now restores conversation context after /clear</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code release notes (v2.1.185–v2.1.193)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub</a></li>
+  <li><strong>TL;DR:</strong> Previously, running <code>/clear</code> to wipe a conversation was permanent — <code>/rewind</code> could not recover it. The June 22–26 releases extend the checkpoint system so <code>/rewind</code> can go back to a state before <code>/clear</code> was run, restoring prior conversation and file state. This applies to both the checkpoint-menu UI (Esc twice) and the <code>/rewind</code> command.</li>
+  <li><strong>What to do:</strong> If you habitually run <code>/clear</code> to reset context and then regret losing the thread, you no longer need to; use <code>/rewind</code> to recover. For automated sessions, note that checkpoints now persist across clears, which increases disk use over long sessions.</li>
+  <li><strong>Why trust it:</strong> Multiple third-party writeups (explainx.ai, mindstudio.ai) corroborate the feature alongside Claude Code's own docs update; testable by running <code>/clear</code> then <code>/rewind</code> in any recent Claude Code session.</li>
+  <li><strong>Skeptic check:</strong> Checkpoint storage is local; on shared or ephemeral machines the checkpoint files may not persist, limiting recovery options.</li>
+</ul>
+
+<h3>Claude Code turns any JSON data repo into a CORS-open SQLite MCP resource</h3>
 <ul>
   <li><strong>Source:</strong> Simon Willison's Weblog</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/22/porting-moebius/">Porting the Moebius 0.2B image inpainting model to run in the browser with Claude Code — Simon Willison, Jun 22, 2026</a></li>
-  <li><strong>TL;DR:</strong> Willison ran Claude Code as a parallel side-project to port Moebius — a 0.2B image inpainting model — from PyTorch/CUDA to ONNX Runtime Web on WebGPU so it runs entirely in a browser tab. Claude spawned a subagent to read through an existing whisper-web project and extracted the <code>caches.open("transformers-cache")</code> / CacheStorage API pattern for large file downloads, then applied it to the Moebius port. Willison never read any of the code; he only tested the output, suggested small features like a download progress bar, and pointed Claude at similar projects. The working demo and the full Claude Code transcript are both public.</li>
-  <li><strong>What to do:</strong> When you have a scoped porting or conversion task where a working example exists elsewhere, point Claude Code at that example early and let a subagent mine it for patterns — this avoids the main agent having to rediscover infrastructure the example already solved.</li>
-  <li><strong>Why trust it:</strong> Working browser demo published at simonw.github.io/moebius-web/; full Claude Code transcript published using the author's claude-code-transcripts tool; Willison confirmed the result by using it.</li>
-  <li><strong>Skeptic check:</strong> This is one informal side-project on a small model — it shows the pattern works here, not that it generalizes to arbitrary model ports or larger architectures.</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/24/browser-compat-db/">browser-compat-db — simonwillison.net, June 24, 2026</a></li>
+  <li><strong>TL;DR:</strong> Willison used Claude Code (Opus 4.8, web session) to write a <code>sqlite-utils</code> script that converts Mozilla's <code>mdn/browser-compat-data</code> JSON repository into a ~66 MB SQLite database. A GitHub Actions workflow rebuilds the database on each upstream commit and force-pushes it to an orphan branch, making it available via GitHub's CDN with open CORS headers. The result is queryable directly from Datasette Lite in a browser tab, and usable as an MCP resource — no backend needed.</li>
+  <li><strong>What to do:</strong> Use this pattern for any JSON data repository you want to query: ask Claude Code to write the <code>sqlite-utils</code> conversion script, add a GitHub Actions workflow that commits the <code>.db</code> to an orphan branch, and point Datasette Lite or your MCP server at the GitHub CDN URL with open CORS headers set on the branch.</li>
+  <li><strong>Why trust it:</strong> Working database published at the GitHub repo; Claude Code web transcript available; the pattern reuses existing open-source tooling (sqlite-utils, Datasette Lite) with no novel infrastructure.</li>
+  <li><strong>Skeptic check:</strong> The orphan-branch force-push pattern works for read-only public data; it's not suitable for large binary files or frequently updated datasets where GitHub CDN caching creates stale-data windows.</li>
+</ul>
+
+<h3>Claude Tag introduces ambient-monitoring shared agent pattern inside Slack</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic</li>
+  <li><strong>Link:</strong> <a href="https://www.anthropic.com/news/introducing-claude-tag">Introducing Claude Tag — Anthropic, June 23, 2026</a></li>
+  <li><strong>TL;DR:</strong> Claude Tag runs as one shared agent identity inside a Slack channel — any team member can delegate tasks by typing @Claude, and the agent accumulates context across conversations over time. In "ambient mode" (admin-enabled), the agent monitors channels without being tagged: it proactively surfaces relevant information, follows up on threads that went quiet without resolution, and flags developments from channels it has access to. It runs on Opus 4.8 and is available in beta on Enterprise and Team plans.</li>
+  <li><strong>What to do:</strong> Watch this; no action yet for most practitioners — the ambient monitoring and shared-context agent design patterns (one agent identity, persistent channel memory, proactive surfacing without being invoked) are directly relevant to agent harness architecture, but the implementation is currently only accessible through Anthropic's hosted product, not as a harness you can configure yourself.</li>
+  <li><strong>Why trust it:</strong> Anthropic first-party announcement with concrete feature descriptions; Anthropic reports internally that 65% of their product team's code is created by their internal version of Claude Tag, though this is self-reported and unaudited.</li>
+  <li><strong>Skeptic check:</strong> Ambient mode relies on the agent having broad channel read access, which raises both privacy and prompt-injection risks — an attacker controlling messages in a monitored channel could influence what the agent proactively surfaces to the team.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> GitHub Changelog (github.blog); Simon Willison's Weblog (simonwillison.net); arxiv.org (2603.12277 — Ye, Cui, Hadfield-Menell, ICML 2026).</p>
-<p><strong>Skipped:</strong> GPT-5.6 speculation (no primary-source announcement confirmed by June 23); Salesforce Agentforce 3 / Agent Fabric (GA in June 2026 but specific June 22–23 date not confirmed); Antigravity CLI transition (June 18, outside window); Cursor 3.8 Automations (June 18, outside window); Claude Code v2.1.185 (June 20–21, outside window); Fable 5 plan access ended June 22 (covered in yesterday's digest). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
-<p><strong>Coverage gaps:</strong> All direct WebFetch and Jina.ai proxy calls returned 403. Latent Space, Nathan Lambert, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts confirmed. HN front page June 22–23 — inaccessible (403). r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 22–23 confirmed via search. arXiv cs.AI/cs.CL/cs.LG/cs.SE June 16–23 — no submissions in the last 7 days passed the "changes my workflow tomorrow" filter (the Role Confusion paper is from March 2026; included here as a Simon Willison commentary item).</p>
-<p><strong>Inaccessible links:</strong></p>
+<p><strong>Sources used today:</strong> Anthropic / Claude Code GitHub releases (v2.1.193, v2.1.195); Simon Willison's Weblog (simonwillison.net); Anthropic News (anthropic.com/news); third-party corroboration from explainx.ai and mindstudio.ai for the /rewind feature.</p>
+<p><strong>Skipped:</strong> 2 capability/leaderboard announcements (OpenAI GPT-5.6 Sol, Claude Mythos 5 government release), 1 hardware announcement (OpenAI/Broadcom Jalapeño chip), 2 product launches outside the window (Cursor Customize page June 22, Apple Foundation Models Swift package June 8–9).</p>
+<p><strong>Coverage gaps:</strong> simonwillison.net returned 403 on direct and Jina-prefixed fetches (found June 24 content via search snippets only); anthropic.com engineering blog blocked by proxy; news.ycombinator.com returned 403; arxiv.org returned 403 (could not verify whether any cs.AI/cs.CL submissions from June 20–27 met the inclusion bar).</p>
+<p><strong>Inaccessible links:</strong>
 <ul>
-  <li><a href="https://simonwillison.net/2026/Jun/22/prompt-injection-as-role-confusion/">simonwillison.net — Prompt Injection as Role Confusion</a> — 403 — wanted Willison's specific framing beyond what search summaries reported; item included from search coverage and the primary arxiv paper.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/22/porting-moebius/">simonwillison.net — Porting Moebius</a> — 403 — wanted specific subagent task breakdown and lessons drawn; item included from Mastodon post and search summaries.</li>
-  <li><a href="https://github.blog/changelog/2026-06-22-new-features-and-claude-as-agent-provider-preview-in-jetbrains-ides/">github.blog — JetBrains Copilot changelog June 22</a> — 403 — wanted the exact feature list and configuration steps; details sourced from search summaries which reproduce the official language.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-06-22">news.ycombinator.com/front — June 22, 2026</a> — 403 — wanted top HN stories with point counts; fell back to search-indexed summaries.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/24/browser-compat-db/">simonwillison.net/2026/Jun/24/browser-compat-db/</a> — 403 — wanted to verify full post content and any additional technique details beyond the search snippet.</li>
+  <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> — 403 — wanted to check publication date and whether any update was issued this week.</li>
+  <li><a href="https://arxiv.org/abs/2601.06007">arxiv.org/abs/2601.06007</a> — 403 — "Don't Break the Cache" paper; wanted to check if a revision was submitted in the last 7 days that would bring it into scope.</li>
+  <li><a href="https://news.ycombinator.com/front">news.ycombinator.com front page</a> — 403 — wanted to check for any 200+ point threads in the window about Claude Code, MCP, or context engineering.</li>
 </ul>
+</p>
 
 </div>
 
