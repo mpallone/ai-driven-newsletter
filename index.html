@@ -3,59 +3,87 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-23T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-23, 3 items</title>
+  <meta name="published" content="2026-06-28T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-28, 5 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-23, 3 items</h1>
+<h1>AI Tools Digest — 2026-06-28, 5 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-22T12:00:00Z – 2026-06-23T12:00:00Z. GitHub Copilot for JetBrains ships Claude as an agent provider in public preview; Simon Willison covers an ICML 2026 paper showing "destyling" tool-output injections cuts attack success from 61% to 10%; Willison also demos a complete model-to-ONNX port run as a parallel Claude Code side-project with the full transcript published.</p>
+<p class="window-note">Window: 2026-06-23T12:00:00Z – 2026-06-28T12:00:00Z. Claude Code v2.1.195 fixes a silent hook-matcher bug affecting hyphenated tool names; OpenAI Codex Remote opens to all paid plans with QR pairing; Google releases the Deep Research agent to developers via a new Interactions API; GPT-5.6 previews explicit prompt cache breakpoints; Andrew Nesbitt's satirical incident report maps how AI agent review chains can fail in series.</p>
 
-<h3>Destyling tool-output injections drops prompt injection success from 61% to 10%</h3>
+<h3>Claude Code hook matchers now exact-match — hyphenated names were substring-matching before</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison's Weblog; <em>Prompt Injection as Role Confusion</em> (Ye, Cui, Hadfield-Menell — ICML 2026, arxiv 2603.12277)</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/22/prompt-injection-as-role-confusion/">Simon Willison's writeup — Jun 22, 2026</a>; <a href="https://arxiv.org/abs/2603.12277">arxiv.org/abs/2603.12277 — full paper</a></li>
-  <li><strong>TL;DR:</strong> Language models infer who is speaking from the writing style of text, not from the role tag wrapping it. Injected content inside tool outputs can therefore "feel" like a system prompt if it is written in the same authoritative register. A new attack called CoT Forgery exploits this by planting fabricated chain-of-thought reasoning inside user messages or tool outputs; it achieves roughly 61% success at exfiltrating agent state across multiple tested models. The fix: rewrite ("destyle") injected-looking content into a neutral, non-authoritative format before it reaches the model. That alone drops attack success to roughly 10%.</li>
-  <li><strong>What to do:</strong> Add a normalization pass to your tool output processing that strips command-tone language, first-person authority phrasing, and chain-of-thought formatting before the content enters the context window — anything that could make untrusted text sound like it came from the system prompt.</li>
-  <li><strong>Why trust it:</strong> ICML 2026 accepted paper; attack success rates measured on multiple open- and closed-weight models using both StrongREJECT and agent-exfiltration benchmarks, with near-zero baseline rates for the comparison condition.</li>
-  <li><strong>Skeptic check:</strong> Destyling is a post-hoc filter, not a structural fix — a targeted attacker who knows the filter's heuristics can craft injections that deliberately avoid the stylistic markers it looks for.</li>
+  <li><strong>Source:</strong> Anthropic (Claude Code changelog)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code v2.1.195 release notes — github.com/anthropics/claude-code, June 26, 2026</a></li>
+  <li><strong>TL;DR:</strong> Hook matchers with hyphenated identifiers — like <code>code-reviewer</code> or <code>mcp__brave-search</code> — were silently substring-matching since hooks were introduced. A pattern of <code>code-reviewer</code> would fire for any tool name that contained those characters. As of v2.1.195, they exact-match. To match all tools from an MCP server whose name contains a hyphen, use an explicit wildcard pattern like <code>mcp__brave-search__.*</code>.</li>
+  <li><strong>What to do:</strong> Update Claude Code to v2.1.195 or later, then audit your <code>.claude/settings.json</code> hook matchers — any entry with a hyphen in the tool name should be tested to confirm it fires exactly when intended and not on unrelated tools.</li>
+  <li><strong>Why trust it:</strong> First-party Anthropic changelog (v2.1.195, June 26, 2026); fix description also published by the @ClaudeCodeLog account on X with the full before/after matcher behavior.</li>
+  <li><strong>Skeptic check:</strong> If you intentionally relied on substring matching as a wildcard shorthand, your hook will silently stop firing — no deprecation warning, only the changelog entry.</li>
 </ul>
 
-<h3>GitHub Copilot for JetBrains adds Claude agent provider, org agents, and CLI steering</h3>
+<h3>Satirical incident report maps how AI review chains fail in series against one malicious package</h3>
 <ul>
-  <li><strong>Source:</strong> GitHub Changelog</li>
-  <li><strong>Link:</strong> <a href="https://github.blog/changelog/2026-06-22-new-features-and-claude-as-agent-provider-preview-in-jetbrains-ides/">New features and Claude as agent provider preview in JetBrains IDEs — GitHub Changelog, Jun 22, 2026</a></li>
-  <li><strong>TL;DR:</strong> The June 22 Copilot for JetBrains update ships six things at once: (1) Claude as a selectable agent provider in public preview — install Claude Code CLI, point the plugin at it under Settings &gt; Tools &gt; GitHub Copilot &gt; Chat, then pick "Claude" in the agent picker; the Claude agent currently runs in bypass permissions mode, auto-approving all file edits and tool calls. (2) Org- and enterprise-level custom agents from GitHub now appear in the JetBrains agent picker. (3) Copilot CLI sessions support message queuing and mid-session steering — you can send follow-up instructions while the agent is still running. (4) A new agent debug logs summary view. (5) A <code>/models</code> slash command plus a context-window size picker in the model selector. (6) A per-turn AI credits indicator.</li>
-  <li><strong>What to do:</strong> Install the Claude Code CLI locally, configure its path in JetBrains Copilot settings, and try Claude as your agent provider; treat bypass permissions mode as fully autonomous and review all changed files after each session — there is currently no per-call confirm dialog in this flow.</li>
-  <li><strong>Why trust it:</strong> GitHub first-party changelog entry, dated June 22, 2026; no secondary corroboration required.</li>
-  <li><strong>Skeptic check:</strong> Bypass mode means the agent can write and run anything without pausing — this is a meaningful security difference from the default Claude Code CLI experience, where you can set permission levels per tool category.</li>
+  <li><strong>Source:</strong> Andrew Nesbitt (nesbitt.io)</li>
+  <li><strong>Link:</strong> <a href="https://nesbitt.io/2026/06/26/incident-report-cve-2026-lgtm.html">Incident Report: CVE-2026-LGTM — Andrew Nesbitt, June 26, 2026</a></li>
+  <li><strong>TL;DR:</strong> A fictional piece (explicitly labeled satire) written in incident-report format shows a malicious package clearing seven sequential AI-powered security gates, each failing for a distinct reason. Gate one reads a fake approval ticket number embedded in the README and marks the package safe. Gate two is distracted by injected decoy content. Others exhaust their context windows on noise data planted in the package. Two AI review agents from competing vendors enter a 340-comment disagreement loop and negotiate a "truce" in <code>/tmp</code>. The key structural insight: stacking AI reviewers does not produce independent review if they all share the same prompt-injection attack surface.</li>
+  <li><strong>What to do:</strong> If your pipeline chains AI agents as security or code review gates, add at least one check that does not process the potentially malicious content at all — signature verification, dependency graph analysis, or static analysis that runs on AST rather than text — so there is a gate that cannot be fooled by README-embedded instructions.</li>
+  <li><strong>Why trust it:</strong> Explicitly fictional satire by the author; the individual failure modes (instruction injection via README text, context-window exhaustion by noise, AI disagreement loops) each map to documented real-world attack patterns and observed AI agent behaviors.</li>
+  <li><strong>Skeptic check:</strong> All numbers (7 gates, 340-comment loop, etc.) are invented for narrative effect. This is a thought experiment, not a measured study — it cannot tell you how likely these attacks are against your specific toolchain.</li>
 </ul>
 
-<h3>Claude Code subagent mined an example project and ported a 0.2B model to the browser — zero human code review</h3>
+<h3>GPT-5.6 preview ships explicit prompt cache breakpoints and a 30-minute cache guarantee</h3>
 <ul>
-  <li><strong>Source:</strong> Simon Willison's Weblog</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jun/22/porting-moebius/">Porting the Moebius 0.2B image inpainting model to run in the browser with Claude Code — Simon Willison, Jun 22, 2026</a></li>
-  <li><strong>TL;DR:</strong> Willison ran Claude Code as a parallel side-project to port Moebius — a 0.2B image inpainting model — from PyTorch/CUDA to ONNX Runtime Web on WebGPU so it runs entirely in a browser tab. Claude spawned a subagent to read through an existing whisper-web project and extracted the <code>caches.open("transformers-cache")</code> / CacheStorage API pattern for large file downloads, then applied it to the Moebius port. Willison never read any of the code; he only tested the output, suggested small features like a download progress bar, and pointed Claude at similar projects. The working demo and the full Claude Code transcript are both public.</li>
-  <li><strong>What to do:</strong> When you have a scoped porting or conversion task where a working example exists elsewhere, point Claude Code at that example early and let a subagent mine it for patterns — this avoids the main agent having to rediscover infrastructure the example already solved.</li>
-  <li><strong>Why trust it:</strong> Working browser demo published at simonw.github.io/moebius-web/; full Claude Code transcript published using the author's claude-code-transcripts tool; Willison confirmed the result by using it.</li>
-  <li><strong>Skeptic check:</strong> This is one informal side-project on a small model — it shows the pattern works here, not that it generalizes to arbitrary model ports or larger architectures.</li>
+  <li><strong>Source:</strong> OpenAI</li>
+  <li><strong>Link:</strong> <a href="https://openai.com/index/previewing-gpt-5-6-sol/">Previewing GPT-5.6 Sol — OpenAI, June 26, 2026</a></li>
+  <li><strong>TL;DR:</strong> GPT-5.6 (three tiers: Sol flagship, Terra balanced, Luna fast; currently in limited preview with roughly 20 government-approved partner organizations, general availability expected "in the coming weeks") ships a redesigned prompt caching contract. You can set explicit breakpoints in your prompt to control exactly where the cache boundary sits, rather than leaving the system to guess from prompt structure. Cache writes cost 1.25× the base input rate; cache reads get a 90% discount. Cached content is guaranteed to persist for at least 30 minutes. For agent workflows with large stable system prompts, this makes session cost predictable before the session starts.</li>
+  <li><strong>What to do:</strong> When GPT-5.6 reaches general availability, place your explicit cache breakpoint after the full static system prompt and before any dynamic context — this locks in the 90% read discount on every subsequent turn without relying on the model to infer a stable prefix.</li>
+  <li><strong>Why trust it:</strong> First-party OpenAI preview blog post and accompanying API documentation, June 26, 2026.</li>
+  <li><strong>Skeptic check:</strong> The model is in restricted preview; the API design may still change before GA. The 1.25× write surcharge means the cache only pays off after roughly 9 turns reusing the same prefix — short sessions may cost more than uncached calls.</li>
+</ul>
+
+<h3>OpenAI Codex Remote reaches all paid plans with QR-paired mobile control</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI</li>
+  <li><strong>Link:</strong> <a href="https://help.openai.com/en/articles/6825453-chatgpt-release-notes">ChatGPT release notes — OpenAI, June 25, 2026</a></li>
+  <li><strong>TL;DR:</strong> Codex Remote moved from limited preview to general availability on June 25. Any paid ChatGPT subscriber (Plus, Pro, Business, Enterprise, or Education) can now start or continue long-running Codex sessions from the iOS or Android app while the actual compute runs on their Mac or Windows machine. The old remote-shell connection approach is replaced with authenticated one-to-one QR pairing between the phone and the host machine, keeping the dev machine off the public internet while still reachable from anywhere.</li>
+  <li><strong>What to do:</strong> If you run Codex for long or overnight tasks, pair your dev machine through the QR flow in the ChatGPT mobile app once; after that you can kick off, monitor, and steer sessions from your phone without exposing the host machine to an open remote-shell listener.</li>
+  <li><strong>Why trust it:</strong> First-party OpenAI ChatGPT release notes, June 25, 2026.</li>
+  <li><strong>Skeptic check:</strong> Requires the host machine to remain powered on; alternatively, the bundled DigitalOcean Droplet plugin lets Codex provision and connect to a cloud workspace instead, but adds per-hour cloud cost.</li>
+</ul>
+
+<h3>Google's Deep Research agent is now callable from the Gemini API</h3>
+<ul>
+  <li><strong>Source:</strong> Google AI for Developers</li>
+  <li><strong>Link:</strong> <a href="https://blog.google/technology/developers/deep-research-agent-gemini-api/">Build with Gemini Deep Research — Google, June 24, 2026</a></li>
+  <li><strong>TL;DR:</strong> Google's Deep Research agent is now available to developers via a new Interactions API endpoint — a separate async API distinct from <code>generate_content</code> — accessible with a standard Gemini API key from Google AI Studio. You submit a research query with <code>background=True</code> and poll for results; tasks typically take several minutes. Two variants are offered: a fast version designed for streaming back to a client UI, and Deep Research Max for comprehensive synthesis. You can pass PDFs, images, and documents alongside the text query to ground the research. A collaborative planning mode lets you inspect and edit the agent's research plan before execution begins.</li>
+  <li><strong>What to do:</strong> For pipelines that need autonomous web research before generating an output (context gathering before writing documentation, competitive analysis, or sourcing), call the Interactions API with collaborative planning mode on — inspect the research plan before the agent executes, or it will range widely and take longer than needed.</li>
+  <li><strong>Why trust it:</strong> Google first-party developer blog and official Gemini API documentation, June 24, 2026; accessible immediately with a standard API key.</li>
+  <li><strong>Skeptic check:</strong> The Interactions API requires a different integration pattern than <code>generate_content</code> — existing LangChain, LlamaIndex, and similar framework adapters may not support it yet; verify compatibility before building.</li>
 </ul>
 
 <div class="meta">
 
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><strong><a href="https://nesbitt.io">Andrew Nesbitt (nesbitt.io)</a></strong> — surfaced via search during this run; Simon Willison linked the CVE-2026-LGTM piece on June 26. Nesbitt also published <a href="https://nesbitt.io/2026/05/28/protestware-for-coding-agents.html">Protestware for coding agents</a> in May 2026 on the specific risk of AI coding agents executing malicious npm install hooks. Track record: small but focused body of work on supply-chain and agent security from a practitioner perspective. Worth monitoring.</li>
+</ul>
+
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> GitHub Changelog (github.blog); Simon Willison's Weblog (simonwillison.net); arxiv.org (2603.12277 — Ye, Cui, Hadfield-Menell, ICML 2026).</p>
-<p><strong>Skipped:</strong> GPT-5.6 speculation (no primary-source announcement confirmed by June 23); Salesforce Agentforce 3 / Agent Fabric (GA in June 2026 but specific June 22–23 date not confirmed); Antigravity CLI transition (June 18, outside window); Cursor 3.8 Automations (June 18, outside window); Claude Code v2.1.185 (June 20–21, outside window); Fable 5 plan access ended June 22 (covered in yesterday's digest). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
-<p><strong>Coverage gaps:</strong> All direct WebFetch and Jina.ai proxy calls returned 403. Latent Space, Nathan Lambert, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts confirmed. HN front page June 22–23 — inaccessible (403). r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 22–23 confirmed via search. arXiv cs.AI/cs.CL/cs.LG/cs.SE June 16–23 — no submissions in the last 7 days passed the "changes my workflow tomorrow" filter (the Role Confusion paper is from March 2026; included here as a Simon Willison commentary item).</p>
+<p><strong>Sources used today:</strong> Anthropic (Claude Code changelog, github.com/anthropics/claude-code); Andrew Nesbitt (nesbitt.io); OpenAI (openai.com, ChatGPT release notes); Google AI for Developers (blog.google, ai.google.dev).</p>
+<p><strong>Skipped:</strong> GPT-4.5 retirement from ChatGPT (June 26 — model availability change, no workflow impact); GPT-5.2 retirement from ChatGPT (earlier in June — same); Windsurf/Devin Desktop MCP permission persistence (no confirmed in-window date); Loop Engineering essay by Addy Osmani (published June 8 on Substack and June 22 on O'Reilly Radar — outside window); Cursor 3.9 Customize page (June 22 — outside window). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+<p><strong>Coverage gaps:</strong> All Jina.ai proxy fetches returned 403 — full page text unavailable for simonwillison.net, nesbitt.io, openai.com, code.claude.com, anthropic.com engineering pages, ai.google.dev, and arxiv.org. Latent Space, Nathan Lambert, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts confirmed via search. HN front page June 23–28 — inaccessible (403). r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 23–28 confirmed. arXiv cs.AI/cs.CL/cs.LG/cs.SE: one candidate paper found (arXiv 2606.24775, agent-native memory benchmarking) but the full paper was inaccessible; could not confirm it clears the "changes my workflow tomorrow" bar, so excluded.</p>
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://simonwillison.net/2026/Jun/22/prompt-injection-as-role-confusion/">simonwillison.net — Prompt Injection as Role Confusion</a> — 403 — wanted Willison's specific framing beyond what search summaries reported; item included from search coverage and the primary arxiv paper.</li>
-  <li><a href="https://simonwillison.net/2026/Jun/22/porting-moebius/">simonwillison.net — Porting Moebius</a> — 403 — wanted specific subagent task breakdown and lessons drawn; item included from Mastodon post and search summaries.</li>
-  <li><a href="https://github.blog/changelog/2026-06-22-new-features-and-claude-as-agent-provider-preview-in-jetbrains-ides/">github.blog — JetBrains Copilot changelog June 22</a> — 403 — wanted the exact feature list and configuration steps; details sourced from search summaries which reproduce the official language.</li>
-  <li><a href="https://news.ycombinator.com/front?day=2026-06-22">news.ycombinator.com/front — June 22, 2026</a> — 403 — wanted top HN stories with point counts; fell back to search-indexed summaries.</li>
+  <li><a href="https://nesbitt.io/2026/06/26/incident-report-cve-2026-lgtm.html">nesbitt.io — CVE-2026-LGTM incident report</a> — 403 — wanted to verify the exact attack method text and confirm the README injection phrasing quoted in search summaries.</li>
+  <li><a href="https://openai.com/index/previewing-gpt-5-6-sol/">openai.com — Previewing GPT-5.6 Sol</a> — 403 — wanted the exact cache breakpoint API syntax and full pricing table; details sourced from search summaries reproducing official language.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com — Claude Code changelog</a> — 403 — wanted the complete v2.1.195 entry; key details confirmed via @ClaudeCodeLog on X and search-indexed summaries.</li>
+  <li><a href="https://ai.google.dev/gemini-api/docs/deep-research">ai.google.dev — Gemini Deep Research API docs</a> — 403 — wanted the full Interactions API request syntax; example code sourced from search-indexed documentation summaries.</li>
+  <li><a href="https://arxiv.org/abs/2606.24775">arxiv.org/abs/2606.24775 — Are We Ready For An Agent-Native Memory System?</a> — 403 — wanted the full abstract and empirical results to evaluate inclusion; excluded from digest as a result.</li>
 </ul>
 
 </div>
