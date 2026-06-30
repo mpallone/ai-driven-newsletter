@@ -3,37 +3,60 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-06-29T12:00:00Z">
-  <title>AI Tools Digest — 2026-06-29, 1 item</title>
+  <meta name="published" content="2026-06-30T12:00:00Z">
+  <title>AI Tools Digest — 2026-06-30, 3 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-06-29, 1 item</h1>
+<h1>AI Tools Digest — 2026-06-30, 3 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-06-28T12:00:00Z – 2026-06-29T12:00:00Z. One confirmed in-window item: OpenAI's first large-scale internal data on agent task duration. No new Claude Code release in the window (v2.1.195, June 26, remains latest). Simon Willison, Latent Space, Nathan Lambert, Hamel Husain, Eugene Yan, Chip Huyen — no in-window posts confirmed via search.</p>
+<p class="window-note">Window: 2026-06-29T12:00:00Z – 2026-06-30T12:00:00Z. Three in-window items: Claude Code v2.1.196 (June 29), Cursor iOS public beta (June 29), Ornith-1.0 open-source self-scaffolding coding models surfaced by Simon Willison (June 29). No new Anthropic model releases or Windsurf in-window changes confirmed.</p>
 
-<h3>Production Codex runs are dominated by 1-hour+ tasks, not quick sprints</h3>
+<h3>Claude Code v2.1.196 fixes a background-session data-loss bug, adds org model defaults</h3>
 <ul>
-  <li><strong>Source:</strong> OpenAI</li>
-  <li><strong>Link:</strong> <a href="https://openai.com/index/how-agents-are-transforming-work/">How agents are transforming work — OpenAI, June 28, 2026</a></li>
-  <li><strong>TL;DR:</strong> First-party data from OpenAI's internal Codex deployment shows 80.6% of agent task requests now correspond to work that would take a person 30 or more minutes, and 70.2% correspond to an hour or more. This is not an edge case: Codex is the primary AI tool for every OpenAI department including Legal, Finance, and Recruiting, with non-developer users growing 189× since August 2025 and Codex now accounting for more than 85% of output tokens per average OpenAI employee. The median production run is a long-horizon task, not a quick code suggestion.</li>
-  <li><strong>What to do:</strong> Plan your harness's context management strategy — compaction intervals, checkpoint frequency, session timeout thresholds, and cost estimates — around 45–90-minute runs as the normal case rather than 5–10 minutes.</li>
-  <li><strong>Why trust it:</strong> First-party OpenAI data across their full internal Codex deployment spanning every department; includes longitudinal measurements from November 2025 through early June 2026; no independent external audit of the methodology.</li>
-  <li><strong>Skeptic check:</strong> This is OpenAI's own workforce — the most enthusiastic and technically enabled Codex users anywhere. Adoption patterns and task duration distributions at external organizations will differ, possibly significantly.</li>
+  <li><strong>Source:</strong> Anthropic</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/releases">Claude Code releases — GitHub, June 29, 2026</a></li>
+  <li><strong>TL;DR:</strong> v2.1.196 fixes a critical bug where waking a background job would silently delete its transcript and re-run the original prompt from scratch — the transcript is now set aside rather than deleted. It also adds org-level default model configuration (admins set it in the org console; it appears as "Org default" or "Role default" in <code>/model</code> for users who haven't chosen manually), readable auto-generated session names at start, and clickable file attachments in chat (Cmd/Ctrl-click opens the file in Finder/Explorer). Remote Control is now disabled when <code>ANTHROPIC_BASE_URL</code> points at a non-Anthropic host.</li>
+  <li><strong>What to do:</strong> Update to v2.1.196 now if you run background agents — the previous transcript-deletion bug could silently restart long-running tasks. If you manage a team, configure your org's default model in the admin console so new members get the right starting point without manual setup.</li>
+  <li><strong>Why trust it:</strong> Anthropic's official changelog confirmed via @ClaudeCodeLog on X (changelog post from June 29, 2026) and the npm version record showing v2.1.196 published June 29; no independent audit of bug severity claimed.</li>
+  <li><strong>Skeptic check:</strong> The transcript-deletion bug only triggered when waking a specific type of background job where the transcript probe misread a real transcript — not every background session was at risk.</li>
+</ul>
+
+<h3>Cursor iOS lets you launch and steer cloud agents from your phone</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog/ios-mobile-app">Cursor iOS mobile app — Cursor changelog, June 29, 2026</a></li>
+  <li><strong>TL;DR:</strong> Cursor launched a public iOS beta on June 29 for all paid plans. You can start always-on cloud agents directly from the app, move a session from your laptop to the cloud (so it keeps running when the laptop closes), continue steering a locally running agent from your phone via Remote Control, and receive push notifications when an agent finishes or needs input. Cloud agents run in isolated VMs with full dev environments. Cursor is offering 75% off Composer 2.5 cloud-agent runs through July 5.</li>
+  <li><strong>What to do:</strong> If you use a paid Cursor plan and want to hand off long agent runs without keeping your laptop open, install the iOS beta and try moving a session to the cloud — the 75% discount through July 5 makes it cheap to test.</li>
+  <li><strong>Why trust it:</strong> Official Cursor changelog entry corroborated by 9to5Mac coverage on June 29, 2026; feature set is concrete and specific, not marketing language.</li>
+  <li><strong>Skeptic check:</strong> Public beta — iOS background-refresh policies may limit notification reliability. Cloud agent pricing after the discount period isn't stated in the launch post.</li>
+</ul>
+
+<h3>Open-source Ornith-1.0 models generate their own agent scaffold during training</h3>
+<ul>
+  <li><strong>Source:</strong> DeepReinforce (surfaced via <a href="https://simonwillison.net/2026/Jun/29/ornith/">Simon Willison, June 29, 2026</a>)</li>
+  <li><strong>Link:</strong> <a href="https://deep-reinforce.com/ornith_1_0.html">Ornith-1.0: Self-Scaffolding LLMs for Agentic Coding — DeepReinforce blog</a></li>
+  <li><strong>TL;DR:</strong> DeepReinforce released Ornith-1.0, a family of MIT-licensed open-weight coding models (9B Dense, 31B Dense, 35B MoE, 397B MoE) built on Gemma 4 and Qwen 3.5 bases. The distinguishing feature: during reinforcement learning training, the model learns to generate both the solution and the task-specific scaffold (retry logic, tool orchestration, memory layout) simultaneously. In practice this means the model adapts its own harness rather than relying on a human-engineered one. All variants are on Hugging Face (MIT license); the 9B and 35B are available on Ollama as <code>ornith:9b</code> (5.6 GB) and <code>ornith:35b</code> (21 GB) right now.</li>
+  <li><strong>What to do:</strong> If you're evaluating local open-source models for an agentic coding setup and have been spending time hand-crafting scaffolds, run <code>ollama pull ornith:9b</code> and test how much scaffold design the model handles on its own before you invest in custom harness engineering.</li>
+  <li><strong>Why trust it:</strong> DeepReinforce published benchmark results (9B: 43.1 Terminal-Bench 2.1, 69.4 SWE-Bench Verified; 397B MoE: 77.5 Terminal-Bench 2.1, 82.4 SWE-Bench Verified); model weights and MIT license are live on Hugging Face. Benchmarks are self-reported by the releasing team.</li>
+  <li><strong>Skeptic check:</strong> The claim that self-scaffolding reduces harness engineering work hasn't been measured against a "manually scaffolded baseline" on the same tasks — benchmark numbers show coding performance, not scaffold complexity reduction. SWE-Bench Verified scores for open models have varied significantly when reproduced independently.</li>
 </ul>
 
 <div class="meta">
 
 <h2>Footer</h2>
-<p><strong>Sources used today:</strong> OpenAI (openai.com).</p>
-<p><strong>Skipped:</strong> GPT-5.6 Sol HN discussion thread active June 29 — underlying item already covered in June 28 digest. OpenAI "how agents are transforming work" non-developer adoption growth figures — included as part of the item above. 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
-<p><strong>Coverage gaps:</strong> All Jina.ai proxy fetches returned 403 — full page text unavailable for github.com/anthropics/claude-code/releases, code.claude.com/docs/en/changelog, anthropic.com/engineering, openai.com (primary article fetched via search summaries only), simonwillison.net, latent.space, interconnects.ai, hamel.dev, eugeneyan.com, huyenchip.com, and arxiv.org. Hacker News front page June 28–29 — inaccessible (403). r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor, r/vibecoding — no specific high-vote threads from June 28–29 confirmed. arXiv cs.AI/cs.CL/cs.LG/cs.SE June 22–29: ActPlane (2606.25189, June 23) addresses OS-level policy enforcement for agent harnesses — describes building a new infrastructure layer, not using existing tools better, excluded. Note for readers: the June 28 digest also missed several Claude Code features from v2.1.191 (June 25) and v2.1.195 (June 26) due to persistent 403 errors on all Anthropic and GitHub sources in that run — those include <code>/rewind</code>, MCP server authentication startup notice, automatic memory-pressure reaping for idle shell commands, live file path autocomplete in bash mode (<code>!</code>), OpenTelemetry <code>claude_code.assistant_response</code> logging (off by default, enable with <code>OTEL_LOG_ASSISTANT_RESPONSES=1</code>), and an approximately 37% CPU reduction during streaming. Check <a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> for full v2.1.191 and v2.1.195 notes.</p>
+<p><strong>Sources used today:</strong> Anthropic / Claude Code (github.com, @ClaudeCodeLog on X), Cursor (cursor.com), DeepReinforce (deep-reinforce.com), Simon Willison (simonwillison.net), 9to5Mac.</p>
+<p><strong>Skipped:</strong> Opus 4.7 fast mode deprecation (announced June 25, before window; removal deadline July 24 — if you use <code>speed: "fast"</code> on <code>claude-opus-4-7</code>, migrate to Opus 4.8 before then). Claude Managed Agents self-hosted sandboxes + MCP tunnels (May 19, before window). Builder.io <code>/visual-plan</code> skill (June 24, before window). Claude on Azure GA (partnership/infrastructure, not methodology change). 0 funding posts, 0 leaderboard updates, 0 hype takes.</p>
+<p><strong>Coverage gaps:</strong> All Jina.ai proxy fetches returned 403 — simonwillison.net, deep-reinforce.com, code.claude.com, cursor.com, releasebot.io, github.com/anthropics/claude-code/releases all blocked. Claude Code v2.1.196 feature set confirmed via search index summaries and @ClaudeCodeLog on X changelog post. Hacker News June 29–30 front page not directly readable; no specific ≥200-point thread confirmed for this window. r/LocalLLaMA, r/ClaudeAI, r/ClaudeCode, r/cursor — no specific high-vote threads from June 29–30 confirmed. arXiv cs.AI/cs.CL/cs.LG/cs.SE June 23–30: no papers found that pass the inclusion bar (change workflow tomorrow based on empirical evidence); papers found were from earlier months.</p>
 <p><strong>Inaccessible links:</strong></p>
 <ul>
-  <li><a href="https://openai.com/index/how-agents-are-transforming-work/">openai.com — How agents are transforming work</a> — 403 — wanted to read the full post and verify exact wording; key figures reproduced from indexed search summaries and <a href="https://www.thedeepview.com/articles/new-openai-data-shows-dramatic-shift-to-agents">The Deep View's coverage</a> of the post.</li>
-  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to confirm whether any new Claude Code release shipped after 2026-06-28T12:00Z and to verify exact v2.1.191 and v2.1.195 feature sets.</li>
+  <li><a href="https://github.com/anthropics/claude-code/releases">github.com/anthropics/claude-code/releases</a> — 403 — wanted to verify exact v2.1.196 feature set and confirm no additional same-day releases.</li>
+  <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted official changelog text for v2.1.196.</li>
+  <li><a href="https://cursor.com/changelog/ios-mobile-app">cursor.com/changelog/ios-mobile-app</a> — 403 — wanted official Cursor iOS feature list; details confirmed via 9to5Mac and Cursor's own search-indexed changelog summaries.</li>
+  <li><a href="https://deep-reinforce.com/ornith_1_0.html">deep-reinforce.com/ornith_1_0.html</a> — 403 — wanted to read the primary Ornith-1.0 blog post; details confirmed via indexed search summaries and Simon Willison's writeup.</li>
+  <li><a href="https://simonwillison.net/2026/Jun/29/ornith/">simonwillison.net/2026/Jun/29/ornith/</a> — 403 — wanted Simon Willison's full commentary on Ornith-1.0.</li>
 </ul>
 
 </div>
