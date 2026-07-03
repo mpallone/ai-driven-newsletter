@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-07-01T11:12:37Z">
+  <title>AI Tools Digest — 2026-07-01, 4 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-07-01, 4 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-06-30T11:00:00Z – 2026-07-01T11:02:00Z (previous digest was under 24h old, so this run used a trailing 24-hour window instead). Four in-window items, all tied to the Claude Sonnet 5 launch and its aftermath, plus one small OpenAI Codex CLI fix. Several strong items from Cursor, OpenAI, and security researchers landed June 28–29, just outside this window — see Skipped below.</p>
+
+<h3>Claude Sonnet 5 changes tokens, defaults, and pricing</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic</li>
+  <li><strong>Link:</strong> <a href="https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5">What's new in Claude Sonnet 5 — Anthropic developer docs, June 30, 2026</a></li>
+  <li><strong>TL;DR:</strong> Anthropic shipped Claude Sonnet 5 as Claude Code's new default model, and switching your existing prompts over is not a drop-in swap: the same input text now counts as noticeably more tokens, extended thinking is on by default instead of off, manual thinking budgets are gone entirely, and the <code>temperature</code>/<code>top_p</code>/<code>top_k</code> sampling knobs no longer work.</li>
+  <li><strong>What to do:</strong> Before moving production prompts to Sonnet 5, recount them with Anthropic's token-counting API, raise any <code>max_tokens</code> limits that were sized close to your expected output, and strip <code>temperature</code>/<code>top_p</code>/<code>top_k</code> out of your request code.</li>
+  <li><strong>Why trust it:</strong> Anthropic's own release notes and developer docs list the tokenizer change, new defaults, and removed parameters directly; Simon Willison independently measured the token-count change with his own token-counter tool and found roughly 30-40% more tokens for English text, about 33% more for Spanish, about 28% more for Python code, and almost no change for Simplified Mandarin.</li>
+  <li><strong>Skeptic check:</strong> The size of the token-count increase — and its dollar impact — varies a lot by language and content type, so don't trust one reported average; recount your own real prompts before budgeting.</li>
+</ul>
+
+<h3>Claude Code fixes silent MCP auto-approval bug</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.196 and v2.1.197, GitHub</a></li>
+  <li><strong>TL;DR:</strong> Claude Code closed a hole where a repo's committed settings file could self-approve MCP servers listed in <code>.mcp.json</code> without ever asking the user — those now show as "pending approval" instead of running automatically. The same pair of releases added org-wide default-model settings, made the <code>/code-review</code> command cheaper to run, and put a watchdog on stalled streaming responses.</li>
+  <li><strong>What to do:</strong> Update to Claude Code v2.1.197, and if you regularly open untrusted or forked repos, confirm that any MCP servers you didn't explicitly approve are showing as pending rather than already running.</li>
+  <li><strong>Why trust it:</strong> Facts are taken directly from Anthropic's own CHANGELOG.md in the anthropics/claude-code GitHub repo, with dated entries for v2.1.196 (June 29) and v2.1.197 (June 30).</li>
+  <li><strong>Skeptic check:</strong> The bug required you to open a workspace containing an attacker-committed <code>.claude/settings.json</code> in the first place — it's a trust/supply-chain gap, not a remote takeover, so how much it matters to you depends on how often you open repos you don't fully trust.</li>
+</ul>
+
+<h3>Claude Code reportedly hid proxy fingerprints in prompts</h3>
+<ul>
+  <li><strong>Source:</strong> thereallo.dev (independent researcher), corroborated by around ten secondary outlets</li>
+  <li><strong>Link:</strong> <a href="https://thereallo.dev/blog/claude-code-prompt-steganography">Claude Code Is Steganographically Marking Requests — thereallo.dev, June 30, 2026</a></li>
+  <li><strong>TL;DR:</strong> An independent developer says Claude Code versions going back to April silently altered invisible characters in its own system prompt to signal, on every request, whether a user's custom API proxy or system timezone matched a hidden list of Chinese company and AI-lab domains — and Anthropic's next release, shipped the same day this became public, doesn't mention removing the behavior in its public changelog.</li>
+  <li><strong>What to do:</strong> If you route Claude Code through a custom <code>ANTHROPIC_BASE_URL</code> (a corporate proxy or gateway), diff your own system prompt across versions rather than assuming changelog silence means the behavior is gone.</li>
+  <li><strong>Why trust it:</strong> The claim originates from one developer's reverse-engineering writeup, but the specific mechanism described — four visually identical Unicode apostrophe variants encoding which lists matched, plus a dash-to-slash date-format swap keyed to timezone — is repeated consistently across roughly ten independent outlets; we could not load the original writeup or the related Hacker News discussion ourselves due to network restrictions in this environment, so this rests on convergent secondary reporting, not a firsthand read.</li>
+  <li><strong>Skeptic check:</strong> This is one researcher's decompilation, not an Anthropic-published disclosure or something we reproduced ourselves — treat the exact mechanism and the "at least three months" duration as reported-but-unverified until Anthropic gives its own detailed account or the changelog explicitly confirms removal.</li>
+</ul>
+
+<h3>Codex CLI trace logs leaked full request payloads</h3>
+<ul>
+  <li><strong>Source:</strong> OpenAI — Codex CLI changelog</li>
+  <li><strong>Link:</strong> <a href="https://developers.openai.com/codex/changelog">Codex changelog — OpenAI, July 1, 2026</a></li>
+  <li><strong>TL;DR:</strong> Codex CLI was writing complete Responses API request payloads into local trace logs; version 0.142.5 stops it from capturing the full payload.</li>
+  <li><strong>What to do:</strong> If you've ever turned on Codex CLI trace logging, update to 0.142.5 and clear out old trace log files that may contain full request payloads.</li>
+  <li><strong>Why trust it:</strong> Sourced from OpenAI's own Codex changelog and its changelog announcement account, referencing a specific GitHub issue number; we could not load the changelog page directly due to network restrictions and relied on search-indexed snippets instead.</li>
+  <li><strong>Skeptic check:</strong> The available text doesn't say exactly what sensitive data, if any, ended up in those payloads or how many users had trace logging turned on — treat the real-world exposure as unconfirmed until you check your own logs.</li>
+</ul>
+
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><strong><a href="https://thereallo.dev/">thereallo.dev</a></strong> — surfaced today as the independent source that broke the Claude Code steganography story, picked up by roughly ten secondary outlets within 24 hours. Track record: unknown, first appearance in our sources — worth watching for future reverse-engineering-style findings on agent tooling.</li>
+</ul>
+
+<h3>Prompt friction</h3>
+<ul>
+  <li>Direct WebFetch — including via the <code>r.jina.ai</code> fallback the skill recommends — returned HTTP 403 for nearly the entire seed list today: Anthropic's own blog/news pages, Cursor, Windsurf, OpenAI, DeepMind, Hugging Face, Simon Willison, Latent Space, Interconnects, Hamel Husain, Eugene Yan, Chip Huyen, Hacker News (site and Algolia API), and Reddit were all blocked at the network/proxy level. Every item above had to be reconstructed from WebSearch snippets and, where reachable, GitHub's API rather than a direct first-party read — a real degradation from the skill's assumed sourcing method, worth checking whether this is a persistent environment change.</li>
+  <li>Reddit was completely unreachable through every method tried (JSON API, old.reddit.com, the jina proxy, and search-engine site-search) — the discussion subreddits (r/LocalLLaMA, r/ClaudeAI, r/ChatGPTCoding, r/ClaudeCode, r/cursor, r/vibecoding) had effectively zero coverage this run.</li>
+</ul>
+
+<h2>Footer</h2>
+<ul>
+  <li><strong>Sources used today:</strong> Anthropic (developer docs, Claude Code CHANGELOG.md), thereallo.dev (via secondary corroboration), OpenAI Codex changelog (via secondary corroboration), Simon Willison (cited within the Sonnet 5 item's Why trust it, via secondary corroboration).</li>
+  <li><strong>Skipped:</strong> around 2 out-of-window model/product launches (GPT-5.6, EVA-Bench Data 2.0), around 4 out-of-window coding-agent feature posts (Cursor iOS beta, Cursor 3.9 Customize page, Codex CLI 0.142.2, Claude Code dynamic workflows), 1 out-of-window infra post with an ambiguous publish date (the Claude Apps Gateway), 2 marketing/hype items (a Claude Science app livestream, an AI ethics quiz), 1 image-generation model release (Nano Banana 2 Lite), and several strong but out-of-window security/research items (the Sentry MCP "agentjacking" disclosure, a Semgrep-vs-Claude-Code vulnerability-detection benchmark, the MCP 2026-07-28 spec release candidate) worth a look if not already covered in an earlier digest.</li>
+  <li><strong>Coverage gaps:</strong> direct WebFetch (including via the <code>r.jina.ai</code> fallback) returned HTTP 403 for essentially every seed source today — Anthropic's blog/news pages, Cursor, Windsurf, OpenAI, DeepMind, Hugging Face, Simon Willison, Latent Space, Interconnects, Hamel Husain, Eugene Yan, Chip Huyen, Hacker News (site and Algolia API), and Reddit (JSON API and old.reddit.com) were all blocked at the network/proxy level. Facts above were reconstructed via WebSearch snippets and, where reachable, GitHub's API and CDN-hosted PDFs, rather than full first-party page reads.</li>
+  <li><strong>Inaccessible links:</strong>
+    <ul>
+      <li><a href="https://www.anthropic.com/news">anthropic.com/news</a> and <a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to confirm the Sonnet 5 announcement and benchmark claims firsthand.</li>
+      <li><a href="https://simonwillison.net/2026/Jun/30/claude-sonnet-5/">simonwillison.net</a> (post and Atom feed) — 403 — wanted to directly quote the token-cost analysis instead of reconstructing it from search snippets.</li>
+      <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> and <a href="https://windsurf.com/changelog">windsurf.com/changelog</a> — 403 — wanted to check for in-window feature releases.</li>
+      <li><a href="https://openai.com/news/">openai.com/news</a>, <a href="https://platform.openai.com/docs/changelog">platform.openai.com/docs/changelog</a>, and <a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 — wanted to verify the Codex 0.142.5 fix details directly.</li>
+      <li><a href="https://deepmind.google/discover/blog/">deepmind.google/discover/blog</a> and <a href="https://huggingface.co/blog">huggingface.co/blog</a> — 403 — wanted to check for in-window posts.</li>
+      <li><a href="https://thereallo.dev/blog/claude-code-prompt-steganography">thereallo.dev/blog/claude-code-prompt-steganography</a> — 403 — wanted to verify the steganography technical claim directly rather than relying on secondary corroboration.</li>
+      <li><a href="https://news.ycombinator.com/">news.ycombinator.com</a> and the HN Algolia API — 403 — wanted to confirm discussion point counts directly.</li>
+      <li><a href="https://www.reddit.com/">reddit.com</a> (JSON API and old.reddit.com) — 403/blocked — wanted to check top-of-day threads across the target subreddits.</li>
+    </ul>
+  </li>
+</ul>
+
+</body>
+</html>
