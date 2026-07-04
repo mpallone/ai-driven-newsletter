@@ -3,200 +3,100 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-07-03T11:13:29Z">
-  <title>AI Tools Digest — 2026-07-03, 14 items</title>
+  <meta name="published" content="2026-07-04T11:14:38Z">
+  <title>AI Tools Digest — 2026-07-04, 7 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-07-03, 14 items</h1>
+<h1>AI Tools Digest — 2026-07-04, 7 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-07-01T11:12:37Z – 2026-07-03T11:13:29Z (about two days, since the last digest). Fourteen items made the cut across four clusters: two Claude Code releases plus a Claude-in-Chrome GA, a wave of new agent-harness tooling out of Google, two coding-agent vendor items, and three practitioner findings with real evidence behind them. Direct WebFetch was blocked (HTTP 403) for nearly every seed source again this run — the same problem as last time — so most facts below are reconstructed from WebSearch snippets and GitHub's API/raw-file endpoints rather than a first-party page read; see Coverage gaps and Inaccessible links for the full rundown.</p>
+<p class="window-note">Window: 2026-07-03T11:13:29Z – 2026-07-04T11:03:38Z (24 hours, since the last digest). Seven items made the cut: two Claude Code point releases with real automation implications, a thinly-corroborated but fascinating story about hidden context-signaling code Anthropic just removed, one practitioner tip on subagent delegation, one Cursor team-MCP feature, and one arXiv finding on agent-skill supply-chain risk. Direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for nearly every non-GitHub source again this run — the same problem flagged in the last two digests — so most items below rest on WebSearch snippets and GitHub's raw/releases endpoints rather than a first-party page read; see Coverage gaps and Inaccessible links.</p>
 
-<h2>Claude Code &amp; Anthropic platform</h2>
-<p>Two Claude Code point releases landed in the window, plus a security wrinkle on a feature that just went GA, plus new cost controls for Enterprise admins.</p>
-
-<h3>Claude Code subagents run in background by default</h3>
+<h3>Claude Code flips its default permission mode to "Manual"</h3>
 <ul>
   <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.198, GitHub</a></li>
-  <li><strong>TL;DR:</strong> As of v2.1.198 (July 1), subagents you launch now keep running in the background while your main session keeps working, instead of blocking it, and they can auto-commit, push, and open a draft PR when they finish a coding task. The same release put the built-in Explore agent on the main session's model (capped at Opus) instead of Haiku, added a <code>/dataviz</code> skill, and removed the interactive <code>/agents</code> wizard in favor of editing <code>.claude/agents/</code> files directly.</li>
-  <li><strong>What to do:</strong> If you have automation or hooks that assumed subagents block the main thread until done, re-check them against the new background-by-default behavior, and if you were relying on the <code>/agents</code> wizard, switch to editing agent files directly.</li>
-  <li><strong>Why trust it:</strong> Pulled directly from Anthropic's own CHANGELOG.md on GitHub, fetched via raw.githubusercontent.com, with a dated v2.1.198 entry for July 1, 2026.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
+  <li><strong>TL;DR:</strong> As of v2.1.200 (July 3), a fresh Claude Code install now starts in a permission mode called "Manual" instead of the old "default" mode, across the CLI, VS Code, and JetBrains — you can still opt back into the old behavior with <code>--permission-mode default</code> or a <code>defaultMode</code> setting.</li>
+  <li><strong>What to do:</strong> If you script or run Claude Code unattended (CI, cron, background agents), pin your permission mode explicitly before upgrading, since the new out-of-the-box default may prompt for more actions than you're used to.</li>
+  <li><strong>Why trust it:</strong> Pulled directly from Anthropic's own CHANGELOG.md on GitHub, dated to the v2.1.200 entry for July 3, 2026.</li>
+  <li><strong>Skeptic check:</strong> The changelog names the new default mode but doesn't spell out exactly which actions now require confirmation that didn't before — test a scripted run yourself before assuming automation still passes unattended.</li>
 </ul>
 
-<h3>Claude Code fixes silent subagent rate-limit failures</h3>
+<h3>AskUserQuestion no longer silently times out</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md; corroborated on Hacker News</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
+  <li><strong>TL;DR:</strong> Before v2.1.200, if you didn't answer an <code>AskUserQuestion</code> prompt within about 60 seconds, Claude Code silently filled in empty answers and kept going — undocumented, with no way to turn it off; as of July 3 that auto-continue is off by default and only happens if you opt in.</li>
+  <li><strong>What to do:</strong> Upgrade to v2.1.200, and if you were depending on the old silent-timeout behavior for unattended runs, re-enable it explicitly rather than assuming it still happens.</li>
+  <li><strong>Why trust it:</strong> The fix is documented in Anthropic's own changelog; the prior undocumented behavior was independently surfaced and discussed in a <a href="https://news.ycombinator.com/item?id=48765630">Hacker News thread</a> and a linked GitHub issue, where a Claude Code maintainer confirmed the change was coming.</li>
+  <li><strong>Skeptic check:</strong> The Hacker News discussion's exact point count couldn't be verified this run (the Algolia API was blocked), so treat "notable engagement" as approximate, not a confirmed high-ranking front-page thread.</li>
+</ul>
+
+<h3>Claude Code changes how it injects reminders for Sonnet 5</h3>
 <ul>
   <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.199, GitHub</a></li>
-  <li><strong>TL;DR:</strong> v2.1.199 (July 2) fixes a bug where a rate-limited subagent would fail silently instead of returning its partial work and surfacing the error to the parent agent. The same release made stacked slash-skill invocations (<code>/skill-a /skill-b do X</code>) load up to 5 leading skills instead of silently dropping all but the first, showed hook stderr output on <code>SessionStart</code>/<code>Setup</code>/<code>SubagentStart</code> failures instead of swallowing it, and added a <code>CLAUDE_CODE_RETRY_WATCHDOG</code> environment variable that removes the previous 15-retry cap.</li>
-  <li><strong>What to do:</strong> Upgrade to v2.1.199, and if you build multi-skill invocations or rely on hook exit codes for debugging, re-test them — both previously failed silently in ways this release fixes.</li>
-  <li><strong>Why trust it:</strong> Same CHANGELOG.md source, dated v2.1.199 entry for July 2, 2026, fetched directly from GitHub's raw file endpoint.</li>
-  <li><strong>Skeptic check:</strong> —</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.201, GitHub</a></li>
+  <li><strong>TL;DR:</strong> v2.1.201 (July 3) stops Claude Code from delivering harness reminders to Sonnet 5 sessions via a synthetic mid-conversation "system"-role turn; the changelog names the change but not what replaced it.</li>
+  <li><strong>What to do:</strong> If you build tooling that parses Claude Code transcripts or mimics its old reminder-injection pattern for Sonnet 5, re-check it against real sessions rather than assuming the old system-role turn still appears.</li>
+  <li><strong>Why trust it:</strong> Directly from Anthropic's CHANGELOG.md, dated to the v2.1.201 entry for July 3, 2026.</li>
+  <li><strong>Skeptic check:</strong> This is a single unexplained changelog line — treat any theory about why the change was made, or exactly what replaced the old mechanism, as inferred rather than confirmed.</li>
 </ul>
 
-<h3>Claude in Chrome reaches general availability</h3>
+<h3>Alibaba bans Claude Code after researcher finds hidden detection code</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md; security context from Koi Security</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.198, GitHub</a></li>
-  <li><strong>TL;DR:</strong> Claude in Chrome — letting Claude Code drive the browser for testing, console debugging, form automation, and page-data extraction — went GA in v2.1.198 (July 1). A browser-extension flaw disclosed earlier this year by security researchers at Koi Security showed that an unprivileged browser extension could inject hidden instructions that hijacked the Claude Chrome extension's actions; Anthropic has said Opus 4.5 cuts prompt-injection success to about 1% in its internal testing.</li>
-  <li><strong>What to do:</strong> Before turning on Claude in Chrome for real work, audit which other browser extensions run in the same profile, since the attack surface is other extensions injecting content the agent then treats as trusted.</li>
-  <li><strong>Why trust it:</strong> The GA date comes directly from Anthropic's CHANGELOG.md; the injection research is a named security firm's public disclosure and Anthropic's own reported mitigation number, not independently reproduced by us.</li>
-  <li><strong>Skeptic check:</strong> The 1% figure is Anthropic's internal test result, not a third-party audit, and the original vulnerability disclosure predates this GA launch — it's unclear whether the underlying extension-injection class of attack has been fully closed or just made less likely.</li>
+  <li><strong>Source:</strong> Multiple outlets (SCMP, Cybernews, The Information) reporting on a researcher's reverse-engineering of the Claude Code binary; Anthropic's response via an employee statement</li>
+  <li><strong>Link:</strong> <a href="https://www.scmp.com/tech/big-tech/article/3359375/alibaba-bans-staff-using-claude-code-over-anthropic-spyware-concerns">Alibaba bans staff from using Claude Code over Anthropic "spyware" concerns — SCMP</a></li>
+  <li><strong>TL;DR:</strong> Alibaba banned staff from using Claude Code (effective July 10) after a researcher reported that, since v2.1.91, it silently checked the user's timezone and proxy settings against a list of Chinese company and AI-lab domains, and on a match swapped the apostrophe in its injected "Today's date is" context string for one of three near-identical Unicode characters — a signal invisible to the user but readable server-side; Anthropic says the code was a March anti-distillation experiment and has since removed it.</li>
+  <li><strong>What to do:</strong> If your own harness injects context strings (dates, environment info, reminders) into the model's input, don't use invisible character substitutions for out-of-band signaling — treat this story as the cautionary example of what happens once it's discovered.</li>
+  <li><strong>Why trust it:</strong> The technical details are corroborated across several independent press outlets summarizing a named researcher's reverse-engineering write-up, plus a reported Anthropic-employee acknowledgment and a since-merged removal commit, but none of those primary artifacts could be loaded directly this run.</li>
+  <li><strong>Skeptic check:</strong> Every source here is secondary — the original reverse-engineering post, Anthropic's full statement, and the actual removal diff were all unreachable this run, so treat specifics like the exact domain list and Unicode substitutions as reported, not independently confirmed.</li>
 </ul>
 
-<h3>Claude Enterprise adds spend alerts, model limits</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic — Claude blog</li>
-  <li><strong>Link:</strong> <a href="https://claude.com/blog/giving-admins-more-visibility-and-control-over-claude-usage-and-spend">Giving admins more visibility and control over Claude usage and spend — Claude blog, ~July 2, 2026</a></li>
-  <li><strong>TL;DR:</strong> Claude Enterprise admins now get a dashboard showing usage and cost broken down by group and user, alongside artifacts created, files edited, and which skills/connectors were used; admins can also set which models are allowed by role across chat, Cowork, and Code, and spend alerts fire at 75%/90% of org budget (75%/95% for individual users).</li>
-  <li><strong>What to do:</strong> If you administer a Claude Enterprise org, turn on spend alerts and set per-role model entitlements now rather than after a surprise bill; the Admin API lets you script this instead of clicking through the dashboard.</li>
-  <li><strong>Why trust it:</strong> Sourced from Anthropic's own blog post describing the concrete feature set and threshold percentages; we could not load the page directly (blocked) and reconstructed the details from indexed search snippets.</li>
-  <li><strong>Skeptic check:</strong> We haven't independently verified the exact alert thresholds against a live account — treat the specific percentages as reported, not confirmed firsthand.</li>
-</ul>
-
-<h2>Coding-agent vendor moves</h2>
-<p>One vendor is shipping observability into its multi-agent internals; another just killed off its original agent.</p>
-
-<h3>Codex CLI nightlies add tool-call timing telemetry</h3>
-<ul>
-  <li><strong>Source:</strong> OpenAI — Codex CLI GitHub releases and commit history</li>
-  <li><strong>Link:</strong> <a href="https://github.com/openai/codex/releases">Codex CLI releases — rust-v0.143.0-alpha.32 through alpha.35, GitHub</a></li>
-  <li><strong>TL;DR:</strong> Nightly Codex CLI builds shipped July 1–3 add per-request time-to-first-token telemetry and structured timing data for individual tool calls, plus consolidated logging for its "multi-agent v2" inter-agent communication and a configurable hint-text mode for multi-agent sessions.</li>
-  <li><strong>What to do:</strong> If you're instrumenting or benchmarking a coding-agent harness, look at how Codex is structuring its tool-call and TTFT telemetry as a reference point for what to log in your own harness.</li>
-  <li><strong>Why trust it:</strong> Verified directly against GitHub's release API and commit compare view for openai/codex — real, timestamped commits and PR numbers, not a take.</li>
-  <li><strong>Skeptic check:</strong> These are nightly alpha builds with no release notes attached; the underlying PRs weren't independently reviewed in full, so treat specifics as directionally accurate rather than a finished feature spec.</li>
-</ul>
-
-<h3>Windsurf kills Cascade, forces Devin Local migration</h3>
-<ul>
-  <li><strong>Source:</strong> Windsurf/Cognition changelog (via secondary corroboration)</li>
-  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog">Windsurf changelog</a></li>
-  <li><strong>TL;DR:</strong> July 1, 2026 was the hard deadline for Windsurf's original local agent, Cascade, which is now fully retired in favor of "Devin Local" (a Rust rewrite shipped with Windsurf's rebrand to Devin Desktop). Anything — CI pipelines, scripts, automation — that invoked Cascade by name broke on that date with no grace period; interactive in-editor usage migrated automatically.</li>
-  <li><strong>What to do:</strong> If you have any automation that names "Cascade" explicitly, repoint it to Devin Local now — it's already broken, not just deprecated.</li>
-  <li><strong>Why trust it:</strong> We could not load windsurf.com/changelog directly (blocked); the July 1 deadline and no-grace-period detail are corroborated consistently across multiple independent secondary write-ups, but not confirmed against the primary changelog page itself.</li>
-  <li><strong>Skeptic check:</strong> This entire item rests on secondary sources rebuilding what the primary changelog says — if you depend on this, verify against windsurf.com/changelog directly before assuming your integration is broken.</li>
-</ul>
-
-<h2>Google ships a wave of agent-harness tooling</h2>
-<p>Five related releases from Google's developer/cloud org in three days — eval automation, a cross-vendor skill installer, and two new harness frameworks.</p>
-
-<h3>Google automates agent eval with agents-cli</h3>
-<ul>
-  <li><strong>Source:</strong> Google Developers Blog</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/driving-the-agent-quality-flywheel-from-your-coding-agent/">Driving the Agent Quality Flywheel from Your Coding Agent — Google Developers Blog, ~July 1, 2026</a></li>
-  <li><strong>TL;DR:</strong> A new <code>agents-cli eval</code> command chains five steps: an LLM generates realistic multi-turn test conversations straight from your agent's own instructions and tool definitions (no hand-written test cases), runs your agent against them, grades the resulting traces with the same "AutoRater" scoring approach Google uses to evaluate its own models, clusters the failure modes, and then automatically rewrites your system instructions against the test suite using the GEPA optimization algorithm.</li>
-  <li><strong>What to do:</strong> If you're maintaining eval test cases by hand for a coding or support agent, try generating them from your agent's own instructions/tools instead — it removes a maintenance burden that usually causes eval suites to go stale.</li>
-  <li><strong>Why trust it:</strong> This is a named, concrete CLI tool with named commands and a named optimization algorithm (GEPA) from Google's own developer blog; we could not load the page directly and relied on indexed search summaries, and no published benchmark numbers were found for how much the auto-generated tests improve over hand-written ones.</li>
-  <li><strong>Skeptic check:</strong> No head-to-head comparison against hand-written eval suites was found — the claim that auto-generated scenarios are "diverse" and catch real failure modes is Google's framing, not an independently measured result.</li>
-</ul>
-
-<h3>Google's agents-cli also configures Claude Code, Codex</h3>
-<ul>
-  <li><strong>Source:</strong> Google — agents-cli GitHub repository</li>
-  <li><strong>Link:</strong> <a href="https://github.com/google/agents-cli">google/agents-cli — GitHub</a></li>
-  <li><strong>TL;DR:</strong> This CLI adds agent-building, eval, and deployment skills not just to Google's own tools but directly to Claude Code and OpenAI Codex, plus it can inject infrastructure-as-code, wire up CI/CD, and deploy to Google's Agent Runtime, Cloud Run, or GKE.</li>
-  <li><strong>What to do:</strong> If you use Claude Code or Codex and want a ready-made deployment/eval pipeline for Google Cloud without writing your own from scratch, try installing agents-cli against your existing setup.</li>
-  <li><strong>Why trust it:</strong> The tool is an installable open-source CLI with a public GitHub repository — the cross-vendor claim is directly checkable in the repo itself, not just a press description.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>ADK Go 2.0 adds graph-based agent workflows</h3>
-<ul>
-  <li><strong>Source:</strong> Google Developers Blog</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/announcing-adk-go-20/">Announcing ADK Go 2.0 — Google Developers Blog, ~July 1, 2026</a></li>
-  <li><strong>TL;DR:</strong> Google's Agent Development Kit for Go now lets you describe an agent app as a graph of nodes and edges, hand it to a scheduler that runs it concurrently, persists state, pauses for a human to weigh in, and resumes later — even across a process restart — with built-in exponential-backoff retries and single agents and full multi-agent graphs running on the same execution model.</li>
-  <li><strong>What to do:</strong> If you're designing a harness that needs to pause for human approval mid-task and survive a restart, look at ADK Go's state-persistence model as a reference design even if you're not using Go.</li>
-  <li><strong>Why trust it:</strong> Concrete, named architectural features (graph scheduler, human-in-the-loop primitive, unified node runtime) from Google's own developer blog; we reconstructed details from search snippets since the page itself was blocked, and no performance numbers were published.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>Genkit adds a unified agent API</h3>
-<ul>
-  <li><strong>Source:</strong> Google Developers Blog</li>
-  <li><strong>Link:</strong> <a href="https://developers.googleblog.com/build-agentic-full-stack-apps-with-genkit/">Build agentic full-stack apps with Genkit — Google Developers Blog, July 1, 2026</a></li>
-  <li><strong>TL;DR:</strong> Genkit's new Agents API (preview, TypeScript and Go) hides message history, tool loops, and streaming behind one <code>chat()</code>-style call whether your agent runs in-process or behind an HTTP endpoint, with a choice of server- or client-managed state so you can support conversation branching and long-running detached tasks.</li>
-  <li><strong>What to do:</strong> If you're building a custom wire protocol between an agent backend and a frontend, compare it against Genkit's client/server state-management split before rolling your own.</li>
-  <li><strong>Why trust it:</strong> Concrete preview-status feature description from Google's own developer blog, reconstructed from search snippets since the page was blocked to us directly; no adoption numbers or benchmarks given.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h3>gemini-cli patches a context-file path traversal bug</h3>
-<ul>
-  <li><strong>Source:</strong> Google — gemini-cli GitHub releases</li>
-  <li><strong>Link:</strong> <a href="https://github.com/google-gemini/gemini-cli/releases">gemini-cli releases — v0.51.0-nightly, July 2, 2026, GitHub</a></li>
-  <li><strong>TL;DR:</strong> A nightly gemini-cli build shipped July 2 fixes a symbolic-link directory-escape bug in the tool that resolves <code>@import</code>-style memory/context file references — a maliciously crafted symlink in an imported file could have let content from outside the intended directory get pulled into the agent's context.</li>
-  <li><strong>What to do:</strong> If you build or rely on any "@file import" style context-loading mechanism in your own harness, check that it resolves symlinks safely and can't escape the directory you intended to expose.</li>
-  <li><strong>Why trust it:</strong> Verified against GitHub's public release changelog for google-gemini/gemini-cli, with a named commit author and PR.</li>
-  <li><strong>Skeptic check:</strong> —</li>
-</ul>
-
-<h2>Practitioner findings</h2>
-<p>Three items with real evidence behind them, not just announcements.</p>
-
-<h3>Vague system-prompt wording causes agent retry loops</h3>
+<h3>Let the model pick its own cheaper subagent</h3>
 <ul>
   <li><strong>Source:</strong> Simon Willison</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jul/2/dspy-datasette-agent-prompts/">Using DSPy to evaluate and improve Datasette Agent's SQL system prompts — Simon Willison, July 2, 2026</a></li>
-  <li><strong>TL;DR:</strong> Willison built a harness where DSPy agents call his Datasette Agent's real tools and prompts against a live database, and traced a concrete failure: the schema listing only gave table names (no columns), while the system prompt separately said "don't call describe_table if you already have the information" — the combination made small models guess column names and fall into error-retry loops.</li>
-  <li><strong>What to do:</strong> If your system prompt tells the model to skip a lookup tool "when you already have the information," check that the information you actually gave it is complete enough to make that true, or soften the instruction.</li>
-  <li><strong>Why trust it:</strong> One practitioner's own dogfooding case study on his real production tool, tested against GPT-4.1 mini/nano, with an auto-generated gold-standard eval dataset and custom metrics — not a large-scale controlled study, but a concrete, reproducible failure trace on a real system.</li>
-  <li><strong>Skeptic check:</strong> This is a single project's traces with a couple of specific small models, not a broad multi-model benchmark — the general lesson (ambiguous "skip if you already know X" instructions are risky) is more trustworthy than the specific schema-listing fix.</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jul/3/judgement/">Fable's judgement — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Instead of hardcoding rules for when to use a cheaper subagent model, a tip from Claude Code team members is to tell the top-level model to use its own judgment — e.g. "use your judgement to decide an appropriate lower-power model and run that in a subagent" — and let it pick Sonnet for real implementation work and Haiku for trivial mechanical edits.</li>
+  <li><strong>What to do:</strong> Add a judgment-based delegation instruction to your own agent's system prompt instead of a hardcoded model-selection rule, and keep reviewing subagent output in the main loop before committing.</li>
+  <li><strong>Why trust it:</strong> Willison reports this secondhand from a fireside chat with two Claude Code team members (Cat Wu, Thariq Shihipar), describing a workflow he tried himself, not a controlled study.</li>
+  <li><strong>Skeptic check:</strong> This is one practitioner's anecdotal account of a single workflow, with no before/after cost or quality numbers given.</li>
 </ul>
 
-<h3>A skill can encode 45 design rules</h3>
+<h3>Cursor lets teams share MCP servers org-wide</h3>
 <ul>
-  <li><strong>Source:</strong> Latent Space (interview with Paul Bakaus)</li>
-  <li><strong>Link:</strong> <a href="https://www.latent.space/p/skill-engineering-design">Skill engineering and the case against one-shot AI design — Latent Space, ~July 2, 2026</a></li>
-  <li><strong>TL;DR:</strong> Paul Bakaus built <a href="https://github.com/pbakaus/impeccable">Impeccable</a>, an open-source design skill for coding agents that packages 23 commands and 45 deterministic detector rules that give an agent operationally precise definitions for vague design terms like "bolder" or "denser," so it fixes one section at a time with a human checking each step instead of regenerating the whole page in one shot.</li>
-  <li><strong>What to do:</strong> When a skill's instructions rely on subjective adjectives, replace them with a checklist of deterministic, checkable rules the way Impeccable does for design language — inspect its rule set on GitHub as a template.</li>
-  <li><strong>Why trust it:</strong> The claims are checkable against a real open-source repository (45 detector rules, 23 commands) rather than just an interview description; no adoption or accuracy numbers were given for how well the detectors work in practice.</li>
-  <li><strong>Skeptic check:</strong> This is one open-source project from its creator's own account in an interview, not an independent audit of whether the 45 rules actually reduce bad output versus a baseline.</li>
+  <li><strong>Source:</strong> Cursor changelog (via secondary summary)</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog</a></li>
+  <li><strong>TL;DR:</strong> Cursor now lets admins configure a Team MCP server once and have it automatically available across cloud agents, the agents window, the IDE, and the CLI, with access restrictable by org-wide groups rather than just per-team.</li>
+  <li><strong>What to do:</strong> If you're managing MCP servers across a team in Cursor, move shared server configs to the new Team MCP setting instead of having each developer configure them individually.</li>
+  <li><strong>Why trust it:</strong> Reported consistently across independent search results this run, but the changelog page itself could not be loaded directly (blocked), so details come from indexed snippets, not a first-party read.</li>
+  <li><strong>Skeptic check:</strong> The exact date and the precise scope of org-level versus team-level groups wasn't independently confirmed — verify against cursor.com/changelog directly before assuming exact behavior.</li>
 </ul>
 
-<h3>Long-context models skip evidence already in view</h3>
+<h3>Third-party agent skills carry hidden dependency risk</h3>
 <ul>
-  <li><strong>Source:</strong> arXiv (Zhao et al., UIUC)</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.02509">ReContext: Recursive Evidence Replay as LLM Harness for Long-Context Reasoning — arXiv, July 2, 2026</a></li>
-  <li><strong>TL;DR:</strong> Even when the right evidence is already sitting inside a long context window, models often don't use it — the paper's fix has the model find and re-quote the relevant spans itself, then "replays" just that evidence back to it right before the final answer, without discarding the rest of the context.</li>
-  <li><strong>What to do:</strong> For long-context tasks where the model seems to ignore relevant material you already gave it, try explicitly re-surfacing the key evidence near the end of your prompt right before asking for the final answer, rather than trusting the model to find it unprompted.</li>
-  <li><strong>Why trust it:</strong> Tested across 8 long-context datasets at 128K tokens on three different open model backbones (Qwen3-4B, Qwen3-8B, Llama3-8B), with the technique ranking best on average across all three against baseline approaches; code was released alongside the paper.</li>
-  <li><strong>Skeptic check:</strong> Tested only on smaller open models (4B–8B), not on the frontier models most practitioners actually use for coding agents, so the size of the benefit on a model like Sonnet 5 or GPT-5.6 is unverified.</li>
-</ul>
-
-<h2>Meta</h2>
-
-<h3>Candidate sources</h3>
-<ul>
-  <li><strong><a href="https://engineering.block.xyz/blog/3-principles-for-designing-agent-skills">engineering.block.xyz</a></strong> — surfaced via fresh discovery search (not a citation from an existing seed source). Block (Square's parent) reportedly runs an internal marketplace of 100+ production SKILL.md skills across Goose, Claude Code, and other SKILL.md-compatible tools, with role-based curated bundles, and makes the same point this reader would care about: skill discoverability lives in the frontmatter description, not the instructions body. Track record: unknown, first appearance in our sources — worth watching for more production-scale skill-design writing, but we could not fetch the post directly to verify its full content.</li>
-</ul>
-
-<h3>Prompt friction</h3>
-<ul>
-  <li>For the second run in a row, direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for nearly every seed source: Anthropic's blog/news, Simon Willison, Latent Space, Interconnects, Hamel Husain, Eugene Yan, Chip Huyen, Cursor, Windsurf, OpenAI's news/changelog pages, Google DeepMind and Hugging Face's main sites, Hacker News (site and Algolia API), Reddit, and arXiv abstract pages were all blocked. Only GitHub-hosted content (raw file endpoints, releases pages, the GitHub REST/compare API) was reliably fetchable. This is now a persistent pattern worth escalating rather than a one-off — it means almost every fact in this and the previous digest was reconstructed from WebSearch snippets rather than a first-party read.</li>
-  <li>WebSearch's own date attribution was unreliable this run: search summaries twice mislabeled April 2026 blog posts (from Simon Willison and a Google DeepMind piece) as "July 2" or "July 3." Both were caught by cross-checking the actual URL date slug before inclusion. Any future run relying on search-snippet dates alone should verify against the URL path, not the summarizer's stated date.</li>
-  <li>Hamel Husain, Eugene Yan, and Chip Huyen all had zero posts in this two-day window (most recent posts June 21–29) — not a failure of the search, just a quiet stretch; no action needed, but note in case it continues for multiple runs.</li>
+  <li><strong>Source:</strong> arXiv (Jia, Zhao, He, Zhou)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.01136">Skills Are Not Islands: Measuring Dependency and Risk in Agent Skill Supply Chains — arXiv</a></li>
+  <li><strong>TL;DR:</strong> A study of reusable agent "skills" (the kind of capability package Claude Code and similar harnesses install) found that most of their third-party package exposure — about 72% of npm-based dependencies and 73% of PyPI-based ones — comes from a skill quietly pulling in other skills, not from packages its author declared directly, and roughly 30% of skills with dependencies contain a circular reference.</li>
+  <li><strong>What to do:</strong> Before installing a third-party skill or plugin into your agent harness, audit its full transitive dependency tree — skills that depend on other skills — instead of just its declared top-level dependencies.</li>
+  <li><strong>Why trust it:</strong> Researchers measured actual dependency graphs across a skill corpus and reported specific percentages, though the exact corpus size and full methodology weren't confirmed since the paper itself couldn't be loaded directly this run.</li>
+  <li><strong>Skeptic check:</strong> Without the full paper, the sample size and what counts as a "skill" in their corpus (Claude Code skills specifically, or a broader category) is unconfirmed.</li>
 </ul>
 
 <h2>Footer</h2>
 <ul>
-  <li><strong>Sources used today:</strong> Anthropic (Claude Code CHANGELOG.md via GitHub raw, Claude blog via secondary reconstruction), OpenAI (Codex CLI GitHub releases/commit API), Windsurf/Cognition (via secondary reconstruction), Google Developers Blog (via secondary reconstruction) and gemini-cli/agents-cli GitHub repositories, Simon Willison, Latent Space (via secondary reconstruction), arXiv.</li>
-  <li><strong>Skipped:</strong> around 5 business/policy items (SoftBank's second $10B OpenAI investment tranche, a reported US-government 5% OpenAI equity proposal, Anthropic-Samsung custom chip talks, Anthropic's Fable 5 re-deployment and jailbreak-severity framework, the Claude Science research app), around 6 items that predate this window and were already substantively covered or are better left to a future digest if they resurface (GPT-5.6's prompt-caching pricing changes, Codex Remote reaching GA, VS Code Copilot's tool-search token-efficiency work, the "Agentjacking" Sentry MCP prompt-injection disclosure, the MCP protocol's July 28 stateless-core release-candidate deadline, Cursor's Team MCP marketplace and Bugbot speedup), 1 duplicate of the previous digest's lead story (further Claude Sonnet 5 launch discussion on Hacker News), and 3 take/interview-only pieces without independent measurement (two Latent Space AI Engineer World's Fair conference dispatches and one arXiv paper on "loop specifications" for coding agents that had no benchmark or user study behind it).</li>
-  <li><strong>Coverage gaps:</strong> direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for essentially every non-GitHub seed source this run — see Prompt friction above for the full list. Facts were reconstructed via WebSearch snippets and, where available, GitHub's raw-file/releases/REST API.</li>
+  <li><strong>Sources used today:</strong> Anthropic (Claude Code CHANGELOG.md via GitHub raw), Hacker News, SCMP/Cybernews/The Information (via secondary reconstruction of the Alibaba/Claude Code story), Simon Willison, Cursor changelog (via secondary reconstruction), arXiv.</li>
+  <li><strong>Skipped:</strong> 3 pre-window vendor items that landed just before this window opened and were presumably already covered (Claude Sonnet 5 launch, Fable 5 re-deployment, GPT-5.6 preview), 2 opinion-only Hacker News threads with no independent evidence (a general Sonnet 5 reaction thread and speculation about a Chinese model's training hardware), 2 arXiv papers without confirmed empirical backing (a proposed evaluator-drift measurement protocol and a "loop specification" prompting proposal with no reported benchmark), 1 dataset/landscape roundup out of scope for this beat (Simon Willison's Open Source AI Gap Map post), 1 economic-impact anecdote with no methodology (a course creator's revenue-drop quote), and 1 library release with no prompt/harness relevance (Hugging Face transformers v5.13.0's new model support).</li>
+  <li><strong>Coverage gaps:</strong> direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for essentially every non-GitHub source this run — Anthropic's own sites, Cursor, Windsurf, OpenAI, Google DeepMind, Hugging Face's blog, simonwillison.net, arxiv.org, Hacker News' Algolia API, and all six target subreddits were all blocked, continuing the same pattern flagged in the last two digests. Latent Space, Interconnects, Hamel Husain, Eugene Yan, and Chip Huyen again showed no indexed activity in the window — a stretch now spanning multiple consecutive runs for at least the last three of those.</li>
   <li><strong>Inaccessible links:</strong>
     <ul>
-      <li><a href="https://www.anthropic.com/news">anthropic.com/news</a> and <a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to confirm the Claude Enterprise cost-controls and Fable 5 items firsthand.</li>
-      <li><a href="https://code.claude.com/docs/en/changelog">code.claude.com/docs/en/changelog</a> — 403 — wanted a second confirmation of the v2.1.198/199 changelog entries beyond GitHub's raw file.</li>
-      <li><a href="https://simonwillison.net/">simonwillison.net</a> and its Atom feed — 403 — wanted to read the DSPy/Datasette Agent post directly instead of via search snippets.</li>
-      <li><a href="https://www.latent.space/">latent.space</a> (homepage and podcast feed) — 403/blocked — wanted to confirm the Impeccable interview's full content.</li>
-      <li><a href="https://windsurf.com/changelog">windsurf.com/changelog</a> and <a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to verify the Cascade EOL details and check for any in-window Cursor items directly.</li>
-      <li><a href="https://openai.com/news/">openai.com/news</a>, <a href="https://platform.openai.com/docs/changelog">platform.openai.com/docs/changelog</a>, and <a href="https://developers.openai.com/codex/changelog">developers.openai.com/codex/changelog</a> — 403 — wanted first-party confirmation of Codex CLI release notes beyond GitHub's API.</li>
-      <li><a href="https://deepmind.google/discover/blog/">deepmind.google/discover/blog</a>, <a href="https://developers.googleblog.com/">developers.googleblog.com</a>, and <a href="https://huggingface.co/blog">huggingface.co/blog</a> — 403 — wanted to read the agents-cli, ADK Go, and Genkit posts directly rather than via search snippets.</li>
-      <li><a href="https://news.ycombinator.com/">news.ycombinator.com</a>, the HN Algolia API, and the HN Firebase API — 403/blocked — wanted to confirm point counts for Claude Sonnet 5 discussion threads.</li>
-      <li><a href="https://www.reddit.com/">reddit.com</a> (JSON API and old.reddit.com) — blocked at the proxy level — wanted to check top-of-day threads across the target subreddits; no coverage obtained this run either.</li>
-      <li><a href="https://arxiv.org/abs/2607.00038">arxiv.org</a> (abstract and PDF endpoints, all IDs tried) — 403 — wanted to verify the ReContext paper's methodology section directly instead of via search-engine summary.</li>
+      <li><a href="https://www.anthropic.com/news">anthropic.com/news</a> and <a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check for any in-window Anthropic posts beyond the GitHub changelog.</li>
+      <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to verify the exact date and scope of the Team MCP feature firsthand.</li>
+      <li><a href="https://arxiv.org/abs/2607.01136">arxiv.org/abs/2607.01136</a> — 403 — wanted to confirm the sample size and methodology behind the skill-dependency percentages.</li>
+      <li><a href="https://www.reddit.com/r/ClaudeCode/">reddit.com</a> (all six target subreddits, JSON API and old.reddit.com) — blocked at the proxy level — wanted to check today's top posts for anything the other searches missed.</li>
+      <li><a href="https://news.ycombinator.com/">news.ycombinator.com</a> and the HN Algolia API — 403/blocked — wanted to confirm the point count on the AskUserQuestion discussion thread.</li>
+      <li><a href="https://simonwillison.net/2026/Jul/3/judgement/">simonwillison.net</a> — 403 — wanted to quote the "Fable's judgement" post directly rather than rely on a secondary summary.</li>
     </ul>
   </li>
 </ul>
