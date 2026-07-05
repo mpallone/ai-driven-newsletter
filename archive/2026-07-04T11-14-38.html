@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="published" content="2026-07-04T11:14:38Z">
+  <title>AI Tools Digest — 2026-07-04, 7 items</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<h1>AI Tools Digest — 2026-07-04, 7 items</h1>
+<nav><a href="archive/">Archive</a></nav>
+
+<p class="window-note">Window: 2026-07-03T11:13:29Z – 2026-07-04T11:03:38Z (24 hours, since the last digest). Seven items made the cut: two Claude Code point releases with real automation implications, a thinly-corroborated but fascinating story about hidden context-signaling code Anthropic just removed, one practitioner tip on subagent delegation, one Cursor team-MCP feature, and one arXiv finding on agent-skill supply-chain risk. Direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for nearly every non-GitHub source again this run — the same problem flagged in the last two digests — so most items below rest on WebSearch snippets and GitHub's raw/releases endpoints rather than a first-party page read; see Coverage gaps and Inaccessible links.</p>
+
+<h3>Claude Code flips its default permission mode to "Manual"</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
+  <li><strong>TL;DR:</strong> As of v2.1.200 (July 3), a fresh Claude Code install now starts in a permission mode called "Manual" instead of the old "default" mode, across the CLI, VS Code, and JetBrains — you can still opt back into the old behavior with <code>--permission-mode default</code> or a <code>defaultMode</code> setting.</li>
+  <li><strong>What to do:</strong> If you script or run Claude Code unattended (CI, cron, background agents), pin your permission mode explicitly before upgrading, since the new out-of-the-box default may prompt for more actions than you're used to.</li>
+  <li><strong>Why trust it:</strong> Pulled directly from Anthropic's own CHANGELOG.md on GitHub, dated to the v2.1.200 entry for July 3, 2026.</li>
+  <li><strong>Skeptic check:</strong> The changelog names the new default mode but doesn't spell out exactly which actions now require confirmation that didn't before — test a scripted run yourself before assuming automation still passes unattended.</li>
+</ul>
+
+<h3>AskUserQuestion no longer silently times out</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md; corroborated on Hacker News</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
+  <li><strong>TL;DR:</strong> Before v2.1.200, if you didn't answer an <code>AskUserQuestion</code> prompt within about 60 seconds, Claude Code silently filled in empty answers and kept going — undocumented, with no way to turn it off; as of July 3 that auto-continue is off by default and only happens if you opt in.</li>
+  <li><strong>What to do:</strong> Upgrade to v2.1.200, and if you were depending on the old silent-timeout behavior for unattended runs, re-enable it explicitly rather than assuming it still happens.</li>
+  <li><strong>Why trust it:</strong> The fix is documented in Anthropic's own changelog; the prior undocumented behavior was independently surfaced and discussed in a <a href="https://news.ycombinator.com/item?id=48765630">Hacker News thread</a> and a linked GitHub issue, where a Claude Code maintainer confirmed the change was coming.</li>
+  <li><strong>Skeptic check:</strong> The Hacker News discussion's exact point count couldn't be verified this run (the Algolia API was blocked), so treat "notable engagement" as approximate, not a confirmed high-ranking front-page thread.</li>
+</ul>
+
+<h3>Claude Code changes how it injects reminders for Sonnet 5</h3>
+<ul>
+  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.201, GitHub</a></li>
+  <li><strong>TL;DR:</strong> v2.1.201 (July 3) stops Claude Code from delivering harness reminders to Sonnet 5 sessions via a synthetic mid-conversation "system"-role turn; the changelog names the change but not what replaced it.</li>
+  <li><strong>What to do:</strong> If you build tooling that parses Claude Code transcripts or mimics its old reminder-injection pattern for Sonnet 5, re-check it against real sessions rather than assuming the old system-role turn still appears.</li>
+  <li><strong>Why trust it:</strong> Directly from Anthropic's CHANGELOG.md, dated to the v2.1.201 entry for July 3, 2026.</li>
+  <li><strong>Skeptic check:</strong> This is a single unexplained changelog line — treat any theory about why the change was made, or exactly what replaced the old mechanism, as inferred rather than confirmed.</li>
+</ul>
+
+<h3>Alibaba bans Claude Code after researcher finds hidden detection code</h3>
+<ul>
+  <li><strong>Source:</strong> Multiple outlets (SCMP, Cybernews, The Information) reporting on a researcher's reverse-engineering of the Claude Code binary; Anthropic's response via an employee statement</li>
+  <li><strong>Link:</strong> <a href="https://www.scmp.com/tech/big-tech/article/3359375/alibaba-bans-staff-using-claude-code-over-anthropic-spyware-concerns">Alibaba bans staff from using Claude Code over Anthropic "spyware" concerns — SCMP</a></li>
+  <li><strong>TL;DR:</strong> Alibaba banned staff from using Claude Code (effective July 10) after a researcher reported that, since v2.1.91, it silently checked the user's timezone and proxy settings against a list of Chinese company and AI-lab domains, and on a match swapped the apostrophe in its injected "Today's date is" context string for one of three near-identical Unicode characters — a signal invisible to the user but readable server-side; Anthropic says the code was a March anti-distillation experiment and has since removed it.</li>
+  <li><strong>What to do:</strong> If your own harness injects context strings (dates, environment info, reminders) into the model's input, don't use invisible character substitutions for out-of-band signaling — treat this story as the cautionary example of what happens once it's discovered.</li>
+  <li><strong>Why trust it:</strong> The technical details are corroborated across several independent press outlets summarizing a named researcher's reverse-engineering write-up, plus a reported Anthropic-employee acknowledgment and a since-merged removal commit, but none of those primary artifacts could be loaded directly this run.</li>
+  <li><strong>Skeptic check:</strong> Every source here is secondary — the original reverse-engineering post, Anthropic's full statement, and the actual removal diff were all unreachable this run, so treat specifics like the exact domain list and Unicode substitutions as reported, not independently confirmed.</li>
+</ul>
+
+<h3>Let the model pick its own cheaper subagent</h3>
+<ul>
+  <li><strong>Source:</strong> Simon Willison</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jul/3/judgement/">Fable's judgement — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Instead of hardcoding rules for when to use a cheaper subagent model, a tip from Claude Code team members is to tell the top-level model to use its own judgment — e.g. "use your judgement to decide an appropriate lower-power model and run that in a subagent" — and let it pick Sonnet for real implementation work and Haiku for trivial mechanical edits.</li>
+  <li><strong>What to do:</strong> Add a judgment-based delegation instruction to your own agent's system prompt instead of a hardcoded model-selection rule, and keep reviewing subagent output in the main loop before committing.</li>
+  <li><strong>Why trust it:</strong> Willison reports this secondhand from a fireside chat with two Claude Code team members (Cat Wu, Thariq Shihipar), describing a workflow he tried himself, not a controlled study.</li>
+  <li><strong>Skeptic check:</strong> This is one practitioner's anecdotal account of a single workflow, with no before/after cost or quality numbers given.</li>
+</ul>
+
+<h3>Cursor lets teams share MCP servers org-wide</h3>
+<ul>
+  <li><strong>Source:</strong> Cursor changelog (via secondary summary)</li>
+  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog</a></li>
+  <li><strong>TL;DR:</strong> Cursor now lets admins configure a Team MCP server once and have it automatically available across cloud agents, the agents window, the IDE, and the CLI, with access restrictable by org-wide groups rather than just per-team.</li>
+  <li><strong>What to do:</strong> If you're managing MCP servers across a team in Cursor, move shared server configs to the new Team MCP setting instead of having each developer configure them individually.</li>
+  <li><strong>Why trust it:</strong> Reported consistently across independent search results this run, but the changelog page itself could not be loaded directly (blocked), so details come from indexed snippets, not a first-party read.</li>
+  <li><strong>Skeptic check:</strong> The exact date and the precise scope of org-level versus team-level groups wasn't independently confirmed — verify against cursor.com/changelog directly before assuming exact behavior.</li>
+</ul>
+
+<h3>Third-party agent skills carry hidden dependency risk</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv (Jia, Zhao, He, Zhou)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.01136">Skills Are Not Islands: Measuring Dependency and Risk in Agent Skill Supply Chains — arXiv</a></li>
+  <li><strong>TL;DR:</strong> A study of reusable agent "skills" (the kind of capability package Claude Code and similar harnesses install) found that most of their third-party package exposure — about 72% of npm-based dependencies and 73% of PyPI-based ones — comes from a skill quietly pulling in other skills, not from packages its author declared directly, and roughly 30% of skills with dependencies contain a circular reference.</li>
+  <li><strong>What to do:</strong> Before installing a third-party skill or plugin into your agent harness, audit its full transitive dependency tree — skills that depend on other skills — instead of just its declared top-level dependencies.</li>
+  <li><strong>Why trust it:</strong> Researchers measured actual dependency graphs across a skill corpus and reported specific percentages, though the exact corpus size and full methodology weren't confirmed since the paper itself couldn't be loaded directly this run.</li>
+  <li><strong>Skeptic check:</strong> Without the full paper, the sample size and what counts as a "skill" in their corpus (Claude Code skills specifically, or a broader category) is unconfirmed.</li>
+</ul>
+
+<h2>Footer</h2>
+<ul>
+  <li><strong>Sources used today:</strong> Anthropic (Claude Code CHANGELOG.md via GitHub raw), Hacker News, SCMP/Cybernews/The Information (via secondary reconstruction of the Alibaba/Claude Code story), Simon Willison, Cursor changelog (via secondary reconstruction), arXiv.</li>
+  <li><strong>Skipped:</strong> 3 pre-window vendor items that landed just before this window opened and were presumably already covered (Claude Sonnet 5 launch, Fable 5 re-deployment, GPT-5.6 preview), 2 opinion-only Hacker News threads with no independent evidence (a general Sonnet 5 reaction thread and speculation about a Chinese model's training hardware), 2 arXiv papers without confirmed empirical backing (a proposed evaluator-drift measurement protocol and a "loop specification" prompting proposal with no reported benchmark), 1 dataset/landscape roundup out of scope for this beat (Simon Willison's Open Source AI Gap Map post), 1 economic-impact anecdote with no methodology (a course creator's revenue-drop quote), and 1 library release with no prompt/harness relevance (Hugging Face transformers v5.13.0's new model support).</li>
+  <li><strong>Coverage gaps:</strong> direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for essentially every non-GitHub source this run — Anthropic's own sites, Cursor, Windsurf, OpenAI, Google DeepMind, Hugging Face's blog, simonwillison.net, arxiv.org, Hacker News' Algolia API, and all six target subreddits were all blocked, continuing the same pattern flagged in the last two digests. Latent Space, Interconnects, Hamel Husain, Eugene Yan, and Chip Huyen again showed no indexed activity in the window — a stretch now spanning multiple consecutive runs for at least the last three of those.</li>
+  <li><strong>Inaccessible links:</strong>
+    <ul>
+      <li><a href="https://www.anthropic.com/news">anthropic.com/news</a> and <a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check for any in-window Anthropic posts beyond the GitHub changelog.</li>
+      <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to verify the exact date and scope of the Team MCP feature firsthand.</li>
+      <li><a href="https://arxiv.org/abs/2607.01136">arxiv.org/abs/2607.01136</a> — 403 — wanted to confirm the sample size and methodology behind the skill-dependency percentages.</li>
+      <li><a href="https://www.reddit.com/r/ClaudeCode/">reddit.com</a> (all six target subreddits, JSON API and old.reddit.com) — blocked at the proxy level — wanted to check today's top posts for anything the other searches missed.</li>
+      <li><a href="https://news.ycombinator.com/">news.ycombinator.com</a> and the HN Algolia API — 403/blocked — wanted to confirm the point count on the AskUserQuestion discussion thread.</li>
+      <li><a href="https://simonwillison.net/2026/Jul/3/judgement/">simonwillison.net</a> — 403 — wanted to quote the "Fable's judgement" post directly rather than rely on a secondary summary.</li>
+    </ul>
+  </li>
+</ul>
+
+</body>
+</html>
