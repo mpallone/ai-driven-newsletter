@@ -3,100 +3,125 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="published" content="2026-07-04T11:14:38Z">
-  <title>AI Tools Digest — 2026-07-04, 7 items</title>
+  <meta name="published" content="2026-07-06T11:14:46Z">
+  <title>AI Tools Digest — 2026-07-06, 8 items</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-<h1>AI Tools Digest — 2026-07-04, 7 items</h1>
+<h1>AI Tools Digest — 2026-07-06, 8 items</h1>
 <nav><a href="archive/">Archive</a></nav>
 
-<p class="window-note">Window: 2026-07-03T11:13:29Z – 2026-07-04T11:03:38Z (24 hours, since the last digest). Seven items made the cut: two Claude Code point releases with real automation implications, a thinly-corroborated but fascinating story about hidden context-signaling code Anthropic just removed, one practitioner tip on subagent delegation, one Cursor team-MCP feature, and one arXiv finding on agent-skill supply-chain risk. Direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for nearly every non-GitHub source again this run — the same problem flagged in the last two digests — so most items below rest on WebSearch snippets and GitHub's raw/releases endpoints rather than a first-party page read; see Coverage gaps and Inaccessible links.</p>
+<p class="window-note">Window: 2026-07-04T11:14:38Z – 2026-07-06T11:14:46Z (~48 hours, since the last digest). Eight items made the cut: a vendor MCP/subagent permission change, a harness-engineering bug report about newer Claude models mangling a custom tool schema, a maintainer's dollar-denominated account of an AI-driven release review that caught a real bug, a large-sample anomaly in GPT-5.5 Codex's reasoning-token counts, a Claude Code bug report whose real lesson is about context compaction rather than the "leak" framing it started with, and three arXiv findings on benchmark reliability, long-session context rot, and RAG chunking. Direct WebFetch (including the <code>r.jina.ai</code> fallback) again returned policy-level 403s for nearly every non-GitHub domain — the same problem flagged in the last three digests — so most items rest on WebSearch snippets and directly-fetched GitHub issue threads rather than a first-party page read; see Coverage gaps and Inaccessible links.</p>
 
-<h3>Claude Code flips its default permission mode to "Manual"</h3>
+<h3>Devin Desktop scopes MCP grants per server</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
-  <li><strong>TL;DR:</strong> As of v2.1.200 (July 3), a fresh Claude Code install now starts in a permission mode called "Manual" instead of the old "default" mode, across the CLI, VS Code, and JetBrains — you can still opt back into the old behavior with <code>--permission-mode default</code> or a <code>defaultMode</code> setting.</li>
-  <li><strong>What to do:</strong> If you script or run Claude Code unattended (CI, cron, background agents), pin your permission mode explicitly before upgrading, since the new out-of-the-box default may prompt for more actions than you're used to.</li>
-  <li><strong>Why trust it:</strong> Pulled directly from Anthropic's own CHANGELOG.md on GitHub, dated to the v2.1.200 entry for July 3, 2026.</li>
-  <li><strong>Skeptic check:</strong> The changelog names the new default mode but doesn't spell out exactly which actions now require confirmation that didn't before — test a scripted run yourself before assuming automation still passes unattended.</li>
+  <li><strong>Source:</strong> Devin Desktop (formerly Windsurf, now under Cognition) changelog — via secondary search summary</li>
+  <li><strong>Link:</strong> <a href="https://windsurf.com/changelog/windsurf-next">Windsurf / Devin Desktop changelog</a></li>
+  <li><strong>TL;DR:</strong> Devin Desktop shipped changes giving subagents their own default-model setting and direct MCP tool access, and letting users grant MCP tool permissions per-server rather than per-tool, with grants that persist across sessions instead of re-prompting every time.</li>
+  <li><strong>What to do:</strong> If you're designing subagent configs or MCP permission UX in your own harness, check whether per-tool re-prompting (versus a per-server, session-persistent grant) is the friction point users complain about, and consider giving subagents an independent model + MCP-access setting instead of inheriting the parent agent's.</li>
+  <li><strong>Why trust it:</strong> The details come from the vendor's own changelog language (feature-existence claims, not a benchmark), corroborated across several independently-phrased search queries returning consistent specifics, but the page itself could not be fetched directly this run.</li>
+  <li><strong>Skeptic check:</strong> The changelog aggregates many dated entries behind one "last updated" timestamp — some of these items may have shipped a few days before July 4 rather than on the date implied here; verify against the live page before treating the timing as settled.</li>
 </ul>
 
-<h3>AskUserQuestion no longer silently times out</h3>
+<h3>Newer Claude models mangle custom tool schemas</h3>
 <ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md; corroborated on Hacker News</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.200, GitHub</a></li>
-  <li><strong>TL;DR:</strong> Before v2.1.200, if you didn't answer an <code>AskUserQuestion</code> prompt within about 60 seconds, Claude Code silently filled in empty answers and kept going — undocumented, with no way to turn it off; as of July 3 that auto-continue is off by default and only happens if you opt in.</li>
-  <li><strong>What to do:</strong> Upgrade to v2.1.200, and if you were depending on the old silent-timeout behavior for unattended runs, re-enable it explicitly rather than assuming it still happens.</li>
-  <li><strong>Why trust it:</strong> The fix is documented in Anthropic's own changelog; the prior undocumented behavior was independently surfaced and discussed in a <a href="https://news.ycombinator.com/item?id=48765630">Hacker News thread</a> and a linked GitHub issue, where a Claude Code maintainer confirmed the change was coming.</li>
-  <li><strong>Skeptic check:</strong> The Hacker News discussion's exact point count couldn't be verified this run (the Algolia API was blocked), so treat "notable engagement" as approximate, not a confirmed high-ranking front-page thread.</li>
+  <li><strong>Source:</strong> Armin Ronacher (lucumr.pocoo.org), relayed by Simon Willison</li>
+  <li><strong>Link:</strong> <a href="https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/">Better Models, Worse Tools — Armin Ronacher</a></li>
+  <li><strong>TL;DR:</strong> When Ronacher's own agent harness calls a custom edit tool shaped as an <code>edits[]</code> array with <code>oldText</code>/<code>newText</code> fields — different from Claude Code's flat <code>old_string</code>/<code>new_string</code> — Opus 4.8 and Sonnet 5 invent extra fields that aren't in the schema (like <code>type</code>, <code>id</code>, <code>matchCase</code>) and get the tool call rejected; about 20% of complex, multi-turn edits fail this way, and it's worse on the newer models than on older ones.</li>
+  <li><strong>What to do:</strong> If your harness's edit-tool schema doesn't mirror Claude Code's flat old-string/new-string shape, test it directly against the exact model version under real multi-turn history rather than assuming newer models are more schema-compliant; stripping thinking blocks from conversation history roughly halved Ronacher's failure rate, and enabling strict tool-call validation eliminated it entirely.</li>
+  <li><strong>Why trust it:</strong> First-hand account from Ronacher (creator of Flask/Jinja2/Werkzeug, now building agentic coding tools) based on his own harness's production failure logs and reproduction runs, relayed without rebuttal by Willison the same day.</li>
+  <li><strong>Skeptic check:</strong> This is one team's harness and one schema shape, not a controlled multi-harness benchmark — the ~20% figure may not transfer to a differently-shaped schema, and neither page could be fetched directly this run to confirm exact wording.</li>
 </ul>
 
-<h3>Claude Code changes how it injects reminders for Sonnet 5</h3>
-<ul>
-  <li><strong>Source:</strong> Anthropic — Claude Code CHANGELOG.md</li>
-  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code CHANGELOG — v2.1.201, GitHub</a></li>
-  <li><strong>TL;DR:</strong> v2.1.201 (July 3) stops Claude Code from delivering harness reminders to Sonnet 5 sessions via a synthetic mid-conversation "system"-role turn; the changelog names the change but not what replaced it.</li>
-  <li><strong>What to do:</strong> If you build tooling that parses Claude Code transcripts or mimics its old reminder-injection pattern for Sonnet 5, re-check it against real sessions rather than assuming the old system-role turn still appears.</li>
-  <li><strong>Why trust it:</strong> Directly from Anthropic's CHANGELOG.md, dated to the v2.1.201 entry for July 3, 2026.</li>
-  <li><strong>Skeptic check:</strong> This is a single unexplained changelog line — treat any theory about why the change was made, or exactly what replaced the old mechanism, as inferred rather than confirmed.</li>
-</ul>
-
-<h3>Alibaba bans Claude Code after researcher finds hidden detection code</h3>
-<ul>
-  <li><strong>Source:</strong> Multiple outlets (SCMP, Cybernews, The Information) reporting on a researcher's reverse-engineering of the Claude Code binary; Anthropic's response via an employee statement</li>
-  <li><strong>Link:</strong> <a href="https://www.scmp.com/tech/big-tech/article/3359375/alibaba-bans-staff-using-claude-code-over-anthropic-spyware-concerns">Alibaba bans staff from using Claude Code over Anthropic "spyware" concerns — SCMP</a></li>
-  <li><strong>TL;DR:</strong> Alibaba banned staff from using Claude Code (effective July 10) after a researcher reported that, since v2.1.91, it silently checked the user's timezone and proxy settings against a list of Chinese company and AI-lab domains, and on a match swapped the apostrophe in its injected "Today's date is" context string for one of three near-identical Unicode characters — a signal invisible to the user but readable server-side; Anthropic says the code was a March anti-distillation experiment and has since removed it.</li>
-  <li><strong>What to do:</strong> If your own harness injects context strings (dates, environment info, reminders) into the model's input, don't use invisible character substitutions for out-of-band signaling — treat this story as the cautionary example of what happens once it's discovered.</li>
-  <li><strong>Why trust it:</strong> The technical details are corroborated across several independent press outlets summarizing a named researcher's reverse-engineering write-up, plus a reported Anthropic-employee acknowledgment and a since-merged removal commit, but none of those primary artifacts could be loaded directly this run.</li>
-  <li><strong>Skeptic check:</strong> Every source here is secondary — the original reverse-engineering post, Anthropic's full statement, and the actual removal diff were all unreachable this run, so treat specifics like the exact domain list and Unicode substitutions as reported, not independently confirmed.</li>
-</ul>
-
-<h3>Let the model pick its own cheaper subagent</h3>
+<h3>AI review catches sqlite-utils data-loss bug</h3>
 <ul>
   <li><strong>Source:</strong> Simon Willison</li>
-  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jul/3/judgement/">Fable's judgement — Simon Willison</a></li>
-  <li><strong>TL;DR:</strong> Instead of hardcoding rules for when to use a cheaper subagent model, a tip from Claude Code team members is to tell the top-level model to use its own judgment — e.g. "use your judgement to decide an appropriate lower-power model and run that in a subagent" — and let it pick Sonnet for real implementation work and Haiku for trivial mechanical edits.</li>
-  <li><strong>What to do:</strong> Add a judgment-based delegation instruction to your own agent's system prompt instead of a hardcoded model-selection rule, and keep reviewing subagent output in the main loop before committing.</li>
-  <li><strong>Why trust it:</strong> Willison reports this secondhand from a fireside chat with two Claude Code team members (Cat Wu, Thariq Shihipar), describing a workflow he tried himself, not a controlled study.</li>
-  <li><strong>Skeptic check:</strong> This is one practitioner's anecdotal account of a single workflow, with no before/after cost or quality numbers given.</li>
+  <li><strong>Link:</strong> <a href="https://simonwillison.net/2026/Jul/5/sqlite-utils-fable/">Shipping sqlite-utils 4.0 with Claude Fable — Simon Willison</a></li>
+  <li><strong>TL;DR:</strong> Willison had Claude's top-tier "Fable" model drive nearly the entire sqlite-utils 4.0 release — 37 prompts across 34 commits touching 30 files (+1,321/−190 lines) — at a measured cost of about $149.25 in unsubsidized API pricing, and a separate pre-release review pass by the same model caught a real data-loss bug: a <code>delete_where()</code> call that never committed and poisoned the database connection.</li>
+  <li><strong>What to do:</strong> Add a dedicated pre-ship review pass with a top-tier model as its own release-checklist step, separate from whatever model wrote the code, and use roughly $150 as a rough cost anchor for what a full small-library agentic review run costs at metered API rates.</li>
+  <li><strong>Why trust it:</strong> First-person account from Willison, the actual maintainer of sqlite-utils, giving a specific, checkable bug plus exact commit/cost counts; corroborated by an independent Hacker News discussion thread citing the same figures.</li>
+  <li><strong>Skeptic check:</strong> This is a single self-reported workflow (n=1), the dollar figure is tied to one task mix and one point-in-time price, and the post couldn't be fetched directly this run — the specific numbers rest on cross-checked search snippets, not a direct read.</li>
 </ul>
 
-<h3>Cursor lets teams share MCP servers org-wide</h3>
+<h3>GPT-5.5 Codex reasoning tokens cluster oddly</h3>
 <ul>
-  <li><strong>Source:</strong> Cursor changelog (via secondary summary)</li>
-  <li><strong>Link:</strong> <a href="https://cursor.com/changelog">Cursor changelog</a></li>
-  <li><strong>TL;DR:</strong> Cursor now lets admins configure a Team MCP server once and have it automatically available across cloud agents, the agents window, the IDE, and the CLI, with access restrictable by org-wide groups rather than just per-team.</li>
-  <li><strong>What to do:</strong> If you're managing MCP servers across a team in Cursor, move shared server configs to the new Team MCP setting instead of having each developer configure them individually.</li>
-  <li><strong>Why trust it:</strong> Reported consistently across independent search results this run, but the changelog page itself could not be loaded directly (blocked), so details come from indexed snippets, not a first-party read.</li>
-  <li><strong>Skeptic check:</strong> The exact date and the precise scope of org-level versus team-level groups wasn't independently confirmed — verify against cursor.com/changelog directly before assuming exact behavior.</li>
+  <li><strong>Source:</strong> GitHub (openai/codex issue analysis), discussed on Hacker News</li>
+  <li><strong>Link:</strong> <a href="https://github.com/openai/codex/issues/30364">GPT-5.5 Codex reasoning-token clustering analysis — GitHub</a></li>
+  <li><strong>TL;DR:</strong> An analysis of 390,195 Codex response records found GPT-5.5 responses land on exactly 516 reasoning tokens (with secondary spikes at 1034 and 1552) far more often than any other model, with that exact-516 rate rising from 0.11% in February to 53.3% in May while the average reasoning-token count fell over the same period — and a small independent reproduction found every one of 4 exact-516 runs on a logic puzzle gave a wrong answer.</li>
+  <li><strong>What to do:</strong> If you route hard tasks to GPT-5.5 in Codex, check the <code>reasoning_output_tokens</code> field in the response — a value landing exactly on 516, 1034, or 1552 is a cheap signal the model may have cut its reasoning short, and worth auto-triggering a re-run or escalation rather than trusting the output as-is.</li>
+  <li><strong>Why trust it:</strong> Large sample (390K records across 865 sessions) with a specific, quantified clustering ratio and a documented trend over time, plus a small independent reproduction showing the same wrong-answer pattern.</li>
+  <li><strong>Skeptic check:</strong> The author explicitly stops short of proving hidden reasoning truncation — this could turn out to be a token-counting or logging artifact rather than genuinely worse reasoning; treat the root cause as unconfirmed until OpenAI comments or a larger controlled study replicates the wrong-answer correlation.</li>
 </ul>
 
-<h3>Third-party agent skills carry hidden dependency risk</h3>
+<h3>Claude Code drops directory rules after compaction</h3>
 <ul>
-  <li><strong>Source:</strong> arXiv (Jia, Zhao, He, Zhou)</li>
-  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.01136">Skills Are Not Islands: Measuring Dependency and Risk in Agent Skill Supply Chains — arXiv</a></li>
-  <li><strong>TL;DR:</strong> A study of reusable agent "skills" (the kind of capability package Claude Code and similar harnesses install) found that most of their third-party package exposure — about 72% of npm-based dependencies and 73% of PyPI-based ones — comes from a skill quietly pulling in other skills, not from packages its author declared directly, and roughly 30% of skills with dependencies contain a circular reference.</li>
-  <li><strong>What to do:</strong> Before installing a third-party skill or plugin into your agent harness, audit its full transitive dependency tree — skills that depend on other skills — instead of just its declared top-level dependencies.</li>
-  <li><strong>Why trust it:</strong> Researchers measured actual dependency graphs across a skill corpus and reported specific percentages, though the exact corpus size and full methodology weren't confirmed since the paper itself couldn't be loaded directly this run.</li>
-  <li><strong>Skeptic check:</strong> Without the full paper, the sample size and what counts as a "skill" in their corpus (Claude Code skills specifically, or a broader category) is unconfirmed.</li>
+  <li><strong>Source:</strong> GitHub (anthropics/claude-code issue tracker)</li>
+  <li><strong>Link:</strong> <a href="https://github.com/anthropics/claude-code/issues/74066">Claude Code issue #74066 — GitHub</a></li>
+  <li><strong>TL;DR:</strong> A user's initial report of an apparent cross-session content leak in an Enterprise zero-data-retention Claude Code session turned out, on reading the actual thread, to have a more mundane and still-useful explanation: Claude Code was launched from one directory while operating in another, and after a context-compaction event it "forgot" the earlier instruction not to touch the launch directory.</li>
+  <li><strong>What to do:</strong> Don't rely on an instruction given earlier in a long session to survive <code>/compact</code> — re-state hard directory or scope constraints after compaction, and use permission/sandbox controls rather than prompt-based restrictions for anything security-sensitive; if you see unexplained content in a session, check the local transcript at <code>~/.claude/projects/&lt;encoded-cwd&gt;/&lt;session-id&gt;.jsonl</code> before assuming a cross-tenant leak.</li>
+  <li><strong>Why trust it:</strong> The GitHub issue was fetched directly this run, including the reporter's own follow-up narrowing the cause and a triage comment distinguishing local context bleed from a genuine cross-account leak.</li>
+  <li><strong>Skeptic check:</strong> Anthropic hasn't posted an official root-cause confirmation as of this writing — treat "instruction lost after compaction" as the most likely explanation from the thread itself, not a vendor-confirmed diagnosis.</li>
 </ul>
+
+<h3>Coding-agent benchmarks don't reproduce across machines</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv (Chen, Sun, Shi, Lo, Jiang)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.01211">Are Performance-Optimization Benchmarks Reliably Measuring Coding Agents? — arXiv</a></li>
+  <li><strong>TL;DR:</strong> If you're picking a coding agent based on published "makes code faster" benchmark scores (GSO, SWE-Perf, SWE-fficiency), be skeptical of the numbers — when researchers re-ran the benchmarks' own official correct-answer patches on different cloud machines, most failed to reproduce as valid on at least one machine type, meaning a good chunk of what looks like measured optimization skill is really machine-to-machine noise in how the benchmark is scored.</li>
+  <li><strong>What to do:</strong> Don't rank coding agents by a single reported score on these performance-optimization benchmarks; if you build or rely on one yourself, re-run the reference solutions on your own target hardware before trusting the pass/fail bar.</li>
+  <li><strong>Why trust it:</strong> Researchers replayed the official reference patches for 740 tasks across 4 Google Cloud machine types; the patches only reproduced as valid on every machine for 39 of 102 GSO tasks, 11 of 140 SWE-Perf tasks, and 411 of 498 SWE-fficiency tasks.</li>
+  <li><strong>Skeptic check:</strong> This tests specific Google Cloud machine types — if benchmark maintainers use a more controlled or consistent environment than the ones tested here, real-world score noise could be lower than this suggests.</li>
+</ul>
+
+<h3>Long search sessions make models give up</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv (Xia, Wang, Huang, Liu)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2606.29718">Diagnosing and Mitigating Context Rot in Long-horizon Search — arXiv</a></li>
+  <li><strong>TL;DR:</strong> In long research/search-agent sessions, models don't just get confused as context piles up — they increasingly give up or hedge with non-answers, and it gets worse the longer the session runs; the researchers tested several context-management tactics (pruning, summarization-style approaches, and a "rot-aware filtering" method) and found some genuinely reduce the give-up behavior while others just add cost without helping.</li>
+  <li><strong>What to do:</strong> If you run long agentic search or research sessions, don't assume more accumulated context is free — build in active pruning or rot-aware filtering of old context rather than letting it grow unchecked, especially in sessions many tool-call rounds deep.</li>
+  <li><strong>Why trust it:</strong> Tested across four flagship open-source models and three long-horizon search benchmarks, with controlled experiments isolating the effect of accumulated context length and seven different context-management methods compared head to head.</li>
+  <li><strong>Skeptic check:</strong> Tested only on open-source models — it's unconfirmed whether frontier closed models show the same give-up pattern or benefit from the same mitigations, and exact per-method numbers couldn't be independently verified this run.</li>
+</ul>
+
+<h3>Fancy semantic chunking doesn't beat simple splits</h3>
+<ul>
+  <li><strong>Source:</strong> arXiv (Kreileder, Reisinger, Fischer)</li>
+  <li><strong>Link:</strong> <a href="https://arxiv.org/abs/2607.01852">Evaluating Chunking Strategies for Retrieval-Augmented Generation on Academic Texts — arXiv</a></li>
+  <li><strong>TL;DR:</strong> For RAG over long structured documents like academic papers or theses, fancier cluster-based semantic chunking did not beat plain fixed-size or recursive chunking on retrieval or answer quality in this test — and the popular RAGAs "faithfulness" score turned out to be unreliable in the same setup, so a good faithfulness number shouldn't be trusted without a manual check.</li>
+  <li><strong>What to do:</strong> Don't reach for semantic or cluster-based chunking by default on long structured documents — start with simple fixed-size or recursive chunking, and manually spot-check a sample of RAGAs faithfulness scores rather than trusting the metric alone.</li>
+  <li><strong>Why trust it:</strong> The researchers compared the three chunking strategies on long structured academic texts and scored results with the RAGAs framework, though the exact question count and corpus size weren't recoverable from search snippets this run.</li>
+  <li><strong>Skeptic check:</strong> Results are specific to long, heavily structured academic documents — they may not transfer to short technical docs, code, or chat logs, and a single embedding/retriever choice could be confounding the chunking comparison itself.</li>
+</ul>
+
+<div class="meta">
+<h2>Meta</h2>
+
+<h3>Candidate sources</h3>
+<ul>
+  <li><a href="https://lucumr.pocoo.org/">Armin Ronacher — lucumr.pocoo.org</a>: surfaced via Simon Willison's linkblog relaying Ronacher's "Better Models, Worse Tools" post. Creator of Flask/Jinja2/Werkzeug, now building agentic coding tools (the "Pi" harness inside OpenClaw). Track record signal: unknown as a digest source specifically, but the one post seen this run had exactly the profile this digest wants — specific model versions, a quantified failure rate, and falsifiable before/after mitigation data. Worth tracking directly rather than waiting for Willison to relay him.</li>
+</ul>
+
+<h3>Prompt friction</h3>
+<ul>
+  <li>Direct WebFetch (including the <code>r.jina.ai</code> fallback) failed with policy-level 403s across every non-GitHub domain again this run — now at least three consecutive runs with the same failure, confirmed via the proxy's own status endpoint logging <code>connect_rejected</code> for simonwillison.net, arxiv.org, news.ycombinator.com, reddit.com, and even neutral control domains. This is a session/environment egress-policy issue, not a per-site block, and it's capping every run at WebSearch-snippet-only sourcing for non-GitHub content. No prompt rewording fixes a network policy block — this needs allowlisting these research domains at the environment level.</li>
+  <li>Reddit was explicitly refused by the fetch tool this run (distinct from a 403) — zero verified Reddit items for at least a second consecutive run. If this persists, consider dropping the six target subreddits from the seed list until access is restored, since searches scoped to them consistently return only meta/stats pages rather than actual ranked posts.</li>
+</ul>
+</div>
 
 <h2>Footer</h2>
 <ul>
-  <li><strong>Sources used today:</strong> Anthropic (Claude Code CHANGELOG.md via GitHub raw), Hacker News, SCMP/Cybernews/The Information (via secondary reconstruction of the Alibaba/Claude Code story), Simon Willison, Cursor changelog (via secondary reconstruction), arXiv.</li>
-  <li><strong>Skipped:</strong> 3 pre-window vendor items that landed just before this window opened and were presumably already covered (Claude Sonnet 5 launch, Fable 5 re-deployment, GPT-5.6 preview), 2 opinion-only Hacker News threads with no independent evidence (a general Sonnet 5 reaction thread and speculation about a Chinese model's training hardware), 2 arXiv papers without confirmed empirical backing (a proposed evaluator-drift measurement protocol and a "loop specification" prompting proposal with no reported benchmark), 1 dataset/landscape roundup out of scope for this beat (Simon Willison's Open Source AI Gap Map post), 1 economic-impact anecdote with no methodology (a course creator's revenue-drop quote), and 1 library release with no prompt/harness relevance (Hugging Face transformers v5.13.0's new model support).</li>
-  <li><strong>Coverage gaps:</strong> direct WebFetch (including the <code>r.jina.ai</code> fallback) returned HTTP 403 for essentially every non-GitHub source this run — Anthropic's own sites, Cursor, Windsurf, OpenAI, Google DeepMind, Hugging Face's blog, simonwillison.net, arxiv.org, Hacker News' Algolia API, and all six target subreddits were all blocked, continuing the same pattern flagged in the last two digests. Latent Space, Interconnects, Hamel Husain, Eugene Yan, and Chip Huyen again showed no indexed activity in the window — a stretch now spanning multiple consecutive runs for at least the last three of those.</li>
+  <li><strong>Sources used today:</strong> Devin Desktop / Windsurf changelog (via secondary search summary), Armin Ronacher (lucumr.pocoo.org, via Simon Willison's relay and search-snippet corroboration), Simon Willison (simonwillison.net), Hacker News (via the GitHub issue threads it referenced), GitHub (openai/codex and anthropics/claude-code issue trackers, fetched directly), arXiv (3 papers, via search snippets).</li>
+  <li><strong>Skipped:</strong> ~10 pre-window vendor/changelog items (Cursor Bugbot update, Cursor Composer 2.5, Cursor Team/iOS launches, GPT-5.6 caching preview, OpenAI Codex security fix, Hugging Face transformers v5.13.0 and two eval posts, Claude Code changelog v2.1.197–201, an MCP spec release candidate), ~10 out-of-window arXiv papers (including "Skills Are Not Islands," already covered in the last digest, plus "Recursive Agent Harnesses," "Capacity, Not Format," "The Ringelmann Effect in Multi-Agent LLM Systems," "The Cost of Consensus," an AGENTS.md efficiency study, and a DREAM eval paper), 4 out-of-window security-incident stories (a Microsoft poisoned-MCP-tool-description writeup, a ransomware-via-AI-agent report, an "agentjacking" RCE writeup, and a Cursor terminal-sandbox-escape CVE disclosure), 1 sub-200-point Show HN post on a context-search tool, 1 aggregator date-mixup false positive (a Cursor pricing-backlash story actually from June 2025), and 3 out-of-window Simon Willison posts (a DSPy system-prompt-optimization writeup, an <code>llm-coding-agent</code> release, and a subagent-model-delegation tip already covered last digest).</li>
+  <li><strong>Coverage gaps:</strong> direct WebFetch (including the <code>r.jina.ai</code> fallback) returned policy-level 403s for essentially every non-GitHub source this run — Anthropic's own sites, Cursor, Windsurf/Devin, OpenAI, Google DeepMind, Hugging Face's blog, simonwillison.net, latent.space, interconnects.ai, hamel.dev, eugeneyan.com, huyenchip.com, arxiv.org, and Hacker News' Algolia API were all blocked, continuing the pattern flagged in the last three digests. Latent Space, Interconnects, Hamel Husain, Eugene Yan, and Chip Huyen showed zero indexed in-window activity again this run. Reddit (all six target subreddits) was not reachable in any form.</li>
   <li><strong>Inaccessible links:</strong>
     <ul>
-      <li><a href="https://www.anthropic.com/news">anthropic.com/news</a> and <a href="https://www.anthropic.com/engineering">anthropic.com/engineering</a> — 403 — wanted to check for any in-window Anthropic posts beyond the GitHub changelog.</li>
-      <li><a href="https://cursor.com/changelog">cursor.com/changelog</a> — 403 — wanted to verify the exact date and scope of the Team MCP feature firsthand.</li>
-      <li><a href="https://arxiv.org/abs/2607.01136">arxiv.org/abs/2607.01136</a> — 403 — wanted to confirm the sample size and methodology behind the skill-dependency percentages.</li>
-      <li><a href="https://www.reddit.com/r/ClaudeCode/">reddit.com</a> (all six target subreddits, JSON API and old.reddit.com) — blocked at the proxy level — wanted to check today's top posts for anything the other searches missed.</li>
-      <li><a href="https://news.ycombinator.com/">news.ycombinator.com</a> and the HN Algolia API — 403/blocked — wanted to confirm the point count on the AskUserQuestion discussion thread.</li>
-      <li><a href="https://simonwillison.net/2026/Jul/3/judgement/">simonwillison.net</a> — 403 — wanted to quote the "Fable's judgement" post directly rather than rely on a secondary summary.</li>
+      <li><a href="https://windsurf.com/changelog/windsurf-next">windsurf.com/changelog/windsurf-next</a> — 403 — wanted to confirm the exact date of the MCP/subagent permission changes.</li>
+      <li><a href="https://lucumr.pocoo.org/2026/7/4/better-models-worse-tools/">lucumr.pocoo.org</a> — 403 — wanted to confirm the post's timestamp against the window and read the full failure analysis firsthand.</li>
+      <li><a href="https://simonwillison.net/2026/Jul/5/sqlite-utils-fable/">simonwillison.net</a> — 403 — wanted to verify the $149.25 figure and full review write-up directly rather than via search snippets.</li>
+      <li><a href="https://news.ycombinator.com/item?id=48789428">news.ycombinator.com</a> (GPT-5.5 Codex thread) and the HN Algolia API — 403/blocked — wanted to confirm the actual point count on the reasoning-token-clustering discussion.</li>
+      <li><a href="https://arxiv.org/abs/2607.01211">arxiv.org</a> (all three cited papers) — 403 — wanted to read the full papers and results tables rather than rely on search-snippet summaries.</li>
+      <li><a href="https://www.reddit.com/r/ClaudeCode/">reddit.com</a> (all six target subreddits) — explicitly refused by the fetch tool — wanted to check today's top posts for anything the other searches missed.</li>
     </ul>
   </li>
 </ul>
